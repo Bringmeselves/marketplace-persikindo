@@ -17,31 +17,23 @@ class User extends Authenticatable implements MustVerifyEmail
      * Atribut yang dapat diisi massal.
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'user_id',
+        'status',
+        'bukti_pendaftaran',
+        'tanggal_pengajuan',
+        'nama_perusahaan',
+        'legalitas',
+        'nib',
+        'npwp',
+        'sertifikat_halal',
+        'pirt',
     ];
 
     /**
-     * Atribut yang disembunyikan saat model diubah jadi array atau JSON.
+     * Get the user that owns the Anggota.
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * Atribut yang perlu dikonversi ke tipe data khusus.
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    /**
-     * Relasi ke model Anggota (jika satu user bisa jadi anggota).
-     */
-    public function anggota()
+    public function user()
     {
-        return $this->hasOne(Anggota::class);
+        return $this->belongsTo(User::class);
     }
 }

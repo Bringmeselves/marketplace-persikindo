@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('no_hp');
             $table->string('bukti_pendaftaran')->nullable(); // path bukti pendaftaran
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
