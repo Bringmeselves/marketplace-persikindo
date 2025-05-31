@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('toko', function (Blueprint $table) {
             $table->id();
             $table->string('nama_toko');
-            $table->string('slug')->unique();
+            $table->string('keterangan')->nullable();
             $table->string('alamat');
+            $table->string('cities')->nullable();
             $table->string('foto_toko')->nullable();
+            $table->string('nomer_wa')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

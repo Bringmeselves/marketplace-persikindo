@@ -3,10 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Models\User; // Pastikan Anda mengimpor model User Anda
-use Illuminate\Support\Facades\Hash; // Untuk mengenkripsi password
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class RoleSeeder extends Seeder
 {
@@ -17,39 +15,59 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // Buat admin user jika belum ada
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'admin',
+            ]
+        );
 
-        // Create roles
-        $adminRole = Role::create(['name' => 'admin']);
-        $userRole = Role::create(['name' => 'user']);
+        // Buat regular user jika belum ada
+        User::firstOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'Regular User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'user',
+            ]
+        );
 
-        // Anda bisa menambahkan permission di sini jika diperlukan
-        // $adminRole->givePermissionTo('edit articles');
-        // $userRole->givePermissionTo('publish articles');
+          // Buat regular user jika belum ada
+        User::firstOrCreate(
+            ['email' => 'user1@example.com'],
+            [
+                'name' => 'Regular User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'user',
+            ]
+        );
 
-        // Create a default admin user
-        $adminUser = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'), // Ganti dengan password yang kuat
-            'email_verified_at' => now(), // Tandai email sudah diverifikasi
-        ]);
+        // Buat anggota user jika belum ada
+        User::firstOrCreate(
+            ['email' => 'anggota@example.com'],
+            [
+                'name' => 'Anggota User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'anggota',
+            ]
+        );
 
-        // Assign the admin role to the admin user
-        $adminUser->assignRole('admin');
-
-        // Create a default regular user
-        $regularUser = User::create([
-            'name' => 'Regular User',
-            'email' => 'user@example.com',
-            'password' => Hash::make('password'), // Ganti dengan password yang kuat
-            'email_verified_at' => now(), // Tandai email sudah diverifikasi
-        ]);
-
-        // Assign the user role to the regular user
-        $regularUser->assignRole('user');
-
-        $this->command->info('Roles and default users created successfully!');
+        // Buat anggota user jika belum ada
+        User::firstOrCreate(
+            ['email' => 'anggota1@example.com'],
+            [
+                'name' => 'Anggota User',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'role' => 'anggota',
+            ]
+        );
     }
 }

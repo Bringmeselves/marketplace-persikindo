@@ -14,7 +14,7 @@ class ProdukController extends Controller
             ->latest()
             ->get();
 
-        return response()->json($produk);
+        return view('admin.produk.index', compact('produk'));
     }
 
     // Menghapus produk siapa pun

@@ -2,22 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements MustVerifyEmail
+class Anggota extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * Atribut yang dapat diisi massal.
-     */
+    protected $table = 'anggota';
+    
     protected $fillable = [
-        'user_id',
+        'user_id', // Relasi ke tabel users
+        'nama_lengkap',
+        'nik',
         'status',
         'bukti_pendaftaran',
         'tanggal_pengajuan',
@@ -30,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Get the user that owns the Anggota.
+     * Relasi belongsTo ke model User.
      */
     public function user()
     {

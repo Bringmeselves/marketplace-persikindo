@@ -7,12 +7,22 @@ use App\Models\Anggota;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class AnggotaController extends Controller
 {
     /**
-     * Menampilkan daftar anggota yang sudah mendaftar.
+     * Constructor: pastikan hanya admin yang dapat mengakses controller ini.
+     */
+    public function __construct()
+    {
+        if (!Auth::check() || Auth::user()->role !== 'admin') {
+            abort(403, 'Akses ditolak. Halaman ini hanya untuk admin.');
+        }
+    }
+
+    /**
+     * Menampilkan daftar semua anggota.
      */
     public function index()
     {
@@ -21,86 +31,102 @@ class AnggotaController extends Controller
     }
 
     /**
-     * Menampilkan form untuk menambahkan anggota baru oleh admin.
+     * Menampilkan daftar anggota yang masih pending.
      */
-    public function create()
+    public function showPendingAnggota()
     {
-        // Ambil user yang belum menjadi anggota
-        $users = User::doesntHave('anggota')->get();
-        return view('admin.anggota.create', compact('users'));
+        $anggotaPending = Anggota::where('status', 'pending')->get();
+        return view('admin.anggota.pending', compact('anggotaPending'));
     }
 
     /**
-     * Menyimpan anggota baru ke database.
+     * Menampilkan detail pengajuan anggota.
      */
-    public function store(Request $request)
+    public function show($id)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:pending,approved,rejected',
-            'bukti_pendaftaran' => 'required|file|mimes:pdf,jpg,jpeg,png',
-            'tanggal_pengajuan' => 'required|date',
-            'tanggal_disetujui' => 'nullable|date',
-            'nama_perusahaan' => 'required|string|max:255',
-            'legalitas' => 'nullable|string|max:255',
-            'nib' => 'nullable|string|max:255',
-            'npwp' => 'nullable|string|max:255',
-            'sertifikat_halal' => 'nullable|string|max:255',
-            'pirt' => 'nullable|string|max:255',
-        ]);
-
-        // Cegah duplikasi anggota pada user
-        if (Anggota::where('user_id', $request->user_id)->exists()) {
-            return back()->withErrors(['user_id' => 'User ini sudah terdaftar sebagai anggota.'])->withInput();
-        }
-
-        // Upload file
-        $path = $request->file('bukti_pendaftaran')->store('bukti_pendaftaran', 'public');
-
-        // Simpan data anggota
-        Anggota::create([
-            'user_id' => $request->user_id,
-            'status' => $request->status,
-            'bukti_pendaftaran' => $path,
-            'tanggal_pengajuan' => $request->tanggal_pengajuan,
-            'tanggal_disetujui' => $request->tanggal_disetujui,
-            'nama_perusahaan' => $request->nama_perusahaan,
-            'legalitas' => $request->legalitas,
-            'nib' => $request->nib,
-            'npwp' => $request->npwp,
-            'sertifikat_halal' => $request->sertifikat_halal,
-            'pirt' => $request->pirt,
-        ]);
-
-        // Beri role 'anggota' ke user (pastikan model User pakai HasRoles)
-        $user = User::find($request->user_id);
-        if (!$user->hasRole('anggota')) {
-            $user->assignRole('anggota');
-        }
-
-        return redirect()->route('admin.anggota.index')->with('success', 'Anggota berhasil ditambahkan!');
+        $anggota = Anggota::with('user')->findOrFail($id);
+        return view('admin.anggota.show', compact('anggota'));
     }
 
     /**
-     * Menghapus data anggota.
+     * Memverifikasi anggota.
+     */
+    public function verify($id)
+    {
+        $anggota = Anggota::findOrFail($id);
+
+        if ($anggota->status !== 'pending') {
+            return redirect()->back()->with('error', 'Anggota ini sudah diverifikasi atau ditolak.');
+        }
+
+        // Update status anggota
+        $anggota->update([
+            'status' => 'approved',
+            'tanggal_disetujui' => now(),
+        ]);
+
+        // Ubah role user menjadi anggota
+        $user = $anggota->user;
+        $user->approved = true; // Set approved menjadi true
+        $user->role = 'anggota'; // Ubah role menjadi anggota
+        $user->save();
+
+        // Perbarui session pengguna
+        Auth::setUser($user);
+
+        return redirect()->route('admin.anggota.index')->with('success', 'Anggota berhasil diverifikasi.');
+    }
+
+    /**
+     * Menolak pengajuan anggota.
+     */
+    public function reject($id)
+    {
+        $anggota = Anggota::findOrFail($id);
+
+        if ($anggota->status !== 'pending') {
+            return redirect()->back()->with('error', 'Anggota ini sudah diverifikasi atau ditolak.');
+        }
+
+        $anggota->update([
+            'status' => 'rejected',
+        ]);
+
+        return redirect()->route('admin.anggota.index')->with('success', 'Pendaftaran anggota berhasil ditolak.');
+    }
+
+    /**
+     * Menghapus data anggota dan file bukti jika ada.
      */
     public function destroy($id)
     {
         $anggota = Anggota::findOrFail($id);
 
-        // Hapus file jika ada
         if ($anggota->bukti_pendaftaran && Storage::disk('public')->exists($anggota->bukti_pendaftaran)) {
             Storage::disk('public')->delete($anggota->bukti_pendaftaran);
         }
 
-        // Cabut role 'anggota' dari user saat data dihapus
         $user = $anggota->user;
-        if ($user && $user->hasRole('anggota')) {
-            $user->removeRole('anggota');
+        if ($user && $user->role === 'anggota') {
+            $user->role = 'user'; // Kembalikan role menjadi user jika anggota dihapus
+            $user->approved = false; // Set approved menjadi false
+            $user->save();
         }
 
         $anggota->delete();
 
         return redirect()->route('admin.anggota.index')->with('success', 'Anggota berhasil dihapus!');
+    }
+
+    /**
+     * Dashboard anggota (jika user disetujui).
+     */
+    public function dashboard()
+    {
+        if (!auth()->user()->approved) {
+            return redirect()->route('user.anggota.create')->with('error', 'Anda belum disetujui sebagai anggota.');
+        }
+
+        return view('dashboard');
     }
 }

@@ -2,22 +2,24 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\User\RegistrasiController as UserRegistrasiController;
-use App\Http\Controllers\Admin\RegistrasiController as AdminRegistrasiController;
+use App\Http\Controllers\User\MarketplaceController as UserMarketplaceController;
 use App\Http\Controllers\User\AnggotaController as UserAnggotaController;
 use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
 use App\Http\Controllers\User\TokoController as UserTokoController;
 use App\Http\Controllers\Admin\TokoController as AdminTokoController;
 use App\Http\Controllers\User\ProdukController as UserProdukController;
 use App\Http\Controllers\Admin\ProdukController as AdminProdukController;
-use App\Http\Controllers\Admin\KategoriController;
-use App\Http\Controllers\User\KategoriController as UserKategoriController;
-
+use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
+use App\Http\Controllers\User\PembelianController as UserPembelianController;
+use App\Http\Controllers\User\CheckoutController as UserCheckoutController;
+use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
+use App\Http\Controllers\User\PembayaranController as UserPembayaranController;
+use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
 
 /*
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------------------
 | Web Routes
-|--------------------------------------------------------------------------
+|---------------------------------------------------------------------------
 */
 
 // Halaman Welcome
@@ -33,63 +35,89 @@ Route::get('/dashboard', function () {
 // Profile (harus login)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// ==========================
-// 📥 Registrasi Anggota - User
-// ==========================
-Route::middleware('auth')->group(function () {
-    Route::get('/registrasi', [UserRegistrasiController::class, 'create'])->name('user.registrasi.create');
-    Route::post('/registrasi', [UserRegistrasiController::class, 'store'])->name('user.registrasi.store');
-});
-
-// ==========================
-// 🔐 Registrasi, Anggota & Toko - Admin
-// ==========================
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
-    Route::get('/registrasi', [AdminRegistrasiController::class, 'index'])->name('registrasi.index');
-    Route::get('/registrasi/{id}', [AdminRegistrasiController::class, 'show'])->name('registrasi.show');
-    Route::post('/registrasi/{id}/status', [AdminRegistrasiController::class, 'updateStatus'])->name('registrasi.updateStatus');
-
-    Route::get('/anggota', [AdminAnggotaController::class, 'index'])->name('anggota.index');
-    Route::get('/anggota/create', [AdminAnggotaController::class, 'create'])->name('anggota.create');
-    Route::post('/anggota', [AdminAnggotaController::class, 'store'])->name('anggota.store');
-    Route::delete('/anggota/{id}', [AdminAnggotaController::class, 'destroy'])->name('anggota.destroy');
-
-    Route::get('/toko', [AdminTokoController::class, 'index'])->name('toko.index');
-    Route::delete('/toko/{id}', [AdminTokoController::class, 'destroy'])->name('toko.destroy');
-
-    Route::get('/produk', [AdminProdukController::class, 'index'])->name('produk.index');
-    Route::delete('/produk/{id}', [AdminProdukController::class, 'destroy'])->name('produk.destroy');
-
-    Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
-    Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
-    Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
-    Route::get('/kategori/{kategori}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
-    Route::put('/kategori/{kategori}', [KategoriController::class, 'update'])->name('kategori.update');
-    Route::delete('/kategori/{kategori}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 });
 
 // ==========================
 // 👤 Routes User untuk Anggota, Toko, Produk
 // ==========================
-Route::prefix('user')->middleware(['auth', 'role:user'])->name('user.')->group(function () {
+Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
+    // Anggota
     Route::get('/anggota/create', [UserAnggotaController::class, 'create'])->name('anggota.create');
     Route::post('/anggota', [UserAnggotaController::class, 'store'])->name('anggota.store');
+    Route::get('/anggota/dashboard', [UserAnggotaController::class, 'dashboard'])->name('anggota.dashboard');
 
-    Route::get('/toko/create', [UserTokoController::class, 'create'])->name('toko.create');
-    Route::post('/toko', [UserTokoController::class, 'store'])->name('toko.store');
+    // Marketplace
+    Route::get('/marketplace', [UserMarketplaceController::class, 'index'])->name('marketplace.index'); // Marketplace
 
-    Route::get('/produk', [UserProdukController::class, 'index'])->name('produk.index');
-    Route::post('/produk', [UserProdukController::class, 'store'])->name('produk.store');
-    Route::put('/produk/{id}', [UserProdukController::class, 'update'])->name('produk.update');
-    Route::delete('/produk/{id}', [UserProdukController::class, 'destroy'])->name('produk.destroy');
+    // Toko
+    Route::get('toko', [UserTokoController::class, 'index'])->name('toko.index'); // Daftar toko
+    Route::get('toko/create', [UserTokoController::class, 'create'])->name('toko.create'); // Form buat toko
+    Route::post('toko', [UserTokoController::class, 'store'])->name('toko.store'); // Simpan toko baru
+    Route::get('toko/{id}/kelola', [UserTokoController::class, 'kelola'])->name('toko.kelola'); // Kelola toko
+    Route::get('toko/{id}/edit', [UserTokoController::class, 'edit'])->name('toko.edit'); // Form edit toko
+    Route::put('toko/{id}', [UserTokoController::class, 'update'])->name('toko.update'); // Update toko
+    Route::delete('toko/{id}', [UserTokoController::class, 'destroy'])->name('toko.destroy'); // Hapus toko
 
-    Route::get('/kategori', [UserKategoriController::class, 'index'])->name('kategori.index');
-    Route::get('/produk/{produkId}/form-kategori', [UserKategoriController::class, 'showForm'])->name('produk.form_kategori');
-    Route::post('/produk/{produkId}/kategori', [UserKategoriController::class, 'store'])->name('produk.store_kategori');
+    // Produk
+    Route::get('/produk', [UserProdukController::class, 'index'])->name('produk.index'); // Daftar produk
+    Route::get('/produk/create/{toko_id}', [UserProdukController::class, 'create'])->name('produk.create'); // Form buat produk
+    Route::post('/produk', [UserProdukController::class, 'store'])->name('produk.store'); // Simpan produk baru
+    Route::get('/produk/{id}/edit', [UserProdukController::class, 'edit'])->name('produk.edit'); // Form edit produk
+    Route::put('/produk/{id}', [UserProdukController::class, 'update'])->name('produk.update'); // Update produk
+    Route::delete('/produk/{id}', [UserProdukController::class, 'destroy'])->name('produk.destroy'); // Hapus produk
+
+    // Pembelian
+    Route::get('/pembelian/{produk_id}', [UserPembelianController::class, 'create'])->name('pembelian.create'); // Form buat transaksi
+    Route::post('/pembelian', [UserPembelianController::class, 'store'])->name('pembelian.store'); // Simpan transaksi baru
+
+    // Checkout
+    Route::get('/checkout', [UserCheckoutController::class, 'create'])->name('checkout.create');
+    Route::put('/checkout/update/{checkoutId}', [UserPengirimanController::class, 'update'])->name('checkout.update');
+
+    // Pengiriman
+    Route::post('/pengiriman', [UserPengirimanController::class, 'store'])->name('pengiriman.store');
+ 
+    // Pembayaran
+    Route::get('/pembayaran/{checkout}/buat', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
+    Route::post('/pembayaran/{checkout}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
+
+    // Transaksi
+    Route::get('/transaksi', [UserTransaksiController::class, 'index'])->name('transaksi.index');
+    Route::get('/transaksi/{id}', [UserTransaksiController::class, 'show'])->name('transaksi.show');
+    Route::post('/transaksi/store/{checkoutId}', [UserTransaksiController::class, 'store'])->name('transaksi.store');
+
+    // Penjualan
+    Route::get('/penjualan', [UserTransaksiController::class, 'penjualan'])->name('transaksi.penjualan');
+});
+
+// ==========================
+// 🔐 Registrasi, Anggota & Toko - Admin
+// ==========================
+Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+    // Anggota
+    Route::get('/anggota', [AdminAnggotaController::class, 'index'])->name('anggota.index');
+    Route::get('/anggota/{id}', [AdminAnggotaController::class, 'show'])->name('anggota.show');
+    Route::post('anggota/{id}/verify', [AdminAnggotaController::class, 'verify'])->name('anggota.verify');
+    Route::post('anggota/{id}/reject', [AdminAnggotaController::class, 'reject'])->name('anggota.reject');
+    Route::delete('anggota/{id}', [AdminAnggotaController::class, 'destroy'])->name('anggota.destroy');
+
+    // Toko
+    Route::get('/toko', [AdminTokoController::class, 'index'])->name('toko.index');
+    Route::delete('/toko/{id}', [AdminTokoController::class, 'destroy'])->name('toko.destroy');
+
+    // Produk
+    Route::get('/produk', [AdminProdukController::class, 'index'])->name('produk.index');
+    Route::delete('/produk/{id}', [AdminProdukController::class, 'destroy'])->name('produk.destroy');
+
+    // Kategori
+    Route::get('/kategori', [AdminKategoriController::class, 'index'])->name('kategori.index');
+    Route::get('/kategori/create', [AdminKategoriController::class, 'create'])->name('kategori.create');
+    Route::post('/kategori', [AdminKategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/{kategori}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/kategori/{kategori}', [AdminKategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{kategori}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
 });
 
 // 🔐 Route otentikasi Laravel Breeze / Fortify

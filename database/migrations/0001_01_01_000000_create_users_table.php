@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('role', ['admin', 'user', 'anggota'])->default('user'); // Tambahkan kolom role
+            $table->boolean('approved')->default(false);
             $table->enum('status', ['aktif', 'banned'])->default('aktif');
             $table->rememberToken();
             $table->timestamps();      // created_at dan updated_at

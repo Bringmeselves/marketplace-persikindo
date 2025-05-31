@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Toko extends Model
 {
@@ -15,9 +14,11 @@ class Toko extends Model
 
     protected $fillable = [
         'nama_toko',
-        'slug',
+        'keterangan',
         'alamat',
+        'cities',
         'foto_toko',
+        'nomer_wa',
         'user_id',
     ];
 
@@ -26,15 +27,15 @@ class Toko extends Model
     ];
 
     /**
-     * Auto generate slug dari nama_toko jika belum diisi
+     * Auto generate keterangan jika belum diisi
      */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($toko) {
-            if (empty($toko->slug)) {
-                $toko->slug = Str::slug($toko->nama_toko);
+            if (empty($toko->keterangan)) {
+                $toko->keterangan = 'Keterangan belum ditambahkan.';
             }
         });
     }
@@ -56,4 +57,17 @@ class Toko extends Model
     {
         return $this->hasMany(Produk::class);
     }
+
+    public function getCityNameAttribute()
+    {
+        $wilayahService = app(\App\Services\WilayahService::class);
+        return optional($wilayahService->getCityById($this->cities))['name'] ?? null;
+    }
+
+    public function getProvinceNameAttribute()
+    {
+        $wilayahService = app(\App\Services\WilayahService::class);
+        return optional($wilayahService->getProvinceById($this->provinces))['name'] ?? null;
+    }
+
 }

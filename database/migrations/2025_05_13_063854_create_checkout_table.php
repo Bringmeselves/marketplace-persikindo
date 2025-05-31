@@ -9,16 +9,16 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('registrasi', function (Blueprint $table) {
+        Schema::create('checkout', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('no_anggota')->nullable(); // opsional, bisa diisi setelah disetujui
-            $table->string('nama_lengkap');
-            $table->string('no_hp');
-            $table->string('bukti_pendaftaran')->nullable(); // path bukti pendaftaran
-            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('toko_id')->constrained('toko')->onDelete('cascade');
+            $table->integer('jumlah');
+            $table->integer('total_harga');
+            $table->enum('status', ['pending', 'dibayar', 'dibatalkan', 'menunggu_pembayaran'])->default('pending');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registrasi');
+        Schema::dropIfExists('checkout');
     }
 };

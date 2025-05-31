@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('anggota', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('nama_lengkap');
+            $table->string('nik');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('bukti_pendaftaran')->nullable();
             $table->timestamp('tanggal_pengajuan')->nullable();

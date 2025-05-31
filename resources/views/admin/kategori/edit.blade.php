@@ -2,19 +2,21 @@
 
 @section('content')
 <div class="container">
-    <h1>Edit Kategori: {{ $kategori->nama_kategori }}</h1>
+    <h1 class="mb-4">Edit Kategori</h1>
 
-    <form action="{{ route('kategori.update', $kategori->id) }}" method="POST">
+    <form action="{{ route('admin.kategori.update', $kategori->id) }}" method="POST">
         @csrf
         @method('PUT')
-
-        <div class="mb-3">
-            <label for="nama_kategori" class="form-label">Nama Kategori</label>
-            <input type="text" name="nama_kategori" id="nama_kategori" class="form-control"
-                   value="{{ old('nama_kategori', $kategori->nama_kategori) }}" required>
+        <div class="form-group">
+            <label for="name">Nama Kategori</label>
+            <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $kategori->name) }}" required>
+            @error('name')
+                <div class="text-danger">{{ $message }}</div>
+            @enderror
         </div>
-
-        <button type="submit" class="btn btn-primary">Update</button>
+        
+        <button type="submit" class="btn btn-warning mt-3">Perbarui</button>
+        <a href="{{ route('admin.kategori.index') }}" class="btn btn-secondary mt-3">Batal</a>
     </form>
 </div>
 @endsection

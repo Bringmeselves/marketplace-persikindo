@@ -11,7 +11,7 @@ class TokoController extends Controller
     // Menampilkan daftar semua toko
     public function index()
     {
-        $toko = Toko::with('user')->get();
+        $toko = Toko::with('user.anggota')->get();
         return view('admin.toko.index', compact('toko'));
     }
 

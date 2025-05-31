@@ -20,6 +20,7 @@ class Produk extends Model
         'gambar',
         'status',
         'user_id',
+        'berat',
         'kategori_id',
         'toko_id',
     ];
@@ -50,5 +51,13 @@ class Produk extends Model
     public function toko()
     {
         return $this->belongsTo(Toko::class);
+    }
+
+    /**
+     * Relasi: Produk memiliki banyak Transaksi
+     */
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class);
     }
 }

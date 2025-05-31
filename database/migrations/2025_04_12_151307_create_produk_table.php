@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('stok')->default(0);
             $table->string('gambar')->nullable(); 
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->unsignedBigInteger('berat')->default(1000);
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('kategori_id');
             $table->unsignedBigInteger('toko_id');

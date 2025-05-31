@@ -9,11 +9,6 @@ use Illuminate\Support\Str;
 
 class KategoriController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth'); // Pastikan hanya admin yang dapat mengakses controller ini
-    }
-
     /**
      * Menampilkan daftar kategori untuk admin.
      *
