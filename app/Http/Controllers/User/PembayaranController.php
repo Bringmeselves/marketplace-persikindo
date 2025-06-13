@@ -16,12 +16,17 @@ class PembayaranController extends Controller
      */
     public function create($checkoutId)
     {
-        // Ambil data checkout milik user saat ini
-        $checkout = Checkout::where('id', $checkoutId)
+        // Ambil data checkout beserta relasi produk, toko, varian, dan pengiriman
+        $checkout = Checkout::with(['produk.toko', 'varian', 'pengiriman'])
+            ->where('id', $checkoutId)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        return view('user.pembayaran.create', compact('checkout'));
+        return view('user.pembayaran.create', [
+            'checkout' => $checkout,
+            'produk' => $checkout->produk,
+            'varian' => $checkout->varian,
+        ]);
     }
 
     /**
@@ -33,35 +38,62 @@ class PembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:50',
         ]);
 
-        $checkout = Checkout::where('id', $checkoutId)
+        $checkout = Checkout::with(['produk', 'varian', 'pengiriman'])
+            ->where('id', $checkoutId)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
+        // Hitung total produk
+        $hargaSatuan = $checkout->varian->harga ?? $checkout->produk->harga;
+        $totalProduk = $hargaSatuan * $checkout->jumlah;
+
+        // Ambil ongkos kirim
+        $ongkir = $checkout->pengiriman->ongkir ?? 0;
+
+        // Total bayar = total produk + ongkir
+        $totalBayar = $totalProduk + $ongkir;
+
+        // Cek dan kurangi stok
+        $jumlah = $checkout->jumlah;
+        $produk = $checkout->produk;
+
+        if ($checkout->varian_id) {
+            $varian = $checkout->varian;
+
+            if ($varian->stok < $jumlah) {
+                return redirect()->back()->with('error', 'Stok varian tidak mencukupi saat pembayaran.');
+            }
+
+            if ($produk->stok < $jumlah) {
+                return redirect()->back()->with('error', 'Stok produk utama tidak mencukupi saat pembayaran.');
+            }
+
+            // Kurangi stok varian dan produk utama
+            $varian->decrement('stok', $jumlah);
+            $produk->decrement('stok', $jumlah);
+        } else {
+            if ($produk->stok < $jumlah) {
+                return redirect()->back()->with('error', 'Stok produk tidak mencukupi saat pembayaran.');
+            }
+
+            $produk->decrement('stok', $jumlah);
+        }
+
+        // Simpan data pembayaran
         Pembayaran::create([
             'user_id' => Auth::id(),
             'checkout_id' => $checkout->id,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'total_bayar' => $checkout->total_harga,
+            'total_bayar' => $totalBayar,
             'status_pembayaran' => 'pending',
         ]);
 
-         // Update status checkout jadi menunggu pembayaran
+        // Update status checkout
         $checkout->update(['status' => 'menunggu_pembayaran']);
 
-        // Kurangi stok produk setelah pembayaran dibuat (atau bisa di sini cek status bayar sudah final)
-        $produk = $checkout->produk;
-        $jumlah = $checkout->jumlah;
-
-        if ($produk->stok < $jumlah) {
-            return redirect()->back()->with('error', 'Stok produk tidak mencukupi saat pembayaran.');
-        }
-
-        $produk->decrement('stok', $jumlah);
-            
-        // Buat transaksi otomatis setelah pembayaran berhasil
+        // Buat transaksi otomatis
         app(TransaksiController::class)->store($checkout->id);
 
-        // Redirect ke halaman daftar transaksi
         return redirect()->route('user.transaksi.index')->with('success', 'Pembayaran berhasil dibuat. Transaksi juga telah dibuat.');
     }
 }

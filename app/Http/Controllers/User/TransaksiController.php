@@ -5,75 +5,77 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
 use App\Models\Checkout;
+use App\Models\Pengiriman;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TransaksiController extends Controller
 {
-    // Menampilkan semua transaksi milik user pembeli
+    /**
+     * Menampilkan semua transaksi milik user yang login.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        $transaksi = Transaksi::with(['produk', 'pengiriman', 'pembayaran'])
-            ->where('user_id', Auth::id()) // user pembeli
+        $transaksiList = Transaksi::with(['produk', 'pengiriman', 'pembayaran'])
+            ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
-        return view('user.transaksi.index', compact('transaksi'));
+        return view('user.transaksi.index', compact('transaksiList'));
     }
 
-    // Menampilkan detail satu transaksi milik pembeli
+    /**
+     * Menampilkan detail dari satu transaksi.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
-        $transaksi = Transaksi::with(['produk', 'pengiriman', 'pembayaran'])
-            ->where('user_id', Auth::id()) // user pembeli
+        $transaksi = Transaksi::with(['produk', 'checkout', 'pengiriman', 'pembayaran'])
+            ->where('user_id', Auth::id())
             ->findOrFail($id);
 
         return view('user.transaksi.show', compact('transaksi'));
     }
 
-    // Membuat transaksi baru dari data checkout (oleh pembeli)
+    /**
+     * Membuat transaksi baru setelah pembayaran berhasil.
+     *
+     * @param  int  $checkoutId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store($checkoutId)
-    {
-        $checkout = Checkout::with(['pengiriman', 'pembayaran'])
-            ->where('id', $checkoutId)
-            ->where('user_id', Auth::id()) // pastikan milik pembeli
-            ->firstOrFail();
+{
+    $user = Auth::user();
 
-        $pengiriman = $checkout->pengiriman;
-        $pembayaran = $checkout->pembayaran;
-
-        if (!$pengiriman || !$pembayaran) {
-            return redirect()->route('dashboard')->with('error', 'Data pengiriman atau pembayaran belum lengkap.');
-        }
-
-        // Cek jika transaksi sudah pernah dibuat
-        if (Transaksi::where('checkout_id', $checkout->id)->exists()) {
-            return redirect()->route('dashboard')->with('info', 'Transaksi sudah dibuat.');
-        }
-
-        Transaksi::create([
-            'user_id'       => Auth::id(),                 // pembeli
-            'produk_id'     => $checkout->produk_id,
-            'checkout_id'   => $checkout->id,
-            'pengiriman_id' => $pengiriman->id,
-            'pembayaran_id' => $pembayaran->id,
-            'status'        => 'diproses',
-            'resi'          => null,
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Transaksi berhasil dibuat.');
+    // Cegah duplikasi transaksi
+    if (Transaksi::where('checkout_id', $checkoutId)->exists()) {
+        return; // Hentikan tanpa redirect karena dipanggil dari controller lain
     }
 
-    // Menampilkan daftar penjualan untuk user penjual (anggota)
-    public function penjualan()
-    {
-        $transaksi = Transaksi::with(['produk', 'user', 'pengiriman', 'pembayaran'])
-            ->whereHas('produk', function ($query) {
-                $query->where('user_id', Auth::id()); // produk milik penjual
-            })
-            ->latest()
-            ->get();
+    // Ambil data checkout lengkap
+    $checkout = Checkout::with(['produk', 'varian', 'pengiriman'])->findOrFail($checkoutId);
 
-        return view('user.transaksi.penjualan', compact('transaksi'));
+    $pengiriman = $checkout->pengiriman;
+    $pembayaran = Pembayaran::where('checkout_id', $checkoutId)->first();
+
+    // Validasi keberadaan data
+    if (!$pengiriman || !$pembayaran) {
+        return; // Hentikan tanpa redirect
     }
+
+    // Simpan transaksi
+    Transaksi::create([
+        'user_id'       => $user->id,
+        'produk_id'     => $checkout->produk_id,
+        'checkout_id'   => $checkout->id,
+        'pengiriman_id' => $pengiriman->id,
+        'pembayaran_id' => $pembayaran->id,
+        'status'        => 'diproses',
+    ]);
+}
 }

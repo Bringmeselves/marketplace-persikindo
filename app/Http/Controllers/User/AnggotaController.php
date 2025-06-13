@@ -79,12 +79,13 @@ class AnggotaController extends Controller
     /**
      * Halaman dashboard anggota
      */
-    public function dashboard()
-    {
-        if (!auth()->user()->aktif) {
-            return redirect()->route('user.anggota.create')->with('error', 'Anda belum disetujui sebagai anggota.');
-        }
-
-        return view('dashboard'); // buat blade ini di resources/views/anggota/dashboard.blade.php
+    public function someMethod()
+{
+    if (!Auth::user()->hasRole('anggota')) {
+        return redirect()->route('user.anggota.create')
+                         ->with('error', 'Anda belum disetujui sebagai anggota.');
     }
+
+    return view('dashboard');
+}
 }

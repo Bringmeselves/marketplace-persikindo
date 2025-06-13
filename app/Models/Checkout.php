@@ -16,11 +16,11 @@ class Checkout extends Model
     protected $fillable = [
         'user_id',
         'produk_id',
+        'varian_id',
         'toko_id',
-        'nama_lengkap',
-        'nomor_wa',
-        'alamat_penerima',
         'jumlah',
+        'harga_satuan',
+        'gambar',
         'total_harga',
         'status',
     ];
@@ -53,5 +53,11 @@ class Checkout extends Model
     public function pengiriman()
     {
         return $this->hasOne(Pengiriman::class);
+    }
+
+    // Relasi ke varian
+    public function varian()
+    {
+        return $this->belongsTo(Varian::class, 'varian_id');
     }
 }

@@ -28,6 +28,7 @@ class PembelianController extends Controller
         $request->validate([
             'produk_id' => 'required|exists:produk,id',
             'jumlah' => 'required|integer|min:1',
+            'varian_id' => 'nullable|exists:varian,id',
         ]);
 
         $produk = Produk::findOrFail($request->produk_id);
@@ -46,6 +47,7 @@ class PembelianController extends Controller
         Session::put('checkout', [
             'produk_id' => $produk->id,
             'jumlah' => $request->jumlah,
+            'varian_id' => $request->varian_id, 
             'produk' => $produk,  // Simpan objek produk untuk menampilkan detail di checkout
             'toko_id' => $produk->toko_id,  
         ]);

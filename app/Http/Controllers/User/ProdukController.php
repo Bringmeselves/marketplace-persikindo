@@ -7,6 +7,7 @@ use App\Models\Produk;
 use App\Models\Kategori;
 use App\Models\Toko;
 use App\Models\User;
+use App\Models\Varian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -45,38 +46,35 @@ class ProdukController extends Controller
         return view('user.produk.create', compact('kategori'));
     }
 
+    /**
+     * Menyimpan produk dan variannya ke database
+     */
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!$user || $user->role !== 'anggota') {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk menambahkan produk.');
-        }
 
-        if (!$user->toko()->exists()) { // Periksa apakah pengguna memiliki toko
-            return redirect()->route('user.toko.create')->with('error', 'Anda harus memiliki toko untuk menambahkan produk.');
-        }
-
-        // Validasi input
-        $validated = Validator::make($request->all(), [
+        // Validasi input utama dan varian
+        $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'deskripsi' => 'required|string|max:1000',
             'harga' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kategori_id' => 'required|exists:kategori,id',
+
+            'varian.nama.*' => 'required|string|max:255',
+            'varian.stok.*' => 'required|integer|min:0',
+            'varian.harga.*' => 'required|numeric|min:0',
+            'varian.gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($validated->fails()) {
-            return redirect()->back()->withErrors($validated)->withInput();
-        }
-
-        // Proses unggah gambar
-        $gambarPath = $request->hasFile('gambar') 
-            ? $request->file('gambar')->store('produk_gambar', 'public') 
+        // Simpan gambar utama produk jika ada
+        $gambarPath = $request->hasFile('gambar')
+            ? $request->file('gambar')->store('produk_gambar', 'public')
             : null;
 
-        // Menyimpan data produk baru
-        Produk::create([
+        // Simpan satu produk saja
+        $produk = Produk::create([
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
             'harga' => $request->harga,
@@ -85,10 +83,30 @@ class ProdukController extends Controller
             'status' => 'aktif',
             'user_id' => $user->id,
             'kategori_id' => $request->kategori_id,
-            'toko_id' => $user->toko->id, // Ambil toko_id dari toko pengguna
+            'toko_id' => $user->toko->id,
         ]);
 
-        return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk berhasil ditambahkan.');
+        // Simpan variannya
+        if ($request->has('varian')) {
+            foreach ($request->varian['nama'] as $i => $namaVarian) {
+                $gambarVarian = null;
+
+                // Simpan gambar varian jika ada
+                if ($request->hasFile("varian.gambar.$i")) {
+                    $gambarVarian = $request->file("varian.gambar.$i")->store('varian_gambar', 'public');
+                }
+
+                // Simpan varian dan relasikan ke produk yang baru dibuat
+                $produk->varian()->create([
+                    'nama' => $namaVarian,
+                    'stok' => $request->varian['stok'][$i],
+                    'harga' => $request->varian['harga'][$i],
+                    'gambar' => $gambarVarian,
+                ]);
+            }
+        }
+
+        return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk dan variannya berhasil ditambahkan.');
     }
 
     /**

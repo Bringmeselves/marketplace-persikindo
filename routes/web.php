@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\User\MarketplaceController as UserMarketplaceController;
 use App\Http\Controllers\User\AnggotaController as UserAnggotaController;
 use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
@@ -23,9 +24,7 @@ use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
 */
 
 // Halaman Welcome
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 // Halaman Dashboard (harus login dan verified)
 Route::get('/dashboard', function () {
@@ -57,6 +56,7 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::post('toko', [UserTokoController::class, 'store'])->name('toko.store'); // Simpan toko baru
     Route::get('toko/{id}/kelola', [UserTokoController::class, 'kelola'])->name('toko.kelola'); // Kelola toko
     Route::get('toko/{id}/edit', [UserTokoController::class, 'edit'])->name('toko.edit'); // Form edit toko
+    Route::get('toko/{id}', [UserTokoController::class, 'show'])->name('toko.show'); // Show toko
     Route::put('toko/{id}', [UserTokoController::class, 'update'])->name('toko.update'); // Update toko
     Route::delete('toko/{id}', [UserTokoController::class, 'destroy'])->name('toko.destroy'); // Hapus toko
 
@@ -69,19 +69,20 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::delete('/produk/{id}', [UserProdukController::class, 'destroy'])->name('produk.destroy'); // Hapus produk
 
     // Pembelian
-    Route::get('/pembelian/{produk_id}', [UserPembelianController::class, 'create'])->name('pembelian.create'); // Form buat transaksi
-    Route::post('/pembelian', [UserPembelianController::class, 'store'])->name('pembelian.store'); // Simpan transaksi baru
+    Route::get('produk/{produk_id}/beli', [UserPembelianController::class, 'create'])->name('pembelian.create');
+    Route::post('produk/beli', [UserPembelianController::class, 'store'])->name('pembelian.store');
 
     // Checkout
-    Route::get('/checkout', [UserCheckoutController::class, 'create'])->name('checkout.create');
-    Route::put('/checkout/update/{checkoutId}', [UserPengirimanController::class, 'update'])->name('checkout.update');
-
+    Route::post('checkout/start', [UserCheckoutController::class, 'start'])->name('checkout.start');
+    Route::get('checkout/{id}', [UserCheckoutController::class, 'create'])->name('checkout.create');
+   
     // Pengiriman
+    Route::get('/pengiriman', [UserPengirimanController::class, 'create'])->name('pengiriman.create');
     Route::post('/pengiriman', [UserPengirimanController::class, 'store'])->name('pengiriman.store');
  
     // Pembayaran
     Route::get('/pembayaran/{checkout}/buat', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
-    Route::post('/pembayaran/{checkout}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::post('/pembayaran/{id}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
 
     // Transaksi
     Route::get('/transaksi', [UserTransaksiController::class, 'index'])->name('transaksi.index');

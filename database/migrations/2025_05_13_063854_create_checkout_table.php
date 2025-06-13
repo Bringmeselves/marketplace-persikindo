@@ -6,27 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('checkout', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('varian_id')->constrained('varian')->onDelete('cascade');
             $table->foreignId('toko_id')->constrained('toko')->onDelete('cascade');
+
             $table->integer('jumlah');
+            $table->integer('harga_satuan')->nullable();
+            $table->string('gambar')->nullable(); // gambar varian
+
             $table->integer('total_harga');
             $table->enum('status', ['pending', 'dibayar', 'dibatalkan', 'menunggu_pembayaran'])->default('pending');
+
             $table->timestamps();
             $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('checkout');

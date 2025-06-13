@@ -104,9 +104,9 @@
         </div>
 
         {{-- Tombol Simpan --}}
-        <div class="flex justify-end">
+        <div>
             <button type="submit"
-               class="inline-block bg-black text-white px-6 py-2 rounded-md hover:bg-gray-700 transition">
+                class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-semibold text-xl hover:bg-indigo-700 transition-shadow shadow-md hover:shadow-lg">
                 Simpan Toko
             </button>
         </div>

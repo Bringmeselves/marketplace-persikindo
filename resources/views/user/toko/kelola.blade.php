@@ -3,14 +3,6 @@
 @section('title', 'Kelola Toko')
 
 @section('content')
-    {{-- Tombol Kelola Penjualan --}}
-    <div class="mb-8 flex justify-center">
-        <a href="{{ route('user.transaksi.penjualan') }}" 
-           class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-100 transition font-semibold">
-            🔄 Kelola Penjualan
-        </a>
-    </div>
-
     <div class="max-w-7xl mx-auto p-6 bg-white shadow-md rounded-xl mt-10">
         {{-- Profil Toko --}}
         <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
@@ -70,11 +62,15 @@
             </div>
         @endif
 
-        {{-- Tombol Tambah Produk --}}
-        <div class="mb-8 flex justify-center">
+        {{-- Tombol Tambah Produk dan Kelola Penjualan --}}
+        <div class="mb-8 flex justify-center space-x-4">
             <a href="{{ route('user.produk.create', ['toko_id' => $toko->id]) }}" 
-               class="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition font-semibold">
+            class="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition font-semibold">
                 + Tambah Produk
+            </a>
+            <a href="{{ route('user.transaksi.penjualan') }}" 
+            class="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition font-semibold">
+                🔄 Kelola Penjualan
             </a>
         </div>
 

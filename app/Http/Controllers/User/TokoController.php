@@ -186,6 +186,24 @@ class TokoController extends Controller
         return view('user.toko.kelola', compact('toko', 'produkList'));
     }
 
+    // Menampilkan etalase toko ke publik (pembeli)
+    public function show($id)
+    {
+        $toko = Toko::with('produk')->findOrFail($id);
+
+        // Tambahkan city_name jika kamu masih pakai wilayahService
+        $toko->city_name = optional($this->wilayahService->getCityById($toko->cities))['name'] ?? null;
+
+        // Ambil produk berdasarkan toko ini
+        $produk = $toko->produk()->latest()->paginate(12);
+
+        // Ambil semua kategori untuk dropdown filter (jika ingin digunakan)
+        $kategori = \App\Models\Kategori::all();
+
+        return view('user.toko.show', compact('toko', 'produk', 'kategori'));
+    }
+
+
     // Hapus toko dan file terkait
     public function destroy($id)
     {
