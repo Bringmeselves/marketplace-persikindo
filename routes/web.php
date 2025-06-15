@@ -75,6 +75,7 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     // Checkout
     Route::post('checkout/start', [UserCheckoutController::class, 'start'])->name('checkout.start');
     Route::get('checkout/{id}', [UserCheckoutController::class, 'create'])->name('checkout.create');
+    Route::post('/checkout/{id}', [UserCheckoutController::class, 'store'])->name('checkout.store');
    
     // Pengiriman
     Route::get('/pengiriman', [UserPengirimanController::class, 'create'])->name('pengiriman.create');

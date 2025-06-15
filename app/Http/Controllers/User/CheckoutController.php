@@ -17,19 +17,21 @@ class CheckoutController extends Controller
      */
     public function start(Request $request)
     {
-        // Ambil data dari session
-        $checkoutData = Session::get('checkout');
-
-        if (!$checkoutData) {
-            return redirect()->route('dashboard')->with('error', 'Data checkout tidak ditemukan.');
-        }
-
+        // Validasi input
         $request->validate([
             'produk_id' => 'required|exists:produk,id',
             'varian_id' => 'required|exists:varian,id',
             'jumlah' => 'required|integer|min:1',
         ]);
 
+        // Simpan data sementara ke dalam session
+        Session::put('checkout', [
+            'produk_id' => $request->produk_id,
+            'varian_id' => $request->varian_id,
+            'jumlah' => $request->jumlah,
+        ]);
+
+        // Ambil data dari request
         $produk = Produk::with('toko')->findOrFail($request->produk_id);
         $varian = Varian::findOrFail($request->varian_id);
 
@@ -60,6 +62,9 @@ class CheckoutController extends Controller
             'status' => 'pending',
         ]);
 
+        // Kosongkan session setelah data disimpan
+        Session::forget('checkout');
+
         // Redirect ke halaman checkout create dengan parameter ID
         return redirect()->route('user.checkout.create', $checkout->id);
     }
@@ -79,5 +84,34 @@ class CheckoutController extends Controller
             'jumlah' => $checkout->jumlah,
             'checkout' => $checkout,
         ]);
+    }
+
+    /**
+     * Proses konfirmasi checkout
+     */
+    public function store(Request $request, $id)
+    {
+        // Validasi input dari form checkout lanjutan (misal alamat, catatan, dll)
+        $request->validate([
+            'catatan' => 'nullable|string|max:255',
+            'alamat_pengiriman' => 'required|string|max:255',
+            // Tambahkan validasi lain sesuai kebutuhan
+        ]);
+
+        // Ambil data checkout yang dimaksud
+        $checkout = Checkout::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        // Update checkout dengan data tambahan
+        $checkout->update([
+            'catatan' => $request->catatan,
+            'alamat_pengiriman' => $request->alamat_pengiriman,
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('user.pembayaran.create', $checkout->id)
+            ->with('success', 'Checkout berhasil dikonfirmasi. Silakan pilih metode pengiriman.');
     }
 }

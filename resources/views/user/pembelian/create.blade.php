@@ -11,19 +11,19 @@
                 <img id="main-image" 
                      src="{{ asset('storage/' . (isset($varian) && $varian->gambar ? $varian->gambar : $produk->gambar)) }}" 
                      alt="{{ $produk->nama }}"
-                     class="rounded-xl object-cover w-full max-w-md shadow-md transition-transform hover:scale-105 duration-300" />
+                     class="rounded-2xl object-cover w-full max-w-md shadow-md transition-transform hover:scale-105 duration-300" />
             </div>
 
             {{-- KANAN: Detail Produk dan Form --}}
-            <div class="flex flex-col justify-between space-y-6">
+            <div class="flex flex-col justify-between space-y-8">
 
                 {{-- CARD 1: Informasi Produk --}}
-                <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 space-y-6 shadow-sm">
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-6 shadow-sm">
                     <h3 class="text-2xl font-bold text-gray-900">{{ $produk->nama }}</h3>
 
                     <ul class="space-y-2 text-gray-800 text-md">
-                        <li><strong>Harga:</strong> <span id="harga-text">Rp{{ number_format($varian->harga ?? $produk->harga, 0, ',', '.') }}</span></li>
-                        <li><strong>Stok Tersedia:</strong> <span id="stok-text">{{ $varian->stok ?? $produk->stok }}</span></li>
+                        <li><strong>💰 Harga:</strong> <span id="harga-text">Rp{{ number_format($varian->harga ?? $produk->harga, 0, ',', '.') }}</span></li>
+                        <li><strong>📦 Stok:</strong> <span id="stok-text">{{ $varian->stok ?? $produk->stok }}</span></li>
                     </ul>
 
                     <div class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
@@ -37,14 +37,14 @@
                         <div class="flex flex-wrap gap-4">
                             @foreach ($produk->varian as $v)
                                 <button type="button"
-                                        class="varian-option border border-gray-300 rounded-lg p-2 hover:border-indigo-500 focus:ring-2 focus:ring-indigo-400 transition flex flex-col items-center w-28 cursor-pointer"
+                                        class="varian-option group border border-gray-300 rounded-xl p-3 hover:border-indigo-500 focus:ring-2 focus:ring-indigo-400 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg flex flex-col items-center w-28 cursor-pointer bg-white"
                                         data-id="{{ $v->id }}"
                                         data-harga="{{ $v->harga }}"
                                         data-stok="{{ $v->stok }}"
                                         data-gambar="{{ asset('storage/' . $v->gambar) }}">
                                     <img src="{{ asset('storage/' . $v->gambar) }}" alt="{{ $v->nama }}"
-                                         class="w-20 h-20 object-cover rounded-md mb-2 shadow-sm">
-                                    <div class="text-xs text-center">
+                                         class="w-20 h-20 object-cover rounded-md mb-2 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                    <div class="text-xs text-center text-gray-700 group-hover:text-indigo-600">
                                         <strong>{{ $v->nama }}</strong><br>
                                         Rp{{ number_format($v->harga, 0, ',', '.') }}<br>
                                         Stok: {{ $v->stok }}
@@ -56,10 +56,10 @@
                 </div>
 
                 {{-- CARD 2: Informasi Toko --}}
-                <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block hover:bg-gray-50 transition rounded-xl">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 flex gap-4 shadow-sm items-center">
+                <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block hover:bg-gray-50 transition rounded-2xl">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 shadow-sm items-center">
                         <img src="{{ asset('storage/' . $produk->toko->foto_toko) }}" alt="Foto Toko"
-                            class="w-20 h-20 object-cover rounded-full shadow">
+                            class="w-20 h-20 object-cover rounded-full shadow-md">
                         <div>
                             <h4 class="text-lg font-semibold text-gray-800">{{ $produk->toko->nama_toko }}</h4>
                             <p class="text-sm text-gray-600">{{ $produk->toko->alamat }}</p>
@@ -77,13 +77,13 @@
                     <div>
                         <label for="jumlah" class="block text-lg font-medium text-gray-700 mb-1">🔢 Jumlah Pembelian</label>
                         <input type="number" name="jumlah" id="jumlah" min="1" value="1" required
-                               class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500" />
+                               class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     </div>
 
                     {{-- Tombol Submit --}}
                     <button type="submit"
-                            class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-semibold text-xl hover:bg-indigo-700 transition-shadow shadow-md hover:shadow-lg">
-                        Lanjut ke Checkout
+                            class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-semibold text-xl hover:bg-indigo-700 transition duration-300 shadow-md hover:shadow-lg">
+                        🚀 Lanjut ke Checkout
                     </button>
                 </form>
             </div>
@@ -113,7 +113,6 @@
         });
     });
 
-    // Validasi sebelum submit form
     function validateVarian() {
         const varianId = document.getElementById('varian_id').value;
         if (!varianId) {

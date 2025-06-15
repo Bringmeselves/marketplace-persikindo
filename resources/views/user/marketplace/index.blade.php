@@ -1,23 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Header dengan background gambar full-width dan overlay gelap -->
-<div class="relative w-full h-[70vh] overflow-hidden rounded-lg mb-10">
-    <img src="{{ asset('images/warung.jpg') }}" alt="Marketplace Hero" class="absolute inset-0 w-full h-full object-cover">
-    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
-    <div class="absolute inset-0 flex items-center justify-center">
-        <h1 class="text-5xl font-extrabold text-white drop-shadow-lg select-none text-center px-4">
-            Marketplace
+<!-- Hero Section Modern -->
+<div class="relative w-full h-[80vh] overflow-hidden rounded-3xl shadow-xl mb-12">
+    <!-- Background Image -->
+    <img src="{{ asset('images/bg2.jpg') }}" alt="Marketplace Hero"
+         class="absolute inset-0 w-full h-full object-cover scale-110 transition-transform duration-700">
+
+    <!-- Gradient Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent backdrop-blur-sm"></div>
+
+    <!-- Hero Content -->
+    <div class="relative z-10 flex flex-col items-start justify-center h-full px-6 sm:px-16 lg:px-24 max-w-7xl mx-auto">
+        <h1 class="text-white text-4xl sm:text-6xl font-extrabold leading-tight drop-shadow-md mb-6">
+            Belanja Produk Terbaik,<br class="hidden sm:block"> Dari Toko Terpercaya!
         </h1>
+        <p class="text-white text-base sm:text-lg md:text-xl max-w-2xl mb-8 leading-relaxed drop-shadow-sm">
+            Jelajahi berbagai produk dan jasa berkualitas dari penjual pilihan di seluruh Indonesia — semua dalam satu tempat.
+        </p>
+        <a href="#produk"
+           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-full transition transform hover:scale-105 duration-300 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21V3m11 11l-4 4m0-8l4 4"/>
+            </svg>
+            Mulai Belanja
+        </a>
     </div>
 </div>
 
-<!-- Container utama -->
-<div class="container mx-auto px-4 mt-8">
-
-    <!-- Baris Search & Dropdown kategori -->
+<!-- Main Container -->
+<div class="container mx-auto px-4 mt-8" id="produk">
+    <!-- Search & Category Dropdown -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <!-- Form Pencarian -->
+        <!-- Search Form -->
         <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex-grow max-w-md">
             <input
                 type="text"
@@ -25,11 +41,11 @@
                 value="{{ request('search') }}"
                 placeholder="Cari produk atau toko..."
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 text-sm
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
         </form>
 
-        <!-- Form Dropdown Kategori -->
+        <!-- Category Dropdown -->
         <form action="{{ route('user.marketplace.index') }}" method="GET" class="w-48">
             <select
                 name="kategori"
@@ -47,7 +63,7 @@
         </form>
     </div>
 
-    <!-- Grid Produk -->
+    <!-- Produk Grid -->
     @if ($produk->count())
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach ($produk as $item)
@@ -69,7 +85,7 @@
                                 {{ $item->deskripsi ?? '-' }}
                             </p>
 
-                            <!-- Info Toko -->
+                            <!-- Toko Info -->
                             @if ($item->toko)
                             <div class="mt-4 text-xs text-black-600">
                                 <div class="flex items-center gap-1">

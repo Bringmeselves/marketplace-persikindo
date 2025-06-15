@@ -51,4 +51,10 @@ class Transaksi extends Model
     {
         return $this->belongsTo(Pembayaran::class);
     }
+
+    // Relasi: Transaksi memiliki satu varian produk
+    public function varian()
+    {
+        return $this->belongsTo(Varian::class);
+    }
 }
