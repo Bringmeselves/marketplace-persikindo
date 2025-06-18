@@ -5,94 +5,116 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Checkout;
 use App\Models\Pengiriman;
-use App\Models\Produk; // Jangan lupa import model Produk
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class PengirimanController extends Controller
 {
     /**
-     * Simpan data checkout dan pengiriman, kurangi stok produk,
-     * lalu redirect ke halaman pembayaran.
+     * Form tambah alamat pengiriman
      */
-    public function store(Request $request)
+    public function alamatCreate($checkoutId)
     {
-        // Ambil data checkout yang sudah disimpan di session
-        $checkoutData = Session::get('checkout');
+        $checkout = Checkout::where('id', $checkoutId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        // Jika data checkout tidak ada di session, redirect ke dashboard dengan pesan error
-        if (!$checkoutData) {
-            return redirect()->route('dashboard')->with('error', 'Data checkout tidak ditemukan.');
-        }
+        return view('user.pengiriman.form', compact('checkout'));
+    }
 
-        // Ambil data produk dari database berdasar produk_id di session
-        $produk = Produk::findOrFail($checkoutData['produk_id']);
-        $jumlah = $checkoutData['jumlah'];
+    /**
+     * Form edit alamat pengiriman
+     */
+    public function alamatEdit($checkoutId)
+{
+    $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
+        ->where('user_id', Auth::id())
+        ->first();
 
-        // Cek stok produk, jika stok kurang dari jumlah yang dibeli, batalkan dan kembalikan pesan error
-        if ($produk->stok < $jumlah) {
-            return redirect()->back()->with('error', 'Stok produk tidak mencukupi.');
-        }
+    if (!$pengiriman) {
+        // Redirect ke halaman tambah alamat
+        return redirect()->route('user.pengiriman.alamat.create', $checkoutId)
+            ->with('warning', 'Alamat belum tersedia, silakan tambahkan dulu.');
+    }
 
-        // Validasi input pengiriman dari form
+    $checkout = $pengiriman->checkout;
+
+    return view('user.pengiriman.form', compact('pengiriman', 'checkout'));
+}
+
+
+    /**
+     * Simpan alamat pengiriman
+     */
+    public function alamatStore(Request $request, $checkoutId)
+    {
         $request->validate([
-            'nama_lengkap'    => 'required|string|max:255',
-            'nomor_wa'        => 'required|string|max:20',
-            'alamat_penerima' => 'required|string|max:100',
-            'provinsi'        => 'nullable|string|max:100',
-            'cities'          => 'nullable|string|max:100',
-            'kode_pos'        => 'nullable|string|max:10',
-            'catatan'         => 'nullable|string',
-            'kurir'           => 'nullable|string|max:50',
-            'layanan'         => 'nullable|string|max:50',
-            'ongkir'          => 'nullable|integer',
+            'nama_lengkap'     => 'required|string|max:255',
+            'alamat_penerima'  => 'required|string|max:255',
+            'cities'           => 'nullable|string|max:100',
+            'kode_pos'         => 'nullable|string|max:10',
+            'nomor_wa'         => 'nullable|string|max:20',
         ]);
 
-        // Hitung total harga pembelian (harga produk x jumlah)
-        $totalHarga = $jumlah * $produk->harga;
+        $checkout = Checkout::where('id', $checkoutId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        // Cari data checkout yang statusnya 'pending' untuk user, produk, dan toko tersebut
-        // Jika tidak ada, buat data baru (belum disimpan)
-        $checkout = Checkout::firstOrNew([
-            'user_id'   => Auth::id(),
-            'produk_id' => $produk->id,
-            'toko_id'   => $produk->toko_id,
-            'status'    => 'pending',
+        Pengiriman::updateOrCreate(
+            ['checkout_id' => $checkout->id],
+            [
+                'user_id'         => Auth::id(),
+                'produk_id'       => $checkout->produk_id,
+                'toko_id'         => $checkout->toko_id,
+                'nama_lengkap'    => $request->nama_lengkap,
+                'alamat_penerima' => $request->alamat_penerima,
+                'cities'          => $request->cities,
+                'kode_pos'        => $request->kode_pos,
+                'nomor_wa'        => $request->nomor_wa,
+            ]
+        );
+
+        return redirect()->route('user.pengiriman.kurir.edit', $checkout->id)
+            ->with('success', 'Alamat pengiriman berhasil disimpan.');
+    }
+
+    /**
+     * Form edit kurir & ongkir
+     */
+    public function kurirEdit($checkoutId)
+{
+    $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
+        ->where('user_id', Auth::id())
+        ->firstOrFail();
+
+    $checkout = $pengiriman->checkout;
+
+    return view('user.pengiriman.kurir', compact('pengiriman', 'checkout'));
+}
+
+
+    /**
+     * Simpan kurir & ongkir
+     */
+    public function kurirUpdate(Request $request, $checkoutId)
+    {
+        $request->validate([
+            'kurir'   => 'required|string|max:50',
+            'layanan' => 'required|string|max:50',
+            'ongkir'  => 'required|integer|min:0',
         ]);
 
-        // Tandai apakah data checkout ini baru (belum ada di database)
-        $isBaru = !$checkout->exists;
+        $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-        // Isi atau update field jumlah dan total harga pada checkout
-        $checkout->fill([
-            'jumlah'      => $jumlah,
-            'total_harga' => $totalHarga,
-        ])->save();
+        $pengiriman->update([
+            'kurir'   => $request->kurir,
+            'layanan' => $request->layanan,
+            'ongkir'  => $request->ongkir,
+        ]);
 
-        // Cari atau buat data pengiriman berdasarkan checkout_id
-        $pengiriman = Pengiriman::firstOrNew(['checkout_id' => $checkout->id]);
-
-        // Isi data pengiriman dengan data dari form dan properti lain
-        $pengiriman->fill([
-            'user_id'          => Auth::id(),
-            'produk_id'        => $produk->id,
-            'toko_id'          => $produk->toko_id,
-            'nama_lengkap'     => $request->nama_lengkap,
-            'nomor_wa'         => $request->nomor_wa,
-            'alamat_penerima'  => $request->alamat_penerima,
-            'provinsi'         => $request->provinsi,
-            'cities'           => $request->cities,
-            'kode_pos'         => $request->kode_pos,
-            'catatan'          => $request->catatan,
-            'kurir'            => $request->kurir,
-            'layanan'          => $request->layanan,
-            'ongkir'           => $request->ongkir,
-            'status_pengiriman'=> 'belum_dikirim', // Status awal pengiriman belum dikirim
-        ])->save();
-
-        // Redirect ke halaman pembayaran dengan membawa id checkout dan pesan sukses
-        return redirect()->route('user.pembayaran.create', ['checkout' => $checkout->id])
-            ->with('success', 'Checkout dan pengiriman berhasil disimpan. Silakan lanjut ke pembayaran.');
+        return redirect()->route('user.checkout.create', $checkoutId)
+            ->with('success', 'Kurir berhasil disimpan.');
     }
 }

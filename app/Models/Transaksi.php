@@ -15,6 +15,7 @@ class Transaksi extends Model
     protected $fillable = [
         'user_id',         // ID user yang melakukan transaksi
         'produk_id',       // ID produk yang dibeli
+        'varian_id',       // ID varian produk (jika ada)
         'checkout_id',     // ID data checkout terkait
         'pengiriman_id',   // ID data pengiriman
         'pembayaran_id',   // ID data pembayaran

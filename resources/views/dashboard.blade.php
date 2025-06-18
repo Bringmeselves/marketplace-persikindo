@@ -60,8 +60,6 @@
             </div>
         </div>
     </template>
-</section>
-
 
     {{-- Manual Navigation --}}
     <div class="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
@@ -110,8 +108,8 @@
                     'Peningkatan kualitas dan produktivitas produk.'
                 ] as $misi)
                     <li class="flex gap-2 items-start">
-                        <svg class="w-6 h-6 text-gray-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2l4 -4" />
                         </svg>
                         {{ $misi }}
                     </li>
@@ -122,41 +120,38 @@
 </section>
 
 {{-- PROGRAM UNGGULAN --}}
+@php
+    // Data program dengan icon lucide nama
+    $programs = [
+        ['title' => 'Pelatihan Kewirausahaan', 'desc' => 'Pelatihan bisnis kecil untuk pemuda lokal.', 'icon' => 'briefcase'],
+        ['title' => 'Bakti Sosial', 'desc' => 'Kegiatan sosial bulanan di desa terpencil.', 'icon' => 'heart-handshake'],
+        ['title' => 'Forum Diskusi', 'desc' => 'Wadah berbagi ide dan solusi kreatif antar anggota.', 'icon' => 'message-circle'],
+    ];
+
+    // Fungsi untuk menampilkan SVG icon lucide secara manual
+    function lucide_icon($name, $class = 'w-12 h-12 mx-auto mb-6 text-gray-700 animate-pulse') {
+        $icons = [
+            'briefcase' => '<svg xmlns="http://www.w3.org/2000/svg" class="'.$class.'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7V3m0 0L7 7m5-4l5 4M5 7h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"/></svg>',
+            'heart-handshake' => '<svg xmlns="http://www.w3.org/2000/svg" class="'.$class.'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.828 9.172a4 4 0 10-5.656 5.656l1.414-1.414a1 1 0 011.414 0l3.536 3.536a1 1 0 001.414-1.414l-3.536-3.536a1 1 0 010-1.414l1.414-1.414z"/></svg>',
+            'message-circle' => '<svg xmlns="http://www.w3.org/2000/svg" class="'.$class.'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 11-3.8-11.4 8.38 8.38 0 013.8.9L21 3l-3.5 3.5"/></svg>',
+        ];
+
+        return $icons[$name] ?? '';
+    }
+@endphp
+
 <section class="mb-20 relative py-20 px-6 bg-gray-50 rounded-3xl shadow-sm">
-    <div class="bg-white rounded-3xl max-w-6xl mx-auto p-10 shadow-sm">
-        <h2 class="text-4xl font-bold text-center text-gray-800 mb-12 tracking-tight">Program Unggulan</h2>
-        <div class="grid md:grid-cols-3 gap-10">
-            @php
-                $programs = [
-                    ['title' => 'Pelatihan Kewirausahaan', 'desc' => 'Pelatihan bisnis kecil untuk pemuda lokal.', 'icon' => '💼'],
-                    ['title' => 'Bakti Sosial', 'desc' => 'Kegiatan sosial bulanan di desa terpencil.', 'icon' => '🤝'],
-                    ['title' => 'Forum Diskusi', 'desc' => 'Wadah berbagi ide dan solusi kreatif antar anggota.', 'icon' => '🗣️'],
-                ];
-            @endphp
-            @foreach ($programs as $item)
-                <div class="bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out">
-                    <div class="text-5xl mb-6 animate-pulse">{{ $item['icon'] }}</div>
-                    <h4 class="text-2xl font-semibold text-gray-800 mb-3">{{ $item['title'] }}</h4>
-                    <p class="text-gray-600 text-base leading-relaxed">{{ $item['desc'] }}</p>
+    <div class="bg-white rounded-3xl max-w-7xl mx-auto px-6 py-16 shadow-md">
+        <h2 class="text-4xl font-extrabold text-center mb-16 tracking-wide text-gray-800">Program Unggulan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-14 max-w-5xl mx-auto">
+            @foreach ($programs as $program)
+                <div class="flex flex-col items-center text-center p-6 rounded-3xl border border-gray-300 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                    {!! lucide_icon($program['icon']) !!}
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ $program['title'] }}</h3>
+                    <p class="text-gray-700 leading-relaxed">{{ $program['desc'] }}</p>
                 </div>
             @endforeach
         </div>
-    </div>
-</section>
-
-{{-- KONTAK --}}
-<section class="mb-20 py-16 px-6 max-w-3xl mx-auto bg-white rounded-3xl shadow text-center">
-    <h2 class="text-3xl font-bold text-gray-800 mb-8 tracking-tight">Hubungi Kami</h2>
-    <div class="space-y-6 text-gray-700 text-lg">
-        <a href="mailto:info@organisasi.com" class="flex items-center justify-center gap-3 hover:underline font-medium">
-            <span>📧</span> info@organisasi.com
-        </a>
-        <div class="flex items-center justify-center gap-3 font-medium">
-            <span>📍</span> Jl. Merdeka No. 123, Jakarta
-        </div>
-        <a href="https://instagram.com/organisasi_kita" target="_blank" class="flex items-center justify-center gap-3 hover:underline font-medium">
-            <span>📸</span> @organisasi_kita
-        </a>
     </div>
 </section>
 

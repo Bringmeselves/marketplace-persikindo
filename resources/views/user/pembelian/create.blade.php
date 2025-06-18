@@ -1,99 +1,135 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container mx-auto px-6 py-12">
-    <h2 class="text-4xl font-extrabold mb-12 text-center text-gray-900 tracking-tight">🛒 Form Pembelian Produk</h2>
+@section('title', 'Form Pembelian Produk')
 
-    <div class="bg-white shadow-xl rounded-2xl p-10 max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {{-- KIRI: Gambar Produk --}}
-            <div class="flex justify-center items-start">
-                <img id="main-image" 
-                     src="{{ asset('storage/' . (isset($varian) && $varian->gambar ? $varian->gambar : $produk->gambar)) }}" 
-                     alt="{{ $produk->nama }}"
-                     class="rounded-2xl object-cover w-full max-w-md shadow-md transition-transform hover:scale-105 duration-300" />
+@section('content')
+<div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+
+    {{-- Judul Halaman --}}
+    <div class="flex items-center gap-3">
+        <i data-lucide="shopping-cart" class="w-6 h-6 text-indigo-600"></i>
+        <h2 class="text-3xl font-bold text-gray-900">Form Pembelian Produk</h2>
+    </div>
+
+    {{-- SECTION: Produk --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 space-y-6">
+        <div class="grid md:grid-cols-3 gap-6 items-start">
+            {{-- Gambar --}}
+            <div class="md:col-span-1 flex justify-center">
+                <img id="main-image"
+                    src="{{ asset('storage/' . (isset($varian) && $varian->gambar ? $varian->gambar : $produk->gambar)) }}"
+                    alt="{{ $produk->nama }}"
+                    class="w-40 h-40 object-cover rounded-xl shadow">
             </div>
 
-            {{-- KANAN: Detail Produk dan Form --}}
-            <div class="flex flex-col justify-between space-y-8">
-
-                {{-- CARD 1: Informasi Produk --}}
-                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-6 shadow-sm">
-                    <h3 class="text-2xl font-bold text-gray-900">{{ $produk->nama }}</h3>
-
-                    <ul class="space-y-2 text-gray-800 text-md">
-                        <li><strong>💰 Harga:</strong> <span id="harga-text">Rp{{ number_format($varian->harga ?? $produk->harga, 0, ',', '.') }}</span></li>
-                        <li><strong>📦 Stok:</strong> <span id="stok-text">{{ $varian->stok ?? $produk->stok }}</span></li>
-                    </ul>
-
-                    <div class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                        <h4 class="font-semibold mb-2">📄 Deskripsi Produk</h4>
-                        <p>{{ $produk->deskripsi }}</p>
-                    </div>
-
-                    {{-- Pilihan Varian --}}
-                    <div>
-                        <h4 class="font-semibold text-gray-800 mb-3">🎨 Pilih Varian:</h4>
-                        <div class="flex flex-wrap gap-4">
-                            @foreach ($produk->varian as $v)
-                                <button type="button"
-                                        class="varian-option group border border-gray-300 rounded-xl p-3 hover:border-indigo-500 focus:ring-2 focus:ring-indigo-400 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg flex flex-col items-center w-28 cursor-pointer bg-white"
-                                        data-id="{{ $v->id }}"
-                                        data-harga="{{ $v->harga }}"
-                                        data-stok="{{ $v->stok }}"
-                                        data-gambar="{{ asset('storage/' . $v->gambar) }}">
-                                    <img src="{{ asset('storage/' . $v->gambar) }}" alt="{{ $v->nama }}"
-                                         class="w-20 h-20 object-cover rounded-md mb-2 shadow-sm group-hover:scale-110 transition-transform duration-300">
-                                    <div class="text-xs text-center text-gray-700 group-hover:text-indigo-600">
-                                        <strong>{{ $v->nama }}</strong><br>
-                                        Rp{{ number_format($v->harga, 0, ',', '.') }}<br>
-                                        Stok: {{ $v->stok }}
-                                    </div>
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
+            {{-- Info Produk --}}
+            <div class="md:col-span-2 space-y-3 text-base">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Nama Produk</span>
+                    <span class="font-medium">{{ $produk->nama }}</span>
                 </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Harga</span>
+                    <span id="harga-text" class="font-medium">Rp{{ number_format($varian->harga ?? $produk->harga, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Stok</span>
+                    <span id="stok-text" class="font-medium">{{ $varian->stok ?? $produk->stok }}</span>
+                </div>
+                <div class="pt-4">
+                    <p class="text-gray-500 mb-1">Deskripsi</p>
+                    <p id="deskripsi" class="text-gray-800 text-sm leading-relaxed line-clamp-5">
+                        {{ $produk->deskripsi }}
+                    </p>
+                    @if (strlen($produk->deskripsi) > 300)
+                        <button id="toggle-deskripsi" type="button" class="text-indigo-600 text-sm mt-1 hover:underline">
+                            Baca Selengkapnya
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                {{-- CARD 2: Informasi Toko --}}
-                <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block hover:bg-gray-50 transition rounded-2xl">
-                    <div class="bg-white border border-gray-200 rounded-2xl p-4 flex gap-4 shadow-sm items-center">
-                        <img src="{{ asset('storage/' . $produk->toko->foto_toko) }}" alt="Foto Toko"
-                            class="w-20 h-20 object-cover rounded-full shadow-md">
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-800">{{ $produk->toko->nama_toko }}</h4>
-                            <p class="text-sm text-gray-600">{{ $produk->toko->alamat }}</p>
+        {{-- Varian --}}
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="palette" class="w-5 h-5 text-indigo-600"></i>
+                <h3 class="text-lg font-semibold text-gray-900">Pilih Varian</h3>
+            </div>
+            <div class="flex flex-wrap gap-4">
+                @foreach ($produk->varian as $v)
+                    <button type="button"
+                            class="varian-option group border rounded-xl p-3 text-sm text-center bg-white shadow-sm hover:border-indigo-500 hover:shadow-md transition w-28"
+                            data-id="{{ $v->id }}"
+                            data-harga="{{ $v->harga }}"
+                            data-stok="{{ $v->stok }}"
+                            data-gambar="{{ asset('storage/' . $v->gambar) }}">
+                        <img src="{{ asset('storage/' . $v->gambar) }}" alt="{{ $v->nama }}"
+                             class="w-16 h-16 object-cover mx-auto rounded-md mb-2 group-hover:scale-105 transition-transform" />
+                        <div class="text-gray-700 group-hover:text-indigo-600">
+                            <strong>{{ $v->nama }}</strong><br>
+                            Rp{{ number_format($v->harga, 0, ',', '.') }}<br>
+                            Stok: {{ $v->stok }}
                         </div>
-                    </div>
-                </a>
-
-                {{-- CARD 3: Form Pembelian --}}
-                <form action="{{ route('user.checkout.start') }}" method="POST" class="space-y-4" onsubmit="return validateVarian();">
-                    @csrf
-                    <input type="hidden" name="produk_id" value="{{ $produk->id }}">
-                    <input type="hidden" name="varian_id" id="varian_id">
-
-                    {{-- Jumlah Pembelian --}}
-                    <div>
-                        <label for="jumlah" class="block text-lg font-medium text-gray-700 mb-1">🔢 Jumlah Pembelian</label>
-                        <input type="number" name="jumlah" id="jumlah" min="1" value="1" required
-                               class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    </div>
-
-                    {{-- Tombol Submit --}}
-                    <button type="submit"
-                            class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-semibold text-xl hover:bg-indigo-700 transition duration-300 shadow-md hover:shadow-lg">
-                        🚀 Lanjut ke Checkout
                     </button>
-                </form>
+                @endforeach
             </div>
         </div>
     </div>
+
+    {{-- SECTION: Toko --}}
+    <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block">
+        <div class="bg-white border rounded-2xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition">
+            @if($produk->toko->foto_toko)
+                <img src="{{ asset('storage/' . $produk->toko->foto_toko) }}" alt="Foto Toko"
+                     class="w-20 h-20 object-cover rounded-full border shadow-sm">
+            @else
+                <div class="w-20 h-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full text-xs text-center">
+                    Tidak ada<br>foto toko
+                </div>
+            @endif
+            <div class="text-sm space-y-1">
+                <h4 class="text-lg font-semibold text-gray-900">{{ $produk->toko->nama_toko }}</h4>
+                <p class="text-gray-600">{{ $produk->toko->alamat }}</p>
+            </div>
+        </div>
+    </a>
+
+    {{-- SECTION: Form Pembelian --}}
+    <form action="{{ route('user.checkout.start') }}" method="POST" onsubmit="return validateVarian();">
+        @csrf
+        <input type="hidden" name="produk_id" value="{{ $produk->id }}">
+        <input type="hidden" name="varian_id" id="varian_id">
+
+        <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 space-y-4">
+            <div class="flex items-center gap-3 mb-4">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-indigo-500"></i>
+                <h3 class="text-xl font-semibold text-gray-900">Pembelian</h3>
+            </div>
+
+            <div>
+                <label for="jumlah" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
+                <input type="number" name="jumlah" id="jumlah" min="1" value="1" required
+                       class="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 shadow-sm focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500 transition">
+            </div>
+
+            <div class="pt-4">
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition duration-300 shadow hover:shadow-lg">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    Lanjut ke Checkout
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
-{{-- Script interaktif varian --}}
+{{-- Lucide Icons --}}
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+
         const varianButtons = document.querySelectorAll('.varian-option');
         const inputVarianId = document.getElementById('varian_id');
         const hargaText = document.getElementById('harga-text');
@@ -111,15 +147,34 @@
                 this.classList.add('ring', 'ring-indigo-400');
             });
         });
+
+        const deskripsi = document.getElementById('deskripsi');
+        const toggleBtn = document.getElementById('toggle-deskripsi');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                const collapsed = deskripsi.classList.contains('line-clamp-5');
+                deskripsi.classList.toggle('line-clamp-5');
+                toggleBtn.textContent = collapsed ? 'Sembunyikan' : 'Baca Selengkapnya';
+            });
+        }
     });
 
-    function validateVarian() {
-        const varianId = document.getElementById('varian_id').value;
-        if (!varianId) {
-            alert('Silakan pilih varian terlebih dahulu.');
-            return false;
-        }
-        return true;
+   document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Submit event triggered');
+            const varianId = document.getElementById('varian_id').value;
+            console.log('varianId:', varianId);
+            if (!varianId) {
+                e.preventDefault();
+                alert('Silakan pilih varian terlebih dahulu.');
+            }
+        });
     }
+});
+
+
 </script>
 @endsection

@@ -108,5 +108,64 @@
 {{-- Section script tambahan --}}
 @yield('scripts')
 
+<!-- Loader Overlay -->
+<div id="loader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+">
+    <div class="spinner"></div>
+</div>
+
+<!-- CSS Spinner -->
+<style>
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 6px solid #ccc;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<!-- JS untuk menyembunyikan loader saat halaman selesai dimuat -->
+<script>
+    window.addEventListener('load', function () {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
+
+    // Tampilkan loader saat form disubmit
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function () {
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.display = 'flex';
+                }
+            });
+        });
+    });
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+
+
 </body>
 </html>

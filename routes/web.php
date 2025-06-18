@@ -16,6 +16,7 @@ use App\Http\Controllers\User\CheckoutController as UserCheckoutController;
 use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
 use App\Http\Controllers\User\PembayaranController as UserPembayaranController;
 use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
+use App\Http\Controllers\User\PenilaianController as UserPenilaianController;
 
 /*
 |---------------------------------------------------------------------------
@@ -78,8 +79,14 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::post('/checkout/{id}', [UserCheckoutController::class, 'store'])->name('checkout.store');
    
     // Pengiriman
-    Route::get('/pengiriman', [UserPengirimanController::class, 'create'])->name('pengiriman.create');
-    Route::post('/pengiriman', [UserPengirimanController::class, 'store'])->name('pengiriman.store');
+    Route::get('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatCreate'])->name('pengiriman.alamat.create');
+    Route::get('/pengiriman/{checkout}/alamat/edit', [UserPengirimanController::class, 'alamatEdit'])->name('pengiriman.alamat.edit');
+    Route::put('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.update');
+
+    Route::post('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.store');
+
+    Route::get('/pengiriman/{checkout}/kurir/edit', [UserPengirimanController::class, 'kurirEdit'])->name('pengiriman.kurir.edit');
+    Route::post('/pengiriman/{checkout}/kurir', [UserPengirimanController::class, 'kurirUpdate'])->name('pengiriman.kurir.update');
  
     // Pembayaran
     Route::get('/pembayaran/{checkout}/buat', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
@@ -92,6 +99,10 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
 
     // Penjualan
     Route::get('/penjualan', [UserTransaksiController::class, 'penjualan'])->name('transaksi.penjualan');
+
+    // Penilaian
+    Route::get('/produk/{produk_id}/penilaian', [UserPenilaianController::class, 'create'])->name('penilaian.create');
+     Route::post('/produk/{produk_id}/penilaian', [UserPenilaianController::class, 'store'])->name('penilaian.store');
 });
 
 // ==========================

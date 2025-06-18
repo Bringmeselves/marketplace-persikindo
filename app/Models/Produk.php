@@ -68,4 +68,11 @@ class Produk extends Model
     {
         return $this->hasMany(Varian::class);
     }
+    /**
+     * Relasi: Produk memiliki banyak Penilaian
+     */
+    public function penilaian()
+    {
+        return $this->hasMany(Penilaian::class);
+    }
 }

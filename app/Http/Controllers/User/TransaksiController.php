@@ -81,9 +81,8 @@ class TransaksiController extends Controller
             'pembayaran_id' => $pembayaran->id,
             'status'        => 'diproses',
         ]);
-dd($transaksi);
 
-        return redirect()->route('user.transaksi.show', $transaksi->id)
+        return redirect()->route('user.transaksi.index', $transaksi->id)
             ->with('success', 'Transaksi berhasil dibuat.');
     }
 }

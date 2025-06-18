@@ -18,6 +18,7 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
-        "@tailwindcss/aspect-ratio": "^0.4.2"
+        "@tailwindcss/aspect-ratio": "^0.4.2",
+        "@tailwindcss/line-clamp": "^0.4.4"
     }
 }
