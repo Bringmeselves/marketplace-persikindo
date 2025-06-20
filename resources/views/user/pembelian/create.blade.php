@@ -96,7 +96,7 @@
     </a>
 
     {{-- SECTION: Form Pembelian --}}
-    <form action="{{ route('user.checkout.start') }}" method="POST" onsubmit="return validateVarian();">
+    <form id="checkout-form" action="{{ route('user.checkout.start') }}" method="POST">
         @csrf
         <input type="hidden" name="produk_id" value="{{ $produk->id }}">
         <input type="hidden" name="varian_id" id="varian_id">
@@ -122,36 +122,105 @@
             </div>
         </div>
     </form>
+
+    {{-- SECTION: Penilaian Pembeli --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 space-y-4">
+        <div class="flex items-center gap-3 mb-4">
+            <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
+            <h3 class="text-xl font-semibold text-gray-900">Penilaian Pembeli</h3>
+        </div>
+
+        @forelse ($produk->penilaian as $penilaian)
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-medium text-gray-800">{{ $penilaian->user->name }}</span>
+                    <span class="text-yellow-500 font-semibold">⭐ {{ $penilaian->rating }} / 5</span>
+                </div>
+                <p class="text-gray-700">{{ $penilaian->ulasan }}</p>
+
+                @if ($penilaian->user_id === auth()->id())
+                    <form action="{{ route('user.penilaian.destroy', $penilaian->id) }}" method="POST" class="mt-2">
+                @csrf
+                @method('DELETE')
+                        <div class="pt-4">
+                            <button type="submit"
+                                    class="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition duration-300 shadow hover:shadow-lg">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                Hapus Penilaian
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </div>
+        @empty
+            <p class="text-gray-500">Belum ada penilaian untuk produk ini.</p>
+        @endforelse
+    </div>
 </div>
 
-{{-- Lucide Icons --}}
-<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        lucide.createIcons();
+        // Pastikan lucide tidak error
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
 
         const varianButtons = document.querySelectorAll('.varian-option');
         const inputVarianId = document.getElementById('varian_id');
         const hargaText = document.getElementById('harga-text');
         const stokText = document.getElementById('stok-text');
         const mainImage = document.getElementById('main-image');
+        const checkoutForm = document.getElementById('checkout-form');
+        const loader = document.getElementById('loader');
 
+        // Validasi sebelum submit checkout
+        if (checkoutForm) {
+            const submitButton = checkoutForm.querySelector('button[type="submit"]');
+
+            if (submitButton) {
+                submitButton.addEventListener('click', function (e) {
+                    const varianTerpilih = inputVarianId.value && inputVarianId.value.trim() !== '';
+
+                    if (!varianTerpilih) {
+                        e.preventDefault(); // Cegah submit
+                        alert('Silakan pilih varian terlebih dahulu.');
+
+                        // Sembunyikan loader jika muncul
+                        if (loader) loader.style.display = 'none';
+                        return;
+                    }
+
+                    // Tampilkan loader jika valid
+                    if (loader) loader.style.display = 'flex';
+                });
+            }
+        }
+
+        // Saat varian dipilih
         varianButtons.forEach(button => {
             button.addEventListener('click', function () {
-                inputVarianId.value = this.dataset.id;
-                hargaText.textContent = 'Rp' + Number(this.dataset.harga).toLocaleString('id-ID');
-                stokText.textContent = this.dataset.stok;
-                mainImage.src = this.dataset.gambar;
+                const id = this.dataset.id;
+                const harga = this.dataset.harga;
+                const stok = this.dataset.stok;
+                const gambar = this.dataset.gambar;
 
+                inputVarianId.value = id;
+
+                hargaText.textContent = 'Rp' + Number(harga).toLocaleString('id-ID');
+                stokText.textContent = stok;
+                mainImage.src = gambar;
+
+                // Style
                 varianButtons.forEach(btn => btn.classList.remove('ring', 'ring-indigo-400'));
                 this.classList.add('ring', 'ring-indigo-400');
             });
         });
 
+        // Toggle deskripsi
         const deskripsi = document.getElementById('deskripsi');
         const toggleBtn = document.getElementById('toggle-deskripsi');
 
-        if (toggleBtn) {
+        if (toggleBtn && deskripsi) {
             toggleBtn.addEventListener('click', function () {
                 const collapsed = deskripsi.classList.contains('line-clamp-5');
                 deskripsi.classList.toggle('line-clamp-5');
@@ -159,22 +228,5 @@
             });
         }
     });
-
-   document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            console.log('Submit event triggered');
-            const varianId = document.getElementById('varian_id').value;
-            console.log('varianId:', varianId);
-            if (!varianId) {
-                e.preventDefault();
-                alert('Silakan pilih varian terlebih dahulu.');
-            }
-        });
-    }
-});
-
-
 </script>
 @endsection

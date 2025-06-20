@@ -33,8 +33,13 @@
     @else
         <div class="space-y-6">
             @foreach($transaksiList as $transaksi)
+                @php
+                    $produk = $transaksi->produk;
+                    $penilaian = $produk?->penilaian->firstWhere('user_id', auth()->id());
+                @endphp
+
                 <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6">
-                    
+
                     {{-- Gambar --}}
                     <div class="w-full md:w-40 h-40 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
                         <img src="{{ asset('storage/' . ($transaksi->checkout->gambar ?? 'default.jpg')) }}"
@@ -46,7 +51,7 @@
                     <div class="flex flex-col justify-between flex-grow space-y-4">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">
-                                {{ $transaksi->produk->nama ?? 'Produk tidak ditemukan' }}
+                                {{ $produk->nama ?? 'Produk tidak ditemukan' }}
                                 @if($transaksi->varian)
                                     <span class="text-sm text-gray-500">({{ $transaksi->varian->nama }})</span>
                                 @endif
@@ -64,7 +69,7 @@
                                 <li class="flex justify-between">
                                     <span>Harga/item</span>
                                     <span class="font-medium text-gray-800">
-                                        Rp{{ number_format(optional($transaksi->varian)->harga ?? optional($transaksi->produk)->harga ?? 0, 0, ',', '.') }}
+                                        Rp{{ number_format(optional($transaksi->varian)->harga ?? optional($produk)->harga ?? 0, 0, ',', '.') }}
                                     </span>
                                 </li>
                                 <li class="flex justify-between font-bold text-gray-900 border-t pt-2">
@@ -72,7 +77,7 @@
                                     <span>
                                         Rp{{ number_format(
                                             (
-                                                (optional($transaksi->varian)->harga ?? optional($transaksi->produk)->harga ?? 0)
+                                                (optional($transaksi->varian)->harga ?? optional($produk)->harga ?? 0)
                                                 * ($transaksi->checkout->jumlah ?? 1)
                                             ) + (optional($transaksi->checkout->pengiriman)->ongkir ?? 0),
                                             0, ',', '.'
@@ -91,11 +96,18 @@
                         </div>
 
                         {{-- Tombol --}}
-                        <div class="text-right">
+                        <div class="flex flex-col md:flex-row justify-end gap-2">
                             <a href="{{ route('user.transaksi.show', $transaksi->id) }}"
                                class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
                                 <i data-lucide="eye" class="w-4 h-4"></i>
                                 Lihat Detail
+                            </a>
+
+                            {{-- Tombol Penilaian --}}
+                            <a href="{{ route('user.penilaian.create', $produk->id ?? 1) }}"
+                            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition">
+                                <i data-lucide="star" class="w-4 h-4"></i>
+                                Beri Penilaian
                             </a>
                         </div>
                     </div>

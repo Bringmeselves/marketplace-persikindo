@@ -101,8 +101,10 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('/penjualan', [UserTransaksiController::class, 'penjualan'])->name('transaksi.penjualan');
 
     // Penilaian
-    Route::get('/produk/{produk_id}/penilaian', [UserPenilaianController::class, 'create'])->name('penilaian.create');
-     Route::post('/produk/{produk_id}/penilaian', [UserPenilaianController::class, 'store'])->name('penilaian.store');
+    Route::get('/penilaian/{produk}/create', [UserPenilaianController::class, 'create'])->name('penilaian.create');
+    Route::post('/penilaian', [UserPenilaianController::class, 'store'])->name('penilaian.store');
+    Route::delete('/penilaian/{id}', [UserPenilaianController::class, 'destroy'])->name('penilaian.destroy');
+    Route::get('/penilaian/produk/{produk}', [UserPenilaianController::class, 'showByProduk'])->name('penilaian.show');
 });
 
 // ==========================

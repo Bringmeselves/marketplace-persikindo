@@ -139,17 +139,15 @@
     }
 </style>
 
-<!-- JS untuk menyembunyikan loader saat halaman selesai dimuat -->
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    window.addEventListener('load', function () {
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.style.display = 'none';
-        }
-    });
-
-    // Tampilkan loader saat form disubmit
     document.addEventListener('DOMContentLoaded', function () {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Tampilkan loader saat form disubmit
         const forms = document.querySelectorAll('form');
         forms.forEach(form => {
             form.addEventListener('submit', function () {
@@ -160,12 +158,14 @@
             });
         });
     });
-</script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
 
-
+    // Sembunyikan loader saat halaman selesai dimuat
+    window.addEventListener('load', function () {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>

@@ -17,7 +17,7 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksiList = Transaksi::with(['produk', 'varian', 'checkout', 'pengiriman', 'pembayaran'])
+        $transaksiList = Transaksi::with(['produk.penilaian', 'produk', 'varian', 'checkout', 'pengiriman', 'pembayaran'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();

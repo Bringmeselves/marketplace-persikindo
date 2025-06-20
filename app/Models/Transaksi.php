@@ -58,4 +58,10 @@ class Transaksi extends Model
     {
         return $this->belongsTo(Varian::class);
     }
+
+    // Relasi: Transaksi memiliki banyak penilaian
+    public function penilaian()
+    {
+        return $this->hasOne(Penilaian::class, 'produk_id', 'produk_id')->where('user_id', $this->user_id);
+    }
 }

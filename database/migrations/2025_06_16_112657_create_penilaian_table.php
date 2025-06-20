@@ -4,24 +4,27 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreatePenilaianTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('penilaians', function (Blueprint $table) {
+        Schema::create('penilaian', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('produk_id'); // relasi ke produk
+            $table->unsignedBigInteger('user_id');   // relasi ke user
+            $table->tinyInteger('rating');           // nilai rating (1–5)
+            $table->text('ulasan')->nullable();      // teks ulasan opsional
             $table->timestamps();
+            $table->softDeletes();
+
+            // Foreign keys
+            $table->foreign('produk_id')->references('id')->on('produk')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('penilaians');
+        Schema::dropIfExists('penilaian');
     }
-};
+}
