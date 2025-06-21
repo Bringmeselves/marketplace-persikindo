@@ -8,10 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('checkout', function (Blueprint $table) {
+        Schema::create('checkout_item', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+             $table->foreignId('checkout_id')->constrained('checkout')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
             $table->foreignId('varian_id')->constrained('varian')->onDelete('cascade');
             $table->foreignId('toko_id')->constrained('toko')->onDelete('cascade');
@@ -30,6 +31,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('checkout');
+        Schema::dropIfExists('checkout_item');
     }
 };

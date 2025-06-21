@@ -78,6 +78,10 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('checkout/{id}', [UserCheckoutController::class, 'create'])->name('checkout.create');
     Route::post('/checkout/{id}', [UserCheckoutController::class, 'store'])->name('checkout.store');
    
+    Route::get('{checkout}/item/{item}/edit', [UserCheckoutController::class, 'editItem'])->name('checkout.item.edit');
+    Route::put('{checkout}/item/{item}', [UserCheckoutController::class, 'updateItem'])->name('checkout.item.update');
+    Route::delete('{checkout}/item/{item}', [UserCheckoutController::class, 'destroyItem'])->name('checkout.item.destroy');
+
     // Pengiriman
     Route::get('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatCreate'])->name('pengiriman.alamat.create');
     Route::get('/pengiriman/{checkout}/alamat/edit', [UserPengirimanController::class, 'alamatEdit'])->name('pengiriman.alamat.edit');

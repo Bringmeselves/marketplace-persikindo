@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('toko', function (Blueprint $table) {
             $table->id();
             $table->string('nama_toko');
-            $table->string('keterangan')->nullable();
+            $table->text('keterangan')->nullable();
             $table->string('alamat');
             $table->string('cities')->nullable();
             $table->string('foto_toko')->nullable();

@@ -1,60 +1,79 @@
-@extends('layouts.app')
+@extends('layouts.admin')
+
+@section('title', 'Daftar Kategori')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <h1 class="text-3xl font-semibold mb-6">Daftar Kategori</h1>
+<div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
 
-    {{-- Tombol Tambah Kategori --}}
-    <a href="{{ route('admin.kategori.create') }}" 
-       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded mb-6 transition">
-        Tambah Kategori
-    </a>
+    <h2 class="text-3xl font-bold text-gray-900">Daftar Kategori</h2>
 
-    {{-- Pesan sukses --}}
+    {{-- Notifikasi --}}
     @if(session('success'))
-        <div class="mb-6 p-4 bg-green-100 text-green-800 rounded border border-green-300">
-            {{ session('success') }}
+        <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded shadow-sm">
+            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+            <span class="text-sm text-green-800 font-medium">{{ session('success') }}</span>
         </div>
     @endif
 
-    {{-- Tabel daftar kategori --}}
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200 rounded shadow-sm">
-            <thead>
-                <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-                    <th class="py-3 px-6 text-left w-12">#</th>
-                    <th class="py-3 px-6 text-left">Nama</th>
-                    <th class="py-3 px-6 text-left">Slug</th>
-                    <th class="py-3 px-6 text-center w-40">Aksi</th>
+    {{-- Tombol Tambah --}}
+    <div>
+        <a href="{{ route('admin.kategori.create') }}" 
+           class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Tambah Kategori
+        </a>
+    </div>
+
+    {{-- Tabel Kategori --}}
+    <div class="overflow-x-auto bg-white shadow rounded-xl mt-6">
+        <table class="min-w-full text-sm text-left text-gray-700">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500 border-b">
+                <tr>
+                    <th class="px-6 py-4">No</th>
+                    <th class="px-6 py-4">Nama</th>
+                    <th class="px-6 py-4">Slug</th>
+                    <th class="px-6 py-4 text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="text-gray-700 text-sm">
-                @foreach($kategori as $item)
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="py-3 px-6">{{ $loop->iteration }}</td>
-                        <td class="py-3 px-6">{{ $item->name }}</td>
-                        <td class="py-3 px-6">{{ $item->slug }}</td>
-                        <td class="py-3 px-6 text-center space-x-2">
-                            {{-- Tombol Edit --}}
+            <tbody>
+                @forelse($kategori as $item)
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-6 py-4">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4">{{ $item->name }}</td>
+                        <td class="px-6 py-4">{{ $item->slug }}</td>
+                        <td class="px-6 py-4 text-center space-x-2">
                             <a href="{{ route('admin.kategori.edit', $item->id) }}" 
-                               class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold py-1 px-3 rounded transition">
+                               class="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-white text-xs font-semibold transition">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
                                 Edit
                             </a>
-
-                            {{-- Form Hapus --}}
                             <form action="{{ route('admin.kategori.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" 
-                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-3 rounded transition">
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     Hapus
                                 </button>
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-10 text-gray-400 italic">
+                            <i data-lucide="folder-open" class="w-6 h-6 mx-auto mb-2"></i>
+                            Belum ada kategori yang ditambahkan.
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </div>
+
+{{-- Lucide Icons --}}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 @endsection

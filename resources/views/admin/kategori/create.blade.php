@@ -1,42 +1,62 @@
 @extends('layouts.app')
 
+@section('title', 'Tambah Kategori')
+
 @section('content')
-<div class="container mx-auto px-4 py-6 max-w-lg">
-    <h1 class="text-2xl font-semibold mb-6">Tambah Kategori</h1>
+<div class="max-w-xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8 text-gray-800">
 
-    {{-- Form tambah kategori --}}
-    <form action="{{ route('admin.kategori.store') }}" method="POST" class="space-y-6">
-        @csrf
+    <h2 class="text-3xl font-bold text-gray-900">Tambah Kategori</h2>
 
-        {{-- Input Nama Kategori --}}
-        <div>
-            <label for="name" class="block mb-2 font-medium text-gray-700">Nama Kategori</label>
-            <input 
-                type="text" 
-                name="name" 
-                id="name" 
-                value="{{ old('name') }}" 
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            {{-- Error message --}}
-            @error('name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+    {{-- Notifikasi --}}
+    @if(session('success'))
+        <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded shadow-sm">
+            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+            <span class="text-sm text-green-800 font-medium">{{ session('success') }}</span>
         </div>
+    @endif
 
-        {{-- Tombol Simpan dan Batal --}}
-        <div class="flex space-x-4">
-            <button type="submit" 
-                    class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-md transition">
-                Simpan
-            </button>
+    {{-- Form Tambah Kategori --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+        <form action="{{ route('admin.kategori.store') }}" method="POST" class="space-y-6">
+            @csrf
 
-            <a href="{{ route('admin.kategori.index') }}" 
-               class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-md transition flex items-center justify-center">
-                Batal
-            </a>
-        </div>
-    </form>
+            {{-- Input Nama --}}
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Kategori</label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    id="name" 
+                    value="{{ old('name') }}" 
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                @error('name')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Tombol --}}
+            <div class="flex justify-end gap-3">
+                <a href="{{ route('admin.kategori.index') }}" 
+                   class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Batal
+                </a>
+
+                <button type="submit" 
+                        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold transition">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Simpan
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
+{{-- Lucide Icons --}}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 @endsection

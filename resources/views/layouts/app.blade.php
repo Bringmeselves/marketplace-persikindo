@@ -45,12 +45,7 @@
                 @if(auth()->check())
                     @php $user = auth()->user()->fresh(); @endphp
 
-                    @if($user->role === 'admin')
-                        <li><a href="{{ route('admin.anggota.index') }}" class="text-black font-semibold hover:text-blue-500">Kelola Anggota</a></li>
-                        <li><a href="{{ route('admin.toko.index') }}" class="text-black font-semibold hover:text-blue-500">Kelola Toko</a></li>
-                        <li><a href="{{ route('admin.produk.index') }}" class="text-black font-semibold hover:text-blue-500">Kelola Produk</a></li>
-                        <li><a href="{{ route('admin.kategori.index') }}" class="text-black font-semibold hover:text-blue-500">Kelola Kategori</a></li>
-                    @elseif($user->role === 'user')
+                    @if($user->role === 'user')
                         <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Marketplace</a></li>
                         <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
                         <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>

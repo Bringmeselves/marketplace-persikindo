@@ -15,45 +15,54 @@ use Illuminate\Support\Facades\Validator;
 class ProdukController extends Controller
 {
     /**
-     * Menampilkan daftar produk
+     * Menampilkan daftar produk milik user (anggota)
      */
     public function index()
     {
         $user = Auth::user();
+
+        // Cek apakah user adalah anggota
         if (!$user || $user->role !== 'anggota') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
+        // Ambil semua produk milik user
         $produk = Produk::where('user_id', $user->id)->get();
+
         return view('user.produk.index', compact('produk'));
     }
 
     /**
-     * Menampilkan form untuk membuat produk baru
+     * Menampilkan form tambah produk baru
      */
     public function create()
     {
         $user = Auth::user();
+
+        // Cek hak akses user
         if (!$user || $user->role !== 'anggota') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk membuat produk.');
         }
 
-        if (!$user->toko()->exists()) { // Periksa apakah pengguna memiliki toko
+        // Pastikan user sudah punya toko
+        if (!$user->toko()->exists()) {
             return redirect()->route('user.toko.create')->with('error', 'Anda harus memiliki toko untuk menambahkan produk.');
         }
 
-        $kategori = Kategori::all(); // Menampilkan daftar kategori produk
+        // Ambil semua kategori untuk dropdown form
+        $kategori = Kategori::all();
+
         return view('user.produk.create', compact('kategori'));
     }
 
     /**
-     * Menyimpan produk dan variannya ke database
+     * Menyimpan produk dan varian ke database
      */
     public function store(Request $request)
     {
         $user = Auth::user();
 
-        // Validasi input utama dan varian
+        // Validasi input form
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'deskripsi' => 'required|string|max:1000',
@@ -62,18 +71,29 @@ class ProdukController extends Controller
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kategori_id' => 'required|exists:kategori,id',
 
+            // Validasi array varian
             'varian.nama.*' => 'required|string|max:255',
             'varian.stok.*' => 'required|integer|min:0',
             'varian.harga.*' => 'required|numeric|min:0',
             'varian.gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Simpan gambar utama produk jika ada
+        // Hitung total stok varian
+        $totalStokVarian = array_sum($request->varian['stok']);
+
+        // Validasi total stok varian tidak boleh melebihi stok utama produk
+        if ($totalStokVarian > $request->stok) {
+            return redirect()->back()->withInput()->withErrors([
+                'varian.stok' => 'Jumlah total stok varian tidak boleh melebihi stok utama produk.'
+            ]);
+        }
+
+        // Simpan gambar utama produk jika diunggah
         $gambarPath = $request->hasFile('gambar')
             ? $request->file('gambar')->store('produk_gambar', 'public')
             : null;
 
-        // Simpan satu produk saja
+        // Simpan data produk utama
         $produk = Produk::create([
             'nama' => $request->nama,
             'deskripsi' => $request->deskripsi,
@@ -86,7 +106,7 @@ class ProdukController extends Controller
             'toko_id' => $user->toko->id,
         ]);
 
-        // Simpan variannya
+        // Simpan semua varian yang diinput
         if ($request->has('varian')) {
             foreach ($request->varian['nama'] as $i => $namaVarian) {
                 $gambarVarian = null;
@@ -96,7 +116,7 @@ class ProdukController extends Controller
                     $gambarVarian = $request->file("varian.gambar.$i")->store('varian_gambar', 'public');
                 }
 
-                // Simpan varian dan relasikan ke produk yang baru dibuat
+                // Simpan data varian dan relasikan ke produk
                 $produk->varian()->create([
                     'nama' => $namaVarian,
                     'stok' => $request->varian['stok'][$i],
@@ -110,13 +130,15 @@ class ProdukController extends Controller
     }
 
     /**
-     * Menampilkan form untuk mengedit produk
+     * Menampilkan form edit produk
      */
     public function edit($id)
     {
-        $produk = Produk::findOrFail($id);
+        // Ambil produk beserta variannya
+        $produk = Produk::with('varian')->findOrFail($id);
         $user = Auth::user();
 
+        // Pastikan hanya pemilik yang bisa mengedit
         if ($produk->user_id !== $user->id || $user->role !== 'anggota') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk mengedit produk ini.');
         }
@@ -126,18 +148,19 @@ class ProdukController extends Controller
     }
 
     /**
-     * Mengupdate data produk
+     * Update produk utama (belum termasuk edit varian)
      */
     public function update(Request $request, $id)
     {
         $produk = Produk::findOrFail($id);
         $user = Auth::user();
 
+        // Cek hak akses
         if ($produk->user_id !== $user->id || $user->role !== 'anggota') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk mengedit produk ini.');
         }
 
-        // Validasi input
+        // Validasi input update
         $validated = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
             'deskripsi' => 'required|string|max:1000',
@@ -151,7 +174,7 @@ class ProdukController extends Controller
             return redirect()->back()->withErrors($validated)->withInput();
         }
 
-        // Proses unggah gambar jika ada
+        // Simpan gambar baru jika diupload
         if ($request->hasFile('gambar')) {
             $gambarPath = $request->file('gambar')->store('produk_gambar', 'public');
             $produk->gambar = $gambarPath;
@@ -170,27 +193,32 @@ class ProdukController extends Controller
     }
 
     /**
-     * Menghapus produk
+     * Menghapus produk dan seluruh variannya
      */
     public function destroy($id)
     {
         $produk = Produk::findOrFail($id);
         $user = Auth::user();
 
+        // Cek kepemilikan
         if ($produk->user_id !== $user->id || $user->role !== 'anggota') {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk menghapus produk ini.');
         }
 
+        // Hapus produk (otomatis ikut soft delete varian jika pakai relasi cascade + SoftDeletes)
         $produk->delete();
+
         return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk berhasil dihapus.');
     }
 
     /**
-     * Menampilkan halaman marketplace
+     * Menampilkan semua produk di halaman marketplace
      */
     public function marketplace()
     {
-        $produk = Produk::all(); // Mengambil semua produk dari database
+        // Ambil semua produk aktif beserta variannya
+        $produk = Produk::with('varian')->where('status', 'aktif')->get();
+
         return view('user.marketplace.index', compact('produk'));
     }
 }
