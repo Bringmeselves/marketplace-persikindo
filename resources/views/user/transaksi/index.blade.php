@@ -1,115 +1,106 @@
-@extends('layouts.app')
+@extends('layouts.app') 
 
-@section('title', 'Daftar Transaksi')
+@section('title', 'Daftar Transaksi') 
 
 @section('content')
-<div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+<div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8 text-gray-800">
+    <h2 class="text-3xl font-bold text-gray-900 pb-4 border-b">Daftar Transaksi</h2>
 
-    <h2 class="text-3xl font-bold text-gray-900">Daftar Transaksi</h2>
-
-    {{-- Notifikasi --}}
-    @if(session('success') || session('info'))
-        <div class="space-y-2">
-            @if(session('success'))
-                <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded shadow-sm">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
-                    <span class="text-sm text-green-800 font-medium">{{ session('success') }}</span>
-                </div>
-            @endif
-            @if(session('info'))
-                <div class="flex items-center gap-3 p-4 border-l-4 border-blue-500 bg-blue-50 rounded shadow-sm">
-                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
-                    <span class="text-sm text-blue-800 font-medium">{{ session('info') }}</span>
-                </div>
-            @endif
-        </div>
-    @endif
-
-    @if($transaksiList->isEmpty())
-        <div class="text-center text-gray-400 py-24 space-y-3">
-            <i data-lucide="shopping-bag" class="mx-auto w-8 h-8"></i>
-            <p class="italic">Belum ada transaksi yang dilakukan.</p>
+    @if ($transaksiList->isEmpty())
+        {{-- Jika tidak ada transaksi, tampilkan pesan kosong --}}
+        <div class="bg-white shadow-lg rounded-2xl p-6 text-gray-600">
+            Belum ada transaksi.
         </div>
     @else
+        {{-- Menampilkan daftar transaksi jika ada --}}
         <div class="space-y-6">
-            @foreach($transaksiList as $transaksi)
-                @php
-                    $produk = $transaksi->produk;
-                    $penilaian = $produk?->penilaian->firstWhere('user_id', auth()->id());
-                @endphp
-
-                <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6">
-
-                    {{-- Gambar --}}
-                    <div class="w-full md:w-40 h-40 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
-                        <img src="{{ asset('storage/' . ($transaksi->checkout->gambar ?? 'default.jpg')) }}"
-                             alt="Gambar Produk"
-                             class="w-full h-full object-cover">
+            @foreach ($transaksiList as $transaksi)
+                {{-- Kartu untuk setiap transaksi --}}
+                <div class="bg-white shadow-lg rounded-2xl p-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        {{-- Judul dan status transaksi --}}
+                        <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->id }}</h3>
+                        <span class="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700 capitalize">
+                            {{ $transaksi->status }}
+                        </span>
                     </div>
 
-                    {{-- Detail Transaksi --}}
-                    <div class="flex flex-col justify-between flex-grow space-y-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">
-                                {{ $produk->nama ?? 'Produk tidak ditemukan' }}
-                                @if($transaksi->varian)
-                                    <span class="text-sm text-gray-500">({{ $transaksi->varian->nama }})</span>
-                                @endif
-                            </h3>
+                    <div class="space-y-3">
+                        @php
+                            $total = 0; // Inisialisasi total transaksi
+                        @endphp
 
-                            <ul class="mt-2 space-y-1 text-sm text-gray-600">
-                                <li class="flex justify-between">
-                                    <span>ID Transaksi</span>
-                                    <span class="font-medium text-gray-800">{{ $transaksi->id }}</span>
-                                </li>
-                                <li class="flex justify-between">
-                                    <span>Jumlah</span>
-                                    <span class="font-medium text-gray-800">{{ $transaksi->checkout->jumlah ?? '-' }} pcs</span>
-                                </li>
-                                <li class="flex justify-between">
-                                    <span>Harga/item</span>
-                                    <span class="font-medium text-gray-800">
-                                        Rp{{ number_format(optional($transaksi->varian)->harga ?? optional($produk)->harga ?? 0, 0, ',', '.') }}
-                                    </span>
-                                </li>
-                                <li class="flex justify-between font-bold text-gray-900 border-t pt-2">
-                                    <span>Total</span>
-                                    <span>
-                                        Rp{{ number_format(
-                                            (
-                                                (optional($transaksi->varian)->harga ?? optional($produk)->harga ?? 0)
-                                                * ($transaksi->checkout->jumlah ?? 1)
-                                            ) + (optional($transaksi->checkout->pengiriman)->ongkir ?? 0),
-                                            0, ',', '.'
-                                        ) }}
-                                    </span>
-                                </li>
-                            </ul>
+                        {{-- Loop setiap item dalam checkout --}}
+                        @if ($transaksi->checkout && $transaksi->checkout->item)
+                            @foreach ($transaksi->checkout->item as $item)
+                                @php
+                                    // Hitung subtotal dan total
+                                    $harga = $item->produk->harga ?? 0;
+                                    $jumlah = $item->jumlah ?? 0;
+                                    $subtotal = $harga * $jumlah;
+                                    $total += $subtotal;
+                                @endphp
 
-                            <div class="mt-3">
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-                                    {{ $transaksi->status === 'selesai' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                                    <i data-lucide="{{ $transaksi->status === 'selesai' ? 'check-circle' : 'clock' }}" class="w-3.5 h-3.5"></i>
-                                    {{ ucfirst($transaksi->status) }}
+                                {{-- Tampilan info produk --}}
+                                <div class="flex flex-col md:flex-row gap-4 border-b pb-3">
+                                    {{-- Gambar Produk --}}
+                                    <div class="w-24 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-100">
+                                        <img src="{{ asset('storage/' . ($item->varian->gambar ?? $item->produk->gambar ?? 'img/default.png')) }}"
+                                             alt="{{ $item->produk->nama ?? 'Produk' }}"
+                                             class="object-cover w-full h-full">
+                                    </div>
+
+                                    {{-- Info Produk --}}
+                                    <div class="flex-grow">
+                                        <p class="font-semibold text-gray-900">
+                                            {{ $item->produk->nama ?? 'Produk tidak ditemukan' }}
+                                            @if($item->varian)
+                                                {{-- Tampilkan nama varian jika ada --}}
+                                                <span class="text-sm text-gray-500">({{ $item->varian->nama }})</span>
+                                            @endif
+                                        </p>
+                                        <p class="text-sm text-gray-600">Jumlah: {{ $jumlah }}</p>
+                                        <p class="text-sm text-gray-600">Harga: Rp{{ number_format($harga, 0, ',', '.') }}</p>
+                                        <p class="text-sm text-gray-800 font-medium">Subtotal: Rp{{ number_format($subtotal, 0, ',', '.') }}</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+
+                        {{-- Informasi total pembayaran dan tanggal --}}
+                        <div class="pt-2 text-sm text-gray-700 space-y-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium">Total Pembayaran:</span>
+                                <span>
+                                    Rp{{ number_format($transaksi->pembayaran->total ?? $total, 0, ',', '.') }}
                                 </span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">Tanggal:</span>
+                                <span>{{ $transaksi->created_at->format('d M Y H:i') }}</span>
+                            </div>
                         </div>
+                    </div>
 
-                        {{-- Tombol --}}
-                        <div class="flex flex-col md:flex-row justify-end gap-2">
-                            <a href="{{ route('user.transaksi.show', $transaksi->id) }}"
-                               class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
-                                <i data-lucide="eye" class="w-4 h-4"></i>
-                                Lihat Detail
-                            </a>
+                    {{-- Tombol aksi --}}
+                    <div class="flex flex-wrap gap-2 justify-end pt-2">
+                        {{-- Tombol Lihat Detail --}}
+                        <form action="{{ route('user.transaksi.show', $transaksi->id) }}" method="GET">
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-100 text-indigo-800 hover:bg-indigo-200 text-sm font-semibold">
+                                <i data-lucide="eye" class="w-4 h-4"></i> Lihat Detail
+                            </button>
+                        </form>
 
-                            {{-- Tombol Penilaian --}}
-                            <a href="{{ route('user.penilaian.create', $produk->id ?? 1) }}"
-                            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition">
-                                <i data-lucide="star" class="w-4 h-4"></i>
-                                Beri Penilaian
-                            </a>
-                        </div>
+                        {{-- Tombol Beri Penilaian, jika status selesai --}}
+                        @if ($transaksi->status === 'selesai')
+                            <form action="{{ route('user.penilaian.create', ['transaksi' => $transaksi->id]) }}" method="GET">
+                                <button type="submit"
+                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-100 text-green-800 hover:bg-green-200 text-sm font-semibold">
+                                    <i data-lucide="star" class="w-4 h-4"></i> Beri Penilaian
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -120,6 +111,8 @@
 {{-- Lucide Icons --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons(); // Inisialisasi ikon dari Lucide
+    });
 </script>
 @endsection

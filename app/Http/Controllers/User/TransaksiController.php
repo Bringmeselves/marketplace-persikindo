@@ -5,8 +5,6 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
 use App\Models\Checkout;
-use App\Models\Pengiriman;
-use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +15,17 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksiList = Transaksi::with(['produk.penilaian', 'produk', 'varian', 'checkout', 'pengiriman', 'pembayaran'])
+        $transaksiList = Transaksi::with([
+                'checkout',
+                'checkout.item',
+                'checkout.item.produk',
+                'checkout.item.varian',
+                'checkout.item.produk.toko',
+                'checkout.pengiriman',
+                'checkout.pembayaran',
+                'pengiriman',
+                'pembayaran',
+            ])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -30,7 +38,17 @@ class TransaksiController extends Controller
      */
     public function show($id)
     {
-        $transaksi = Transaksi::with(['produk', 'varian', 'checkout', 'pengiriman', 'pembayaran'])
+        $transaksi = Transaksi::with([
+                'checkout',
+                'checkout.item',
+                'checkout.item.produk',
+                'checkout.item.varian',
+                'checkout.item.produk.toko',
+                'checkout.pengiriman',
+                'checkout.pembayaran',
+                'pengiriman',
+                'pembayaran',
+            ])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
@@ -44,29 +62,31 @@ class TransaksiController extends Controller
     {
         $user = Auth::user();
 
-        // Cek apakah transaksi sudah ada untuk checkout ini
+        // Cek apakah transaksi sudah ada
         $existing = Transaksi::where('checkout_id', $checkoutId)->first();
         if ($existing) {
             return redirect()->route('user.transaksi.show', $existing->id)
                 ->with('info', 'Transaksi untuk checkout ini sudah dibuat.');
         }
 
-        // Ambil data checkout beserta relasinya
-        $checkout = Checkout::with(['produk', 'varian', 'pengiriman'])->find($checkoutId);
-        if (!$checkout || $checkout->user_id !== $user->id) {
-            return redirect()->route('user.checkout.create', $checkoutId)
-                ->with('error', 'Data checkout tidak valid atau tidak ditemukan.');
-        }
+        // Ambil data checkout dengan relasi lengkap
+        $checkout = Checkout::with([
+                'item.produk',
+                'item.varian',
+                'pengiriman',
+                'pembayaran',
+            ])
+            ->where('id', $checkoutId)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
-        // Cek pengiriman & pembayaran
-        $pengiriman = $checkout->pengiriman;
-        if (!$pengiriman) {
-            return redirect()->route('user.pembayaran.create', $checkoutId)
+        // Validasi kelengkapan pengiriman & pembayaran
+        if (!$checkout->pengiriman) {
+            return redirect()->route('user.pengiriman.create', $checkoutId)
                 ->with('error', 'Data pengiriman belum lengkap.');
         }
 
-        $pembayaran = Pembayaran::where('checkout_id', $checkoutId)->first();
-        if (!$pembayaran) {
+        if (!$checkout->pembayaran) {
             return redirect()->route('user.pembayaran.create', $checkoutId)
                 ->with('error', 'Data pembayaran belum tersedia.');
         }
@@ -74,15 +94,13 @@ class TransaksiController extends Controller
         // Simpan transaksi
         $transaksi = Transaksi::create([
             'user_id'       => $user->id,
-            'produk_id'     => $checkout->produk_id,
-            'varian_id'     => $checkout->varian_id, // pastikan kolom ini ada di tabel
             'checkout_id'   => $checkout->id,
-            'pengiriman_id' => $pengiriman->id,
-            'pembayaran_id' => $pembayaran->id,
+            'pengiriman_id' => $checkout->pengiriman->id,
+            'pembayaran_id' => $checkout->pembayaran->id,
             'status'        => 'diproses',
         ]);
 
-        return redirect()->route('user.transaksi.index', $transaksi->id)
+        return redirect()->route('user.transaksi.index')
             ->with('success', 'Transaksi berhasil dibuat.');
     }
 }

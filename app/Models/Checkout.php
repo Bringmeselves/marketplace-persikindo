@@ -51,5 +51,9 @@ class Checkout extends Model
     {
         return $this->hasOne(Pengiriman::class);
     }
-
+    
+    public function pembayaran() 
+    {
+        return $this->hasOne(Pembayaran::class);
+    }
 }
