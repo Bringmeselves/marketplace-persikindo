@@ -28,7 +28,6 @@
     </div>
 </div>
 
-
     <!-- Search & Filter -->
     <div class="flex flex-col sm:flex-row gap-4">
         <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex-grow">
@@ -86,16 +85,15 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="text-indigo-600 font-bold text-lg">
+                        <div class="text-black-600 font-bold text-lg">
                             Rp{{ number_format($item->harga, 0, ',', '.') }}
                         </div>
                     </div>
                     <div class="border-t bg-gray-50 px-5 py-3">
                         <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
                             @csrf
-                            <button type="submit"
-                                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl transition">
-                                Beli
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition flex justify-center items-center gap-2">
+                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
                             </button>
                         </form>
                     </div>

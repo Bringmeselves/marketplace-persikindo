@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Persikindo</title>
+    <title>@yield('title', 'Marketplace Persikindo')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{-- Vite asset untuk Tailwind dan JS --}}
@@ -40,7 +40,7 @@
         {{-- Navigasi --}}
         <nav>
             <ul class="flex gap-6 list-none">
-                <li><a href="{{ route('dashboard') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
+                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
 
                 @if(auth()->check())
                     @php $user = auth()->user()->fresh(); @endphp

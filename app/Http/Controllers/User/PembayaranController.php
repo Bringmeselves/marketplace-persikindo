@@ -5,7 +5,6 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Checkout;
 use App\Models\Pembayaran;
-use App\Http\Controllers\User\TransaksiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,17 +15,12 @@ class PembayaranController extends Controller
      */
     public function create($checkoutId)
     {
-        // Ambil data checkout beserta relasi produk, toko, varian, dan pengiriman
-        $checkout = Checkout::with(['produk.toko', 'varian', 'pengiriman'])
+        $checkout = Checkout::with(['item.produk', 'item.varian', 'pengiriman'])
             ->where('id', $checkoutId)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        return view('user.pembayaran.create', [
-            'checkout' => $checkout,
-            'produk' => $checkout->produk,
-            'varian' => $checkout->varian,
-        ]);
+        return view('user.pembayaran.create', compact('checkout'));
     }
 
     /**
@@ -38,53 +32,44 @@ class PembayaranController extends Controller
             'metode_pembayaran' => 'required|string|max:50',
         ]);
 
-        $checkout = Checkout::with(['produk', 'varian', 'pengiriman'])
+        $checkout = Checkout::with(['item.produk', 'item.varian', 'pengiriman'])
             ->where('id', $checkoutId)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Hitung total produk
-        $hargaSatuan = $checkout->varian->harga ?? $checkout->produk->harga;
-        $totalProduk = $hargaSatuan * $checkout->jumlah;
-
-        // Ambil ongkos kirim
+        // Hitung total produk dari semua item
+        $totalProduk = $checkout->item->sum('total_harga');
         $ongkir = $checkout->pengiriman->ongkir ?? 0;
-
-        // Total bayar = total produk + ongkir
         $totalBayar = $totalProduk + $ongkir;
 
-        // Cek dan kurangi stok
-        $jumlah = $checkout->jumlah;
-        $produk = $checkout->produk;
+        // Cek dan kurangi stok setiap item
+        foreach ($checkout->item as $item) {
+            $produk = $item->produk;
+            $varian = $item->varian;
 
-        if ($checkout->varian_id) {
-            $varian = $checkout->varian;
-
-            if ($varian->stok < $jumlah) {
-                return redirect()->back()->with('error', 'Stok varian tidak mencukupi saat pembayaran.');
+            // Cek stok
+            if ($varian && $varian->stok < $item->jumlah) {
+                return back()->with('error', "Stok varian untuk {$produk->nama} tidak mencukupi.");
             }
 
-            if ($produk->stok < $jumlah) {
-                return redirect()->back()->with('error', 'Stok produk utama tidak mencukupi saat pembayaran.');
+            if ($produk->stok < $item->jumlah) {
+                return back()->with('error', "Stok produk {$produk->nama} tidak mencukupi.");
             }
 
-            // Kurangi stok varian dan produk utama
-            $varian->decrement('stok', $jumlah);
-            $produk->decrement('stok', $jumlah);
-        } else {
-            if ($produk->stok < $jumlah) {
-                return redirect()->back()->with('error', 'Stok produk tidak mencukupi saat pembayaran.');
+            // Kurangi stok
+            if ($varian) {
+                $varian->decrement('stok', $item->jumlah);
             }
 
-            $produk->decrement('stok', $jumlah);
+            $produk->decrement('stok', $item->jumlah);
         }
 
         // Simpan data pembayaran
         Pembayaran::create([
-            'user_id' => Auth::id(),
-            'checkout_id' => $checkout->id,
+            'user_id'           => Auth::id(),
+            'checkout_id'       => $checkout->id,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'total_bayar' => $totalBayar,
+            'total_bayar'       => $totalBayar,
             'status_pembayaran' => 'pending',
         ]);
 
@@ -94,6 +79,7 @@ class PembayaranController extends Controller
         // Buat transaksi otomatis
         app(TransaksiController::class)->store($checkout->id);
 
-        return redirect()->route('user.transaksi.index')->with('success', 'Pembayaran berhasil dibuat. Transaksi juga telah dibuat.');
+        return redirect()->route('user.transaksi.index')
+            ->with('success', 'Pembayaran berhasil dibuat. Transaksi juga telah tercatat.');
     }
 }

@@ -52,6 +52,7 @@ class CheckoutController extends Controller
             $checkout = Checkout::create([
                 'user_id'     => Auth::id(),
                 'toko_id'     => $produk->toko->id,
+                'produk_id'   => $produk->id,
                 'status'      => 'pending',
                 'total_harga' => 0,
             ]);
@@ -98,7 +99,7 @@ class CheckoutController extends Controller
 
     public function create($id)
     {
-        $checkout = Checkout::with(['item.produk', 'item.varian', 'toko.produk.varian'])
+        $checkout = Checkout::with(['item.produk', 'item.varian', 'toko.produk.varian', 'pengiriman'])
             ->where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();

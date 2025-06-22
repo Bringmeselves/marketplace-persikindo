@@ -109,13 +109,16 @@
                 </div>
                 <div class="border-t bg-gray-50 px-5 py-3">
                     <div class="flex flex-col md:flex-row justify-end gap-2">
-                        <a href="{{ route('user.produk.edit', $produk->id) }}"
-                           class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
-                            <i data-lucide="edit" class="w-4 h-4"></i>
-                            Edit
-                        </a>
+                        <form action="{{ route('user.produk.edit', $produk->id) }}" method="GET">
+                            <button type="submit"
+                                    class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                Edit
+                            </button>
+                        </form>
+
                         <form action="{{ route('user.produk.destroy', $produk->id) }}" method="POST"
-                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit"

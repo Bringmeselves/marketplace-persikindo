@@ -82,16 +82,15 @@ class PengirimanController extends Controller
      * Form edit kurir & ongkir
      */
     public function kurirEdit($checkoutId)
-{
-    $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
-        ->where('user_id', Auth::id())
-        ->firstOrFail();
+    {
+        $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
 
-    $checkout = $pengiriman->checkout;
+        $checkout = $pengiriman->checkout;
 
-    return view('user.pengiriman.kurir', compact('pengiriman', 'checkout'));
-}
-
+        return view('user.pengiriman.kurir', compact('pengiriman', 'checkout'));
+    }
 
     /**
      * Simpan kurir & ongkir

@@ -4,166 +4,109 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+    <h2 class="text-3xl font-bold text-gray-900 pb-4 border-b">Pembayaran</h2>
 
-    {{-- Judul halaman --}}
-    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-        <i data-lucide="credit-card" class="w-6 h-6 text-indigo-500"></i>
-        Konfirmasi Pembayaran
-    </h1>
-
-    {{-- SECTION: Produk dan Checkout --}}
-    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8">
-        <div class="flex items-center gap-3 mb-6">
-            <i data-lucide="package" class="w-5 h-5 text-indigo-500"></i>
-            <h2 class="text-xl font-semibold text-gray-900">Produk</h2>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6">
-            {{-- Info produk dan varian --}}
-            <div class="md:col-span-2 space-y-3 text-base">
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Nama Produk</span>
-                    <span class="font-medium">{{ $checkout->produk->nama }}</span>
+    {{-- Rincian Produk --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-4">
+        <h3 class="text-xl font-semibold text-gray-900">Rincian Produk</h3>
+        <div class="space-y-6">
+            @foreach ($checkout->item as $item)
+                <div class="flex flex-col md:flex-row gap-6 border-b pb-4">
+                    <div class="w-full md:w-40 h-40 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
+                        <img src="{{ asset('storage/' . $item->gambar) }}" alt="Gambar Produk" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-grow space-y-2">
+                        <h4 class="text-lg font-semibold text-gray-900">
+                            {{ $item->produk->nama ?? 'Produk tidak ditemukan' }}
+                            @if($item->varian)
+                                <span class="text-sm text-gray-500">({{ $item->varian->nama }})</span>
+                            @endif
+                        </h4>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Jumlah</span><span class="font-medium text-gray-800">{{ $item->jumlah }}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-gray-900 border-t pt-2">
+                            <span>Subtotal</span>
+                            <span>Rp{{ number_format($item->total_harga, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
                 </div>
-                @if($checkout->varian)
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Varian</span>
-                    <span class="font-medium">{{ $checkout->varian->nama }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Harga Varian</span>
-                    <span class="font-medium">Rp{{ number_format($checkout->varian->harga, 0, ',', '.') }}</span>
-                </div>
-                @endif
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Jumlah</span>
-                    <span class="font-medium">{{ $checkout->jumlah }}</span>
-                </div>
-
-                {{-- Hitung total produk --}}
-                <div class="flex justify-between border-t pt-3">
-                    <span class="text-gray-500">Total Produk</span>
-                    @php
-                        $hargaSatuan = $checkout->varian->harga ?? $checkout->produk->harga;
-                        $jumlah = $checkout->jumlah;
-                        $totalProduk = $hargaSatuan * $jumlah;
-                    @endphp
-                    <span class="font-semibold text-indigo-600">
-                        Rp{{ number_format($totalProduk, 0, ',', '.') }}
-                    </span>
-                </div>
-            </div>
-
-            {{-- Gambar produk/varian --}}
-            <div class="flex justify-center md:justify-end">
-                <div class="w-40 h-40 rounded-xl overflow-hidden shadow">
-                    <img src="{{ asset('storage/' . ($checkout->varian->gambar ?? $checkout->produk->gambar)) }}"
-                         alt="{{ $checkout->produk->nama }}"
-                         class="w-full h-full object-cover">
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    {{-- SECTION: Toko --}}
-    <a href="{{ route('user.toko.show', $checkout->produk->toko->id) }}" class="block">
-        <div
-            class="bg-white border rounded-2xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition">
-            @if($checkout->produk->toko->foto_toko)
-                <img src="{{ asset('storage/' . $checkout->produk->toko->foto_toko) }}" alt="Foto Toko"
-                     class="w-20 h-20 object-cover rounded-full border shadow-sm">
-            @else
-                <div
-                    class="w-20 h-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full text-xs text-center">
-                    Tidak ada<br>foto toko
-                </div>
-            @endif
-
-            <div class="text-sm space-y-1">
-                <p class="text-lg font-semibold text-gray-900">{{ $checkout->produk->toko->nama_toko }}</p>
-                <p class="text-gray-600">{{ $checkout->produk->toko->keterangan ?? $checkout->produk->toko->alamat }}</p>
-
-                {{-- kota dengan icon lokasi --}}
-                <div class="flex items-center text-gray-600 gap-1">
-                    <i data-lucide="map-pin" class="w-4 h-4"></i>
-                    <span>{{ $checkout->produk->toko->city_name ?? 'Tidak tersedia' }}</span>
-                </div>
+    {{-- Info Pengiriman --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-4">
+        <h3 class="flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <i data-lucide="truck" class="w-5 h-5 text-indigo-500"></i> Pengiriman
+        </h3>
+        @if ($checkout->pengiriman)
+            <div class="space-y-1 text-sm text-gray-700">
+                <div class="flex justify-between"><span>Kurir</span><span>{{ strtoupper($checkout->pengiriman->jasa_kurir) }} ({{ $checkout->pengiriman->layanan }})</span></div>
+                <div class="flex justify-between"><span>Alamat</span><span class="text-right">{{ $checkout->pengiriman->alamat_lengkap }}</span></div>
+                <div class="flex justify-between"><span>Ongkir</span><span>Rp{{ number_format($checkout->pengiriman->ongkir, 0, ',', '.') }}</span></div>
             </div>
-        </div>
-    </a>
-
-    {{-- SECTION: Pengiriman --}}
-    @if($checkout->pengiriman)
-    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8">
-        <div class="flex items-center gap-3 mb-4">
-            <i data-lucide="truck" class="w-5 h-5 text-indigo-500"></i>
-            <h2 class="text-xl font-semibold text-gray-900">Pengiriman</h2>
-        </div>
-
-        <div class="space-y-2 text-base">
-            <div class="flex justify-between">
-                <span class="text-gray-500">Kurir</span>
-                <span>{{ $checkout->pengiriman->kurir }}</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-500">Layanan</span>
-                <span>{{ $checkout->pengiriman->layanan }}</span>
-            </div>
-            <div class="flex justify-between">
-                <span class="text-gray-500">Ongkir</span>
-                <span>Rp{{ number_format($checkout->pengiriman->ongkir ?? 0, 0, ',', '.') }}</span>
-            </div>
-            <div class="pt-2">
-                <p class="text-gray-500">Alamat</p>
-                <p class="text-gray-800">{{ $checkout->pengiriman->alamat }}</p>
-            </div>
-        </div>
+        @else
+            <p class="text-sm text-gray-400 italic">Belum memilih pengiriman.</p>
+        @endif
     </div>
-    @endif
 
-    {{-- SECTION: Total Bayar --}}
-    <div class="bg-gray-50 rounded-2xl shadow-inner p-5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <i data-lucide="wallet" class="w-5 h-5 text-gray-800"></i>
-            <h2 class="text-base font-semibold text-gray-800">Total Bayar</h2>
-        </div>
+    {{-- Total Bayar --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-4 text-gray-900">
         @php
+            $totalProduk = $checkout->item->sum('total_harga');
             $ongkir = $checkout->pengiriman->ongkir ?? 0;
             $totalBayar = $totalProduk + $ongkir;
         @endphp
-        <p class="text-xl font-bold text-gray-900">Rp{{ number_format($totalBayar, 0, ',', '.') }}</p>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-700 font-medium">Total Produk</span>
+            <span>Rp{{ number_format($totalProduk, 0, ',', '.') }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-700 font-medium">Ongkir</span>
+            <span>Rp{{ number_format($ongkir, 0, ',', '.') }}</span>
+        </div>
+        <div class="flex justify-between mt-2 text-lg font-bold border-t pt-4">
+            <span>Total Bayar</span>
+            <span class="text-indigo-600">Rp{{ number_format($totalBayar, 0, ',', '.') }}</span>
+        </div>
     </div>
 
-    {{-- SECTION: Form Pembayaran --}}
-    <form action="{{ route('user.pembayaran.store', $checkout->id) }}" method="POST"
-          class="bg-white shadow-lg rounded-2xl p-6 md:p-8 space-y-6">
-        @csrf
+    {{-- Form Metode Pembayaran --}}
+    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-6">
+        <h3 class="text-xl font-semibold text-gray-900">Pilih Metode Pembayaran</h3>
 
-        <div>
-            <label for="metode_pembayaran" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
-            <select name="metode_pembayaran" id="metode_pembayaran" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                <option value="">Pilih Metode</option>
-                <option value="Transfer Bank">Transfer Bank</option>
-                <option value="COD">Bayar di Tempat (COD)</option>
-                <option value="E-Wallet">E-Wallet</option>
-            </select>
-            @error('metode_pembayaran')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
+        <form action="{{ route('user.pembayaran.store', $checkout->id) }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label for="metode_pembayaran" class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
+                <select name="metode_pembayaran" id="metode_pembayaran"
+                    class="w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-300">
+                    <option value="">-- Pilih Metode Pembayaran --</option>
+                    <option value="transfer_bank">Transfer Bank</option>
+                    <option value="e-wallet">E-Wallet</option>
+                    <option value="cod">Cash on Delivery</option>
+                </select>
+                @error('metode_pembayaran')
+                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <button type="submit"
-                class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow hover:bg-indigo-700 transition transform hover:scale-[1.02] flex items-center justify-center gap-2">
-            <i data-lucide="check-circle" class="w-5 h-5"></i>
-            Konfirmasi & Lanjutkan
-        </button>
-    </form>
+            <div class="text-right pt-2">
+                <button type="submit"
+                    class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition">
+                    <i data-lucide="wallet" class="w-5 h-5"></i> Bayar Sekarang
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
-{{-- Lucide Icons --}}
+{{-- Lucide --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
 </script>
 @endsection
