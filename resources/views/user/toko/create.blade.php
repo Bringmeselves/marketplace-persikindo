@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
-
     <h2 class="text-3xl font-bold text-gray-900">Buat Toko Baru</h2>
 
     {{-- Notifikasi --}}
@@ -51,18 +50,18 @@
             </div>
 
             <div>
-                <label for="cities" class="block text-sm font-medium text-gray-700">Kota</label>
-                <select name="cities" id="cities"
+                <label for="origin" class="block text-sm font-medium text-gray-700">Kota Asal</label>
+                <select name="origin" id="origin"
                         class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200"
                         required>
                     <option value="" disabled selected>Pilih Kota</option>
-                    @foreach($cities as $city)
-                        <option value="{{ $city['id'] }}" {{ old('cities') == $city['id'] ? 'selected' : '' }}>
-                            {{ $city['name'] }}
+                    @foreach($origins as $origin)
+                        <option value="{{ $origin['id'] }}" {{ old('origin') == $origin['id'] ? 'selected' : '' }}>
+                            {{ $origin['name'] }}
                         </option>
                     @endforeach
                 </select>
-                @error('cities')
+                @error('origin')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>

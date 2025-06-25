@@ -5,6 +5,9 @@
     <title>@yield('title', 'Marketplace Persikindo')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- CSRF Token untuk AJAX -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     {{-- Vite asset untuk Tailwind dan JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -101,7 +104,7 @@
 </div>
 
 {{-- Section script tambahan --}}
-@yield('scripts')
+@stack('scripts')
 
 <!-- Loader Overlay -->
 <div id="loader" style="

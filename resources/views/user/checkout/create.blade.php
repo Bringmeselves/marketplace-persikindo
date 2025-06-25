@@ -137,6 +137,7 @@
         <div>
             <h4 class="font-semibold text-gray-900">{{ $checkout->toko->nama_toko }}</h4>
             <p class="text-sm text-gray-600">{{ $checkout->toko->alamat }}</p>
+            <p>{{ $checkout->toko->city_name ?? 'Origin belum di-set' }}</p>
         </div>
     </div>
 

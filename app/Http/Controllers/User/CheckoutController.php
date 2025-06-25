@@ -104,7 +104,9 @@ class CheckoutController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        return view('user.checkout.create', compact('checkout'));
+        $origin = $checkout->toko->origin ?? null;
+
+        return view('user.checkout.create', compact('checkout', 'origin'));
     }
 
     public function updateItem(Request $request, $checkoutId, $itemId)
@@ -149,6 +151,16 @@ class CheckoutController extends Controller
 
         return redirect()->route('user.checkout.create', $checkout->id)
             ->with('success', 'Item checkout berhasil diperbarui.');
+    }
+
+    public function editItem($checkoutId, $itemId)
+    {
+        // Contoh ambil data checkout dan item
+        $checkout = Checkout::findOrFail($checkoutId);
+        $item = CheckoutItem::findOrFail($itemId);
+
+        // Kembalikan view form edit item, misal:
+        return view('user.checkout.edit-item', compact('checkout', 'item'));
     }
 
     public function store(Request $request, $id)

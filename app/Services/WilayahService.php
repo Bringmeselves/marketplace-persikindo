@@ -4,28 +4,29 @@ namespace App\Services;
 
 class WilayahService
 {
-    protected $cities;
+    protected $originList;
     protected $provinces;
 
     public function __construct()
     {
-        $this->cities = json_decode(file_get_contents(database_path('data/cities.json')), true);
+        // Ambil data kota dari file cities.json sebagai daftar origin
+        $this->originList = json_decode(file_get_contents(database_path('data/cities.json')), true);
         $this->provinces = json_decode(file_get_contents(database_path('data/provinces.json')), true);
     }
 
     /**
-     * Ambil semua kota
+     * Ambil semua kota asal (origin)
      */
-    public function getCities()
+    public function getOriginList()
     {
-        return collect($this->cities)->map(function ($item) {
-            $cityId = null;
-            $cityName = null;
+        return collect($this->originList)->map(function ($item) {
+            $originId = null;
+            $originName = null;
             $provinceId = null;
 
             foreach ($item as $key => $value) {
                 if (is_numeric($value) && $value != 11) {
-                    $cityId = $value;
+                    $originId = $value;
                 }
 
                 if (is_numeric($key) && $key != "11") {
@@ -33,40 +34,40 @@ class WilayahService
                 }
 
                 if (!is_numeric($key) && $key != "11") {
-                    $cityName = $value;
+                    $originName = $value;
                 }
             }
 
-            // Jika belum ketemu nama kota, ambil key-nya
-            if (!$cityName) {
+            // Jika belum ketemu nama kota (origin), ambil key-nya
+            if (!$originName) {
                 foreach ($item as $key => $value) {
                     if (!is_numeric($key) && $key != "11") {
-                        $cityName = $key;
+                        $originName = $key;
                         break;
                     }
                 }
             }
 
             return [
-                'id' => $cityId,
-                'name' => $cityName,
+                'id' => $originId,
+                'name' => $originName,
                 'province_id' => $provinceId,
             ];
         })
-        ->filter(fn($c) => $c['id'] !== null && $c['name'] !== null)
+        ->filter(fn($o) => $o['id'] !== null && $o['name'] !== null)
         ->sortBy('name')
         ->values()
         ->all();
     }
 
     /**
-     * Cari kota berdasarkan ID
+     * Cari origin berdasarkan ID
      */
-    public function getCityById($cityId)
+    public function getOriginById($originId)
     {
-        foreach ($this->getCities() as $city) {
-            if ((int) $city['id'] === (int) $cityId) {
-                return $city;
+        foreach ($this->getOriginList() as $origin) {
+            if ((int) $origin['id'] === (int) $originId) {
+                return $origin;
             }
         }
         return null;

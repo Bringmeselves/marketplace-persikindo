@@ -30,7 +30,6 @@
         @csrf
         @method('PUT')
 
-        {{-- Grid dua kolom --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             {{-- Nama Toko --}}
             <div>
@@ -52,19 +51,19 @@
                 @enderror
             </div>
 
-            {{-- Kota --}}
+            {{-- Kota (Origin) --}}
             <div>
-                <label for="cities" class="block text-sm font-medium text-gray-700">Kota</label>
-                <select name="cities" id="cities"
+                <label for="origin" class="block text-sm font-medium text-gray-700">Kota</label>
+                <select name="origin" id="origin"
                         class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
                     <option value="" disabled selected>Pilih Kota</option>
                     @foreach ($cities as $city)
-                        <option value="{{ $city['id'] }}" {{ old('cities', $toko->cities) == $city['id'] ? 'selected' : '' }}>
+                        <option value="{{ $city['id'] }}" {{ old('origin', $toko->origin) == $city['id'] ? 'selected' : '' }}>
                             {{ $city['name'] }}
                         </option>
                     @endforeach
                 </select>
-                @error('cities')
+                @error('origin')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -110,9 +109,8 @@
             @enderror
         </div>
 
-        {{-- SECTION: Aksi --}}
+        {{-- Tombol Aksi --}}
         <div class="flex justify-center gap-4 pt-6">
-            {{-- Tombol Batal --}}
             <button type="button"
                     onclick="window.location='{{ route('user.toko.kelola', $toko->id) }}'"
                     class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-100 text-gray-700 text-sm font-medium transition-shadow shadow-sm">
@@ -120,7 +118,6 @@
                 Batal
             </button>
 
-            {{-- Tombol Simpan --}}
             <button type="submit"
                     class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-shadow shadow-sm">
                 <i data-lucide="save" class="w-5 h-5"></i>
@@ -130,7 +127,7 @@
     </form>
 </div>
 
-{{-- Script Lucide dan Preview Gambar --}}
+{{-- Script --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();

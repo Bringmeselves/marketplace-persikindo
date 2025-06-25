@@ -89,9 +89,16 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
 
     Route::post('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.store');
 
-    Route::get('/pengiriman/{checkout}/kurir/edit', [UserPengirimanController::class, 'kurirEdit'])->name('pengiriman.kurir.edit');
-    Route::post('/pengiriman/{checkout}/kurir', [UserPengirimanController::class, 'kurirUpdate'])->name('pengiriman.kurir.update');
- 
+    // KURIR PENGIRIMAN
+    Route::get('pengiriman/{checkout}/kurir/edit', [UserPengirimanController::class, 'kurirEdit'])->name('pengiriman.kurir.edit');
+    Route::post('pengiriman/{checkout}/kurir', [UserPengirimanController::class, 'kurirUpdate'])->name('pengiriman.kurir.update');
+
+    // API: AMBIL DAFTAR KOTA (untuk dropdown)
+    Route::get('pengiriman/cities', [UserPengirimanController::class, 'getCities'])->name('pengiriman.kota');
+
+    // API: CEK ONGKIR
+   Route::post('/pengiriman/cek-ongkir', [UserPengirimanController::class, 'cekOngkir'])->name('pengiriman.cekOngkir');
+
     // Pembayaran
     Route::get('/pembayaran/{checkout}/buat', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
     Route::post('/pembayaran/{id}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');

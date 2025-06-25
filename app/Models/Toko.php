@@ -16,7 +16,7 @@ class Toko extends Model
         'nama_toko',
         'keterangan',
         'alamat',
-        'cities',
+        'origin',
         'foto_toko',
         'nomer_wa',
         'user_id',
@@ -61,7 +61,7 @@ class Toko extends Model
     public function getCityNameAttribute()
     {
         $wilayahService = app(\App\Services\WilayahService::class);
-        return optional($wilayahService->getCityById($this->cities))['name'] ?? null;
+        return optional($wilayahService->getOriginById($this->origin))['name'] ?? null;
     }
 
     public function getProvinceNameAttribute()

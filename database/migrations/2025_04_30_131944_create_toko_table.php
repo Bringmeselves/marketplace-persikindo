@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_toko');
             $table->text('keterangan')->nullable();
             $table->string('alamat');
-            $table->string('cities')->nullable();
+            $table->string('origin')->nullable();
             $table->string('foto_toko')->nullable();
             $table->string('nomer_wa')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
