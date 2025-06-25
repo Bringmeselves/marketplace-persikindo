@@ -20,7 +20,7 @@
         <div>
             <label class="block text-sm font-medium">Kurir</label>
             <select id="kurir" name="kurir" class="w-full border rounded-xl px-3 py-2">
-                <option value="">-- Pilih Kurir --</option>
+                <option value="">Pilih Kurir</option>
                 @foreach ($kurirList as $kurir)
                     <option value="{{ $kurir['code'] }}">{{ $kurir['name'] }}</option>
                 @endforeach
@@ -37,7 +37,7 @@
         <input type="hidden" name="ongkir" id="ongkir">
 
         <div id="ongkir-display" class="text-blue-600 font-semibold hidden">
-            Ongkir: <span id="ongkir-text"></span>
+            Shipping Cost: <span id="ongkir-text"></span>
         </div>
 
         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl">Simpan Kurir</button>
@@ -59,8 +59,6 @@
         const berat = @json($weight);
         const checkoutId = @json($checkout->id);
 
-        console.log('Script loaded');
-        
         kurirSelect.addEventListener('change', async () => {
             const kurir = kurirSelect.value;
             layananSelect.innerHTML = `<option value="">-- Memuat layanan... --</option>`;
@@ -79,7 +77,6 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
                     body: JSON.stringify({
-                        origin: origin,
                         cities: destination,
                         berat: berat,
                         kurir: kurir,
@@ -88,23 +85,28 @@
                 });
 
                 const json = await res.json();
+                console.log('✅ Response dari cekOngkir:', json);
 
-                if (json.status === 'success') {
+                if (json.status === 'success' && json.data.length > 0) {
                     layananSelect.innerHTML = `<option value="">-- Pilih Layanan --</option>`;
                     json.data.forEach(option => {
+                        const cost = option.shipping_cost ?? option.tariff ?? option.price ?? 0;
+
                         const opt = document.createElement('option');
                         opt.value = option.service_name;
-                        opt.textContent = `${option.service_name} - Rp${option.tariff.toLocaleString()} (${option.etd} hari)`;
-                        opt.dataset.tariff = option.tariff;
+                        opt.textContent = `${option.service_name} - Rp${parseInt(cost).toLocaleString()} (${option.etd} hari)`;
+                        opt.dataset.tariff = cost;
                         layananSelect.appendChild(opt);
                     });
                     layananSelect.disabled = false;
                 } else {
                     layananSelect.innerHTML = `<option value="">Tidak ada layanan ditemukan</option>`;
+                    layananSelect.disabled = true;
                 }
             } catch (err) {
+                console.error('❌ Error saat fetch ongkir:', err);
                 layananSelect.innerHTML = `<option value="">Gagal memuat layanan</option>`;
-                console.error(err);
+                layananSelect.disabled = true;
             }
         });
 

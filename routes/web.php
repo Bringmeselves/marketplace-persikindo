@@ -82,16 +82,18 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::put('{checkout}/item/{item}', [UserCheckoutController::class, 'updateItem'])->name('checkout.item.update');
     Route::delete('{checkout}/item/{item}', [UserCheckoutController::class, 'destroyItem'])->name('checkout.item.destroy');
 
-    // Pengiriman
+    // ALAMAT
     Route::get('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatCreate'])->name('pengiriman.alamat.create');
     Route::get('/pengiriman/{checkout}/alamat/edit', [UserPengirimanController::class, 'alamatEdit'])->name('pengiriman.alamat.edit');
+    Route::post('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.store');
     Route::put('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.update');
 
-    Route::post('/pengiriman/{checkout}/alamat', [UserPengirimanController::class, 'alamatStore'])->name('pengiriman.alamat.store');
+    // KURIR
+    Route::get('/pengiriman/{checkout}/kurir/edit', [UserPengirimanController::class, 'kurirEdit'])->name('pengiriman.kurir.edit');
+    Route::put('/pengiriman/{checkout}/kurir', [UserPengirimanController::class, 'kurirUpdate'])->name('pengiriman.kurir.update');
 
-    // KURIR PENGIRIMAN
-    Route::get('pengiriman/{checkout}/kurir/edit', [UserPengirimanController::class, 'kurirEdit'])->name('pengiriman.kurir.edit');
-    Route::post('pengiriman/{checkout}/kurir', [UserPengirimanController::class, 'kurirUpdate'])->name('pengiriman.kurir.update');
+    // CEK ONGKIR (AJAX)
+    Route::post('/pengiriman/cek-ongkir', [UserPengirimanController::class, 'cekOngkir'])->name('pengiriman.cekOngkir');
 
     // API: AMBIL DAFTAR KOTA (untuk dropdown)
     Route::get('pengiriman/cities', [UserPengirimanController::class, 'getCities'])->name('pengiriman.kota');

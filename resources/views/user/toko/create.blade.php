@@ -4,6 +4,8 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+
+    {{-- Judul halaman --}}
     <h2 class="text-3xl font-bold text-gray-900">Buat Toko Baru</h2>
 
     {{-- Notifikasi --}}
@@ -24,40 +26,41 @@
         </div>
     @endif
 
-    {{-- Form --}}
+    {{-- Form input --}}
     <form action="{{ route('user.toko.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- Nama Toko --}}
             <div>
                 <label for="nama_toko" class="block text-sm font-medium text-gray-700">Nama Toko</label>
                 <input type="text" name="nama_toko" id="nama_toko" value="{{ old('nama_toko') }}"
-                       class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200"
-                       required>
+                       class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
                 @error('nama_toko')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
+            {{-- Nomor WA --}}
             <div>
                 <label for="nomer_wa" class="block text-sm font-medium text-gray-700">Nomor WA</label>
                 <input type="text" name="nomer_wa" id="nomer_wa" value="{{ old('nomer_wa') }}"
-                       class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200"
-                       required>
+                       class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
                 @error('nomer_wa')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
+            {{-- Select Kota Asal (origin) --}}
             <div>
                 <label for="origin" class="block text-sm font-medium text-gray-700">Kota Asal</label>
                 <select name="origin" id="origin"
-                        class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200"
-                        required>
-                    <option value="" disabled selected>Pilih Kota</option>
-                    @foreach($origins as $origin)
-                        <option value="{{ $origin['id'] }}" {{ old('origin') == $origin['id'] ? 'selected' : '' }}>
-                            {{ $origin['name'] }}
+                        class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
+                    <option value="" disabled {{ old('origin', $toko->origin) ? '' : 'selected' }}>Pilih Kota</option>
+                    {{-- Looping data kota dari API Komerce --}}
+                    @foreach ($origin as $city)
+                        <option value="{{ $city['id'] }}" {{ old('origin', $toko->origin) == $city['id'] ? 'selected' : '' }}>
+                            {{ $city['label'] }}
                         </option>
                     @endforeach
                 </select>
@@ -66,7 +69,7 @@
                 @enderror
             </div>
 
-            {{-- Upload Gambar --}}
+            {{-- Foto Toko --}}
             <div>
                 <label for="foto_toko" class="block text-sm font-medium text-gray-700 mb-2">Foto Toko</label>
                 <div id="preview-container" class="w-full h-48 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition">
@@ -80,6 +83,7 @@
             </div>
         </div>
 
+        {{-- Keterangan --}}
         <div>
             <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
             <textarea name="keterangan" id="keterangan" rows="3"
@@ -90,6 +94,7 @@
             @enderror
         </div>
 
+        {{-- Alamat --}}
         <div>
             <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
             <textarea name="alamat" id="alamat" rows="3"
@@ -100,6 +105,7 @@
             @enderror
         </div>
 
+        {{-- Tombol Submit --}}
         <div class="pt-4">
             <button type="submit"
                     class="inline-flex items-center justify-center w-full px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
@@ -108,35 +114,6 @@
             </button>
         </div>
     </form>
-
-    {{-- Toko yang sudah ada --}}
-    @if(isset($toko))
-        <div class="pt-10">
-            <h3 class="text-2xl font-bold mb-4">Toko Anda</h3>
-            <div class="bg-white rounded-xl shadow p-6 space-y-3">
-                <div class="w-full h-40 rounded-lg overflow-hidden bg-gray-100">
-                    <img src="{{ $toko->foto_toko ? asset('storage/' . $toko->foto_toko) : asset('images/default-toko.png') }}" 
-                         alt="Foto Toko" class="w-full h-full object-cover">
-                </div>
-                <div class="space-y-1">
-                    <p class="font-semibold text-lg">{{ $toko->nama_toko }}</p>
-                    <p class="text-sm text-gray-600">{{ $toko->alamat }}</p>
-                    <p class="text-sm text-gray-600">Kota: {{ $toko->city_name ?? '-' }}</p>
-                    <p class="text-sm text-gray-600">Provinsi: {{ $toko->province_name ?? '-' }}</p>
-                    <p class="text-sm text-gray-600">WA: {{ $toko->nomer_wa }}</p>
-                </div>
-                <div class="flex justify-end gap-4 pt-4">
-                    <a href="{{ route('user.toko.edit', $toko->id) }}"
-                       class="text-indigo-600 hover:underline text-sm">Edit</a>
-                    <form action="{{ route('user.toko.destroy', $toko->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus toko ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline text-sm">Hapus</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
 
 {{-- Script --}}

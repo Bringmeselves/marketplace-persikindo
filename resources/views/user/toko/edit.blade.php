@@ -5,9 +5,10 @@
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
 
+    {{-- Judul Halaman --}}
     <h2 class="text-3xl font-bold text-gray-900">Edit Toko</h2>
 
-    {{-- Notifikasi --}}
+    {{-- Notifikasi flash session --}}
     @if(session('success') || session('error'))
         <div class="space-y-2">
             @if(session('success'))
@@ -25,13 +26,14 @@
         </div>
     @endif
 
-    {{-- Form Edit --}}
+    {{-- Form edit toko --}}
     <form action="{{ route('user.toko.update', $toko->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- Nama Toko --}}
+
+            {{-- Input Nama Toko --}}
             <div>
                 <label for="nama_toko" class="block text-sm font-medium text-gray-700">Nama Toko</label>
                 <input type="text" name="nama_toko" id="nama_toko" value="{{ old('nama_toko', $toko->nama_toko) }}"
@@ -41,7 +43,7 @@
                 @enderror
             </div>
 
-            {{-- Nomor WA --}}
+            {{-- Input Nomor WA --}}
             <div>
                 <label for="nomer_wa" class="block text-sm font-medium text-gray-700">Nomor WA</label>
                 <input type="text" name="nomer_wa" id="nomer_wa" value="{{ old('nomer_wa', $toko->nomer_wa) }}"
@@ -51,15 +53,16 @@
                 @enderror
             </div>
 
-            {{-- Kota (Origin) --}}
+            {{-- Select Kota Asal (origin) --}}
             <div>
-                <label for="origin" class="block text-sm font-medium text-gray-700">Kota</label>
+                <label for="origin" class="block text-sm font-medium text-gray-700">Kota Asal</label>
                 <select name="origin" id="origin"
                         class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
-                    <option value="" disabled selected>Pilih Kota</option>
-                    @foreach ($cities as $city)
+                    <option value="" disabled {{ old('origin', $toko->origin) ? '' : 'selected' }}>Pilih Kota</option>
+                    {{-- Looping data kota dari API Komerce --}}
+                    @foreach ($origin as $city)
                         <option value="{{ $city['id'] }}" {{ old('origin', $toko->origin) == $city['id'] ? 'selected' : '' }}>
-                            {{ $city['name'] }}
+                            {{ $city['label'] }}
                         </option>
                     @endforeach
                 </select>
@@ -68,10 +71,11 @@
                 @enderror
             </div>
 
-            {{-- Upload Gambar --}}
+            {{-- Upload Foto Toko --}}
             <div>
                 <label for="foto_toko" class="block text-sm font-medium text-gray-700 mb-2">Foto Toko</label>
                 <div id="preview-container" class="w-full h-48 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition">
+                    {{-- Tampilkan foto lama jika ada --}}
                     @if ($toko->foto_toko)
                         <img id="preview-toko" src="{{ asset('storage/' . $toko->foto_toko) }}" alt="Foto Toko" class="w-full h-full object-cover" />
                         <span id="placeholder-toko" class="hidden text-gray-400 text-sm">Klik untuk pilih gambar</span>
@@ -87,7 +91,7 @@
             </div>
         </div>
 
-        {{-- Keterangan --}}
+        {{-- Textarea Keterangan --}}
         <div>
             <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
             <textarea name="keterangan" id="keterangan" rows="3"
@@ -98,7 +102,7 @@
             @enderror
         </div>
 
-        {{-- Alamat --}}
+        {{-- Textarea Alamat --}}
         <div>
             <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
             <textarea name="alamat" id="alamat" rows="3"
@@ -113,7 +117,7 @@
         <div class="flex justify-center gap-4 pt-6">
             <button type="button"
                     onclick="window.location='{{ route('user.toko.kelola', $toko->id) }}'"
-                    class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-100 text-gray-700 text-sm font-medium transition-shadow shadow-sm">
+                    class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-shadow shadow-sm">
                 <i data-lucide="x" class="w-5 h-5"></i>
                 Batal
             </button>
@@ -127,11 +131,12 @@
     </form>
 </div>
 
-{{-- Script --}}
+{{-- Script untuk icon dan preview gambar --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
 
+    // Fungsi preview gambar toko sebelum diupload
     function previewTokoImage(event) {
         const input = event.target;
         const preview = document.getElementById('preview-toko');
@@ -148,6 +153,7 @@
         }
     }
 
+    // Trigger klik input file saat klik container preview
     document.getElementById('preview-container').addEventListener('click', () => {
         document.getElementById('foto_toko').click();
     });

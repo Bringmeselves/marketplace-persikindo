@@ -8,6 +8,7 @@ use App\Models\Pengiriman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PengirimanController extends Controller
 {
@@ -80,25 +81,55 @@ class PengirimanController extends Controller
     }
 
     public function kurirEdit($checkoutId)
-    {
-        $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+{
+    $pengiriman = Pengiriman::where('checkout_id', $checkoutId)
+        ->where('user_id', Auth::id())
+        ->firstOrFail();
 
-        $checkout = $pengiriman->checkout;
+    $checkout = $pengiriman->checkout;
 
-        $kurirList = [
-            ['code' => 'jne', 'name' => 'JNE'],
-            ['code' => 'pos', 'name' => 'POS Indonesia'],
-            ['code' => 'tiki', 'name' => 'TIKI'],
-        ];
+    $origin = $checkout->toko->origin;
+    $destination = $pengiriman->cities;
+    $weight = $checkout->berat_total ?? 1000;
 
-        $origin = $checkout->toko->origin_city_id;
-        $destination = $pengiriman->cities;
-        $weight = $checkout->berat_total ?? 1000;
+    // Panggil API Komerce untuk mendapatkan daftar kurir (shipping_name)
+    $response = Http::withHeaders([
+        'x-api-key' => env('KOMERCE_API_KEY'),
+    ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
+        'shipper_destination_id'   => $origin,
+        'receiver_destination_id'  => $destination,
+        'weight'                   => $weight,
+        'item_value'               => 100000,
+        'cod'                      => 'no',
+    ]);
 
-        return view('user.pengiriman.kurir', compact('pengiriman', 'checkout', 'kurirList', 'origin', 'destination', 'weight'));
+    if (!$response->ok()) {
+        return back()->with('error', 'Gagal memuat daftar kurir');
     }
+
+    $data = $response->json('data');
+
+    $allOptions = array_merge(
+        $data['calculate_reguler'] ?? [],
+        $data['calculate_cargo'] ?? []
+    );
+
+    $kurirList = collect($allOptions)
+        ->pluck('shipping_name')
+        ->filter()
+        ->unique()
+        ->map(function ($name) {
+            return [
+                'code' => strtolower(str_replace(' ', '_', $name)),
+                'name' => $name
+            ];
+        })
+        ->values()
+        ->all();
+
+    return view('user.pengiriman.kurir', compact('pengiriman', 'checkout', 'kurirList', 'origin', 'destination', 'weight'));
+}
+
 
     public function kurirUpdate(Request $request, $checkoutId)
     {
@@ -174,7 +205,6 @@ class PengirimanController extends Controller
 public function cekOngkir(Request $request)
 {
     $request->validate([
-        'origin'        => 'required|numeric',
         'cities'        => 'required|numeric',
         'berat'         => 'required|numeric|min:1',
         'kurir'         => 'required|string',
@@ -182,18 +212,35 @@ public function cekOngkir(Request $request)
     ]);
 
     try {
-        $checkout = Checkout::with('produk')->findOrFail($request->checkout_id);
-        $item_value = (int) ($checkout->produk->harga ?? 50000);
+        // Ambil data checkout beserta produk dan toko
+        $checkout = Checkout::with(['produk', 'toko'])->findOrFail($request->checkout_id);
 
+        // Ambil origin dari toko terkait checkout
+        $origin = $checkout->toko->origin ?? null;
 
+        if (!$origin) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Origin tidak ditemukan pada toko terkait.',
+            ], 422);
+        }
+
+        \Log::info('Origin:', [$origin]);
+\Log::info('Destination:', [$request->cities]);
+\Log::info('Berat:', [$request->berat]);
+\Log::info('Kurir:', [$request->kurir]);
+
+        $item_value = 1000;
+
+        // Panggil API ongkir Komerce
         $response = Http::withHeaders([
             'x-api-key' => env('KOMERCE_API_KEY'),
         ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
-            'shipper_destination_id' => $request->origin,
-            'receiver_destination_id' => $request->cities,
-            'weight' => $request->berat,
-            'item_value' => $item_value,
-            'cod' => 'no',
+            'shipper_destination_id'   => $origin,
+            'receiver_destination_id'  => $request->cities,
+            'weight'                   => $request->berat,
+            'item_value'               => $item_value,
+            'cod'                      => 'no',
         ]);
 
         if (!$response->ok()) {
@@ -205,21 +252,33 @@ public function cekOngkir(Request $request)
 
         $data = $response->json('data');
 
-        // Gabungkan reguler dan cargo
+        // Gabungkan hasil reguler dan cargo
         $allOptions = array_merge(
-            $data['calculate_reguler'] ?? [],
-            $data['calculate_cargo'] ?? []
-        );
+    $data['calculate_reguler'] ?? [],
+    $data['calculate_cargo'] ?? []
+);
 
-        // Filter berdasarkan kurir yang diminta
-        $filtered = collect($allOptions)
-            ->where('shipping_name', strtoupper($request->kurir))
-            ->values();
+$filtered = collect($allOptions)->filter(function ($item) use ($request) {
+    return Str::contains(strtolower($item['shipping_name'] ?? ''), strtolower($request->kurir));
+})->values();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $filtered,
-        ]);
+$formatted = $filtered->map(function ($item) {
+    return [
+        'service_name' => strtoupper($item['shipping_name'] ?? 'UNKNOWN') . ' - ' . ($item['service_name'] ?? 'SERVICE'),
+        'tariff'       => isset($item['shipping_cost']) ? round($item['shipping_cost'] / 100) : 0,
+        'cashback'     => isset($item['shipping_cashback']) ? round($item['shipping_cashback'] / 100) : 0,
+        'net_cost'     => isset($item['shipping_cost_net']) ? round($item['shipping_cost_net'] / 100) : 0,
+        'grandtotal'   => isset($item['grandtotal']) ? round($item['grandtotal'] / 100) : 0,
+        'etd'          => $item['etd'] ?? '-',
+    ];
+});
+
+
+return response()->json([
+    'status' => 'success',
+    'data'   => $formatted,
+]);
+
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
@@ -227,5 +286,59 @@ public function cekOngkir(Request $request)
         ], 500);
     }
 }
+public function getTarifOngkir(Request $request)
+{
+    $origin = (int) $request->input('origin.0', $request->input('origin', 0));
+    $destination = (int) $request->input('cities.0', $request->input('cities', 0));
+    $weight = (int) $request->input('berat.0', $request->input('berat', 1000));
+    $couriers = is_array($request->kurir) ? $request->kurir : [$request->kurir];
 
+    $results = [];
+
+    foreach ($couriers as $courier) {
+        // Logging request
+        Log::debug('Tarif Request Payload', [
+            'origin' => $origin,
+            'destination' => $destination,
+            'weight' => $weight,
+            'courier' => $courier,
+        ]);
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+            'api-key' => 'LT17D1mxfee993deed007adcvWYZZIH3',
+        ])->post('https://collaborator.komerce.id/api/v1/shipping/delivery', [
+            'origin' => $origin,
+            'destination' => $destination,
+            'weight' => $weight,
+            'courier' => $courier,
+        ]);
+
+        // Logging response
+        Log::debug('Tarif API Response', [
+            'courier' => $courier,
+            'response' => $response->json()
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json('data') ?? [];
+            $results = array_merge($results, $data);
+        }
+    }
+
+    // Filter hasil dan format ke Rupiah
+    $filtered = collect($results)->filter(function ($item) {
+        return isset($item['shipping_cost']);
+    });
+
+    $formatted = $filtered->map(function ($item) {
+        return [
+            'service_name' => strtoupper($item['shipping_name'] ?? 'UNKNOWN') . ' - ' . ucwords(strtolower($item['service_type'] ?? 'SERVICE')),
+            'tariff'       => isset($item['shipping_cost']) ? ((int) $item['shipping_cost']) / 100 : 0,
+            'etd'          => $item['etd'] ?? 'Tidak diketahui',
+        ];
+    })->values();
+
+    return response()->json($formatted);
+}
 }
