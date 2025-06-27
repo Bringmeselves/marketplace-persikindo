@@ -97,6 +97,7 @@ class TransaksiController extends Controller
             'checkout_id'   => $checkout->id,
             'pengiriman_id' => $checkout->pengiriman->id,
             'pembayaran_id' => $checkout->pembayaran->id,
+            'produk_id' => $checkout->item->first()->produk_id,
             'status'        => 'diproses',
         ]);
 

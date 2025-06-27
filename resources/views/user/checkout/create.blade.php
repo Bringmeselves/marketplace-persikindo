@@ -36,25 +36,23 @@
             <input type="hidden" name="produk_id" id="input-produk-id">
 
             <div class="md:col-span-2">
-    <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Varian</label>
-    <div class="relative">
-        <select id="select-varian" name="varian_id" required
-            class="tom-select w-full appearance-none rounded-xl border-gray-300 shadow-sm focus:ring-indigo-300 pr-10">
-            @foreach ($checkout->toko->produk as $produk)
-                @foreach ($produk->varian as $varian)
-                    <option value="{{ $varian->id }}" data-produk-id="{{ $produk->id }}">
-                        {{ $produk->nama }} - {{ $varian->nama }}
-                    </option>
-                @endforeach
-            @endforeach
-        </select>
-
-        {{-- Icon panah bisa diklik --}}
-        <i id="dropdown-icon"
-           data-lucide="chevron-down"
-           class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer z-10"></i>
-    </div>
-</div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Varian</label>
+                <div class="relative">
+                    <select id="select-varian" name="varian_id" required
+                        class="tom-select w-full appearance-none rounded-xl border-gray-300 shadow-sm focus:ring-indigo-300 pr-10">
+                        @foreach ($checkout->toko->produk as $produk)
+                            @foreach ($produk->varian as $varian)
+                                <option value="{{ $varian->id }}" data-produk-id="{{ $produk->id }}">
+                                    {{ $produk->nama }} - {{ $varian->nama }}
+                                </option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                    <i id="dropdown-icon"
+                       data-lucide="chevron-down"
+                       class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer z-10"></i>
+                </div>
+            </div>
 
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
@@ -77,8 +75,7 @@
             @foreach ($checkout->item as $item)
                 <div class="bg-white shadow-lg rounded-2xl p-6 flex flex-col md:flex-row gap-6">
                     <div class="w-full md:w-40 h-40 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
-                        <img src="{{ asset('storage/' . $item->gambar) }}"
-                             alt="Gambar Produk"
+                        <img src="{{ asset('storage/' . $item->gambar) }}" alt="Gambar Produk"
                              class="w-full h-full object-cover">
                     </div>
 
@@ -112,7 +109,7 @@
                             </form>
 
                             <form action="{{ route('user.checkout.item.destroy', [$checkout->id, $item->id]) }}" method="POST"
-                                onsubmit="return confirm('Hapus item ini?')">
+                                  class="form-delete-item">
                                 @csrf @method('DELETE')
                                 <button type="submit"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 text-sm font-semibold">
@@ -147,7 +144,6 @@
             <h3 class="flex items-center gap-2 text-xl font-semibold text-gray-900">
                 <i data-lucide="map-pin" class="w-5 h-5 text-indigo-500"></i> Alamat Pengiriman
             </h3>
-
             <a href="{{ $checkout->pengiriman ? route('user.pengiriman.alamat.edit', $checkout->id) : route('user.pengiriman.alamat.create', $checkout->id) }}"
                class="text-sm text-indigo-600 hover:underline">
                 {{ $checkout->pengiriman ? 'Ubah Alamat' : 'Tambah Alamat' }}
@@ -155,22 +151,10 @@
         </div>
         @if ($checkout->pengiriman)
             <div class="space-y-1 text-sm text-gray-700">
-                <div class="flex justify-between">
-                    <span>Nama Penerima</span>
-                    <span>{{ $checkout->pengiriman->nama_lengkap }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>Alamat</span>
-                    <span class="text-right">{{ $checkout->pengiriman->alamat_penerima }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>Kota & Kode Pos</span>
-                    <span>{{ $checkout->pengiriman->city_name }}, {{ $checkout->pengiriman->kode_pos }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>WA</span>
-                    <span>{{ $checkout->pengiriman->nomor_wa }}</span>
-                </div>
+                <div class="flex justify-between"><span>Nama Penerima</span><span>{{ $checkout->pengiriman->nama_lengkap }}</span></div>
+                <div class="flex justify-between"><span>Alamat</span><span class="text-right">{{ $checkout->pengiriman->alamat_penerima }}</span></div>
+                <div class="flex justify-between"><span>Kota & Kode Pos</span><span>{{ $checkout->pengiriman->city_name }}, {{ $checkout->pengiriman->kode_pos }}</span></div>
+                <div class="flex justify-between"><span>WA</span><span>{{ $checkout->pengiriman->nomor_wa }}</span></div>
             </div>
         @else
             <p class="text-sm text-gray-400 italic">Belum ada alamat pengiriman.</p>
@@ -219,16 +203,25 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet" />
 
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- Lucide & Tom Select --}}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet" />
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // ✅ Inisialisasi ikon lucide
         lucide.createIcons();
 
+        // ✅ Inisialisasi TomSelect dan input produk
         const selectVarian = document.getElementById('select-varian');
         const inputProdukId = document.getElementById('input-produk-id');
         const dropdownIcon = document.getElementById('dropdown-icon');
 
         if (selectVarian && inputProdukId) {
-            // Inisialisasi TomSelect dan simpan instance-nya
             const tomSelectInstance = new TomSelect(selectVarian, {
                 placeholder: 'Pilih produk dan varian',
                 maxItems: 1,
@@ -236,25 +229,57 @@
                 controlInput: null
             });
 
-            // Event saat varian diubah
+            // ✅ Update produk_id saat varian berubah
             selectVarian.addEventListener('change', function () {
                 const selected = this.options[this.selectedIndex];
                 const produkId = selected.getAttribute('data-produk-id');
                 inputProdukId.value = produkId;
             });
 
-            // Set nilai awal jika sudah dipilih sebelumnya
+            // ✅ Isi produk_id jika sudah ada nilai awal
             if (selectVarian.selectedIndex >= 0) {
                 const selected = selectVarian.options[selectVarian.selectedIndex];
                 inputProdukId.value = selected.getAttribute('data-produk-id');
             }
 
-            // Tambahkan event click pada ikon untuk membuka dropdown
+            // ✅ Buka dropdown saat ikon diklik
             if (dropdownIcon) {
                 dropdownIcon.addEventListener('click', function () {
-                    tomSelectInstance.open(); // Membuka dropdown TomSelect
+                    tomSelectInstance.open();
                 });
             }
+        }
+
+        // ✅ Konfirmasi hapus item dengan SweetAlert
+        document.querySelectorAll('.form-delete-item').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Hapus item ini?',
+                    text: "Produk akan dihapus dari checkout.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e3342f',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // ✅ Tambahkan logika matikan loader di sini jika kamu pakai loader
+                        const loader = document.getElementById('loader');
+                        if (loader) loader.classList.remove('hidden');
+
+                        form.requestSubmit();
+                    }
+                });
+            });
+        });
+
+        // ✅ Sembunyikan loader jika masih tampil setelah alert
+        // (misalnya loader masih kelihatan saat kembali dari halaman sebelumnya)
+        const loader = document.getElementById('loader');
+        if (loader) {
+            setTimeout(() => loader.classList.add('hidden'), 1000);
         }
     });
 </script>

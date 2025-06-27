@@ -145,11 +145,34 @@
             lucide.createIcons();
         }
 
-        // Tampilkan loader saat form disubmit
-        const forms = document.querySelectorAll('form');
+        const loader = document.getElementById('loader');
+
+        // Tangani khusus form hapus item dengan SweetAlert2
+        document.querySelectorAll('.form-delete-item').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Cegah submit langsung
+                Swal.fire({
+                    title: 'Hapus item ini?',
+                    text: "Produk akan dihapus dari checkout.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e3342f',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        if (loader) loader.style.display = 'flex'; // Tampilkan loader hanya jika dikonfirmasi
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // Tampilkan loader untuk form lain (selain form hapus item)
+        const forms = document.querySelectorAll('form:not(.form-delete-item)');
         forms.forEach(form => {
             form.addEventListener('submit', function () {
-                const loader = document.getElementById('loader');
                 if (loader) {
                     loader.style.display = 'flex';
                 }
@@ -157,7 +180,7 @@
         });
     });
 
-    // Sembunyikan loader saat halaman selesai dimuat
+    // Sembunyikan loader setelah halaman selesai dimuat
     window.addEventListener('load', function () {
         const loader = document.getElementById('loader');
         if (loader) {
