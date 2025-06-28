@@ -56,10 +56,10 @@
                 <label for="origin" class="block text-sm font-medium text-gray-700">Kota Asal</label>
                 <select name="origin" id="origin"
                         class="mt-1 block w-full rounded-xl border-gray-300 focus:ring-indigo-200" required>
-                    <option value="" disabled {{ old('origin', $toko->origin) ? '' : 'selected' }}>Pilih Kota</option>
+                    <option value="" disabled {{ old('origin', $toko->origin ?? null) ? '' : 'selected' }}>Pilih Kota</option>
                     {{-- Looping data kota dari API Komerce --}}
                     @foreach ($origin as $city)
-                        <option value="{{ $city['id'] }}" {{ old('origin', $toko->origin) == $city['id'] ? 'selected' : '' }}>
+                        <option value="{{ $city['id'] }}" {{ old('origin', $toko->origin ?? null) == $city['id'] ? 'selected' : '' }}>
                             {{ $city['label'] }}
                         </option>
                     @endforeach
@@ -71,16 +71,27 @@
 
             {{-- Foto Toko --}}
             <div>
-                <label for="foto_toko" class="block text-sm font-medium text-gray-700 mb-2">Foto Toko</label>
-                <div id="preview-container" class="w-full h-48 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition">
-                    <img id="preview-toko" src="#" alt="Preview Foto Toko" class="hidden w-full h-full object-cover" />
-                    <span id="placeholder-toko" class="text-gray-400 text-sm">Klik untuk pilih gambar</span>
-                </div>
-                <input type="file" name="foto_toko" id="foto_toko" accept="image/*" class="hidden" onchange="previewTokoImage(event)">
-                @error('foto_toko')
-                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                @enderror
-            </div>
+    <label for="foto_toko" class="block text-sm font-medium text-gray-700 mb-2">Foto Toko</label>
+
+    <div id="preview-container"
+        class="w-48 h-48 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition mx-auto">
+        <img id="preview-toko"
+            src="#"
+            alt="Preview Foto Toko"
+            class="hidden w-full h-full object-cover" />
+        <span id="placeholder-toko" class="text-gray-400 text-sm">Klik untuk pilih gambar</span>
+    </div>
+
+    <input type="file" name="foto_toko" id="foto_toko"
+        accept="image/*"
+        class="hidden"
+        onchange="previewTokoImage(event)">
+
+    @error('foto_toko')
+        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+    @enderror
+</div>
+
         </div>
 
         {{-- Keterangan --}}

@@ -47,6 +47,11 @@ class PembayaranController extends Controller
             $produk = $item->produk;
             $varian = $item->varian;
 
+            // Cegah pembelian produk sendiri
+            if ($produk->user_id == Auth::id()) {
+                return back()->with('error', "Anda tidak dapat membeli produk milik sendiri: {$produk->nama}.");
+            }
+
             // Cek stok
             if ($varian && $varian->stok < $item->jumlah) {
                 return back()->with('error', "Stok varian untuk {$produk->nama} tidak mencukupi.");

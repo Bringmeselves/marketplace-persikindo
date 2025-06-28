@@ -74,17 +74,28 @@
             {{-- Upload Foto Toko --}}
             <div>
                 <label for="foto_toko" class="block text-sm font-medium text-gray-700 mb-2">Foto Toko</label>
-                <div id="preview-container" class="w-full h-48 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition">
+                
+                <div id="preview-container"
+                    class="w-40 h-40 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer border border-dashed hover:border-gray-400 transition mx-auto">
+                    
                     {{-- Tampilkan foto lama jika ada --}}
-                    @if ($toko->foto_toko)
-                        <img id="preview-toko" src="{{ asset('storage/' . $toko->foto_toko) }}" alt="Foto Toko" class="w-full h-full object-cover" />
+                    @if (!empty($toko->foto_toko))
+                        <img id="preview-toko"
+                            src="{{ asset('storage/' . $toko->foto_toko) }}"
+                            alt="Foto Toko"
+                            class="w-full h-full object-cover" />
                         <span id="placeholder-toko" class="hidden text-gray-400 text-sm">Klik untuk pilih gambar</span>
                     @else
-                        <img id="preview-toko" src="#" alt="Preview Foto Toko" class="hidden w-full h-full object-cover" />
+                        <img id="preview-toko"
+                            src="#"
+                            alt="Preview Foto Toko"
+                            class="hidden w-full h-full object-cover rounded-full" />
                         <span id="placeholder-toko" class="text-gray-400 text-sm">Klik untuk pilih gambar</span>
                     @endif
                 </div>
+
                 <input type="file" name="foto_toko" id="foto_toko" accept="image/*" class="hidden" onchange="previewTokoImage(event)">
+
                 @error('foto_toko')
                     <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                 @enderror

@@ -17,7 +17,7 @@ use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
 use App\Http\Controllers\User\PembayaranController as UserPembayaranController;
 use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
 use App\Http\Controllers\User\PenilaianController as UserPenilaianController;
-
+use App\Http\Controllers\User\ChatController as UserChatController;
 /*
 |---------------------------------------------------------------------------
 | Web Routes
@@ -118,6 +118,13 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::post('/penilaian', [UserPenilaianController::class, 'store'])->name('penilaian.store');
     Route::delete('/penilaian/{id}', [UserPenilaianController::class, 'destroy'])->name('penilaian.destroy');
     Route::get('/penilaian/produk/{produk}', [UserPenilaianController::class, 'showByProduk'])->name('penilaian.show');
+
+    // Chat
+    Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/mulai/{tokoId}', [UserChatController::class, 'mulaiChat'])->name('chat.mulai');
+    Route::get('/chat/{id}', [UserChatController::class, 'tampil'])->name('chat.tampil');
+    Route::post('/chat/{id}/kirim', [UserChatController::class, 'kirimPesan'])->name('kirimPesan');
+    
 });
 
 // ==========================

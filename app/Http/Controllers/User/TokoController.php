@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Chat;
 use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -198,7 +199,10 @@ class TokoController extends Controller
         // Tambahkan nama kota
         $toko->city_name = $this->getCityNameById($toko->origin);
 
-        return view('user.toko.kelola', compact('toko', 'produkList'));
+        // Ambil daftar chat dari pembeli untuk toko ini
+        $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
+        
+        return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat'));
     }
 
     // Halaman publik toko

@@ -64,33 +64,49 @@
                 @endif
             </ul>
         </nav>
+    {{-- Wrapper Chat dan Dropdown User --}}
+    <div class="flex items-center gap-5 relative" x-data="{ openUser: false }">
 
-        {{-- Dropdown Pengguna dengan Alpine.js --}}
-        <div class="icons flex items-center gap-5 text-lg relative" x-data="{ open: false }">
-            @if(auth()->check())
-                @php
-                    $photoUrl = $user->photo ? Storage::url($user->photo) : asset('images/default-avatar.png');
-                @endphp
+        {{-- Tombol Chat --}}
+        <a href="{{ route('user.chat.index') }}"
+            class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
+            aria-label="Chat">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+        </a>
 
-                <button @click="open = !open" class="ml-3 flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition" aria-label="User menu">
+        {{-- Dropdown Pengguna --}}
+        @if(auth()->check())
+            @php
+                $photoUrl = $user->photo ? Storage::url($user->photo) : asset('images/default-avatar.png');
+            @endphp
+
+            <div class="relative">
+                <button @click="openUser = !openUser"
+                    class="flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition"
+                    aria-label="User menu">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
 
-                {{-- Dropdown --}}
-                <div x-show="open" @click.away="open = false" x-transition
-                     class="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                {{-- Dropdown User --}}
+                <div x-show="openUser" @click.away="openUser = false" x-transition
+                    class="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
                     <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm hover:bg-gray-100">
                         <img src="{{ $photoUrl }}" alt="Profil" class="w-6 h-6 rounded-full object-cover mr-2 border" />
                         Profil
                     </a>
-                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                        class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        Logout
+                    </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
                 </div>
-            @endif
-        </div>
-    </header>
+            </div>
+        @endif
+
+    </div>
+</header>
 
     {{-- Konten --}}
     <main class="p-6 flex-1 overflow-y-auto">
