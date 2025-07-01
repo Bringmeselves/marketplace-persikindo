@@ -101,10 +101,6 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     // API: CEK ONGKIR
    Route::post('/pengiriman/cek-ongkir', [UserPengirimanController::class, 'cekOngkir'])->name('pengiriman.cekOngkir');
 
-    // Pembayaran
-    Route::get('/pembayaran/{checkout}/buat', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
-    Route::post('/pembayaran/{id}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
-
     // Transaksi
     Route::get('/transaksi', [UserTransaksiController::class, 'index'])->name('transaksi.index');
     Route::get('/transaksi/{id}', [UserTransaksiController::class, 'show'])->name('transaksi.show');
@@ -125,6 +121,13 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('/chat/{id}', [UserChatController::class, 'tampil'])->name('chat.tampil');
     Route::post('/chat/{id}/kirim', [UserChatController::class, 'kirimPesan'])->name('kirimPesan');
     
+    // Pembayaran
+    Route::get('/{checkoutId}', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
+    Route::post('/{checkoutId}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::get('/midtrans/{checkoutId}', [UserPembayaranController::class, 'midtransPay'])->name('pembayaran.midtrans');
+    Route::get('/success/{checkoutId}', [UserPembayaranController::class, 'success'])->name('pembayaran.success');
+    Route::get('/pending/{checkoutId}', [UserPembayaranController::class, 'pending'])->name('pembayaran.pending');
+
 });
 
 // ==========================

@@ -159,13 +159,43 @@ class PengirimanController extends Controller
     public function getCities(Request $request)
     {
         try {
-            $defaultKeywords = [
-                'bandung', 'bandung_barat', 'bekasi', 'kabupaten_bekasi',
-                'bogor', 'kabupaten_bogor', 'cimahi', 'cirebon', 'kabupaten_cirebon',
-                'depok', 'garut', 'indramayu', 'karawang', 'kuningan',
-                'majalengka', 'pangandaran', 'purwakarta', 'subang', 'sukabumi',
-                'kabupaten_sukabumi', 'sumedang', 'tasikmalaya', 'kabupaten_tasikmalaya'
-            ];
+        $defaultKeywords = [
+                // Kode Pos Kota Bandung (update)
+            '40113', '40195', '40191', '40198', '40197', '40193', '40196',
+            '40153', '40154', '40151', '40152', '40142', '40141',
+            '40121', '40122', '40123', '40124', '40125', '40126', '40127',
+            '40128', '40129', '40130', '40131', '40132', '40133',
+            '40134', '40135', '40136', '40137', '40138', '40139', '40140',
+            '40143', '40144', '40145', '40146', '40147', '40148',
+            '40149', '40150', '40155', '40156', '40157', '40158',
+            '40159', '40160', '40161', '40162', '40163', '40164', '40165',
+            '40166',        
+
+            '40111', // Kota Bandung
+            '40311', // Kab. Bandung
+            '40551', // Bandung Barat
+            '17111', // Bekasi
+            '17510', // Kab. Bekasi
+            '16111', // Bogor
+            '16910', // Kab. Bogor
+            '40511', // Cimahi
+            '45111', // Cirebon
+            '45611', // Kab. Cirebon
+            '16411', // Depok
+            '44111', // Garut
+            '45211', // Indramayu
+            '41311', // Karawang
+            '45511', // Kuningan
+            '45411', // Majalengka
+            '46396', // Pangandaran
+            '41111', // Purwakarta
+            '41211', // Subang
+            '43111', // Sukabumi
+            '43311', // Kab. Sukabumi
+            '45311', // Sumedang
+            '46111', // Tasikmalaya
+            '46411', // Kab. Tasikmalaya
+        ];
 
             $keyword = $request->get('keyword');
             $keywordsToSearch = $keyword ? [$keyword] : $defaultKeywords;

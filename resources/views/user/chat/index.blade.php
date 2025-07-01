@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-6">
 
     <h2 class="text-2xl font-bold text-gray-900">
-        {{ $toko ? '💬 Chat dari Pembeli' : '💬 Chat ke Toko' }}
+        {{ $toko ? 'Chat dari Pembeli' : 'Chat ke Toko' }}
     </h2>
 
     @forelse($daftarChat as $chat)

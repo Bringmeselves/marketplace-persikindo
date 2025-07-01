@@ -30,6 +30,11 @@ class TransaksiController extends Controller
             ->latest()
             ->get();
 
+        if ($transaksiList->isEmpty()) {
+            return view('user.transaksi.index', ['transaksiList' => $transaksiList])
+                ->with('info', 'Belum ada transaksi.');
+        }
+
         return view('user.transaksi.index', compact('transaksiList'));
     }
 
@@ -50,7 +55,12 @@ class TransaksiController extends Controller
                 'pembayaran',
             ])
             ->where('user_id', Auth::id())
-            ->findOrFail($id);
+            ->find($id);
+
+        if (!$transaksi) {
+            return redirect()->route('user.transaksi.index')
+                ->with('error', 'Transaksi tidak ditemukan.');
+        }
 
         return view('user.transaksi.show', compact('transaksi'));
     }

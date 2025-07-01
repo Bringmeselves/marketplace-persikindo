@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Pesan')
+
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-8 text-gray-800">
     {{-- Judul --}}

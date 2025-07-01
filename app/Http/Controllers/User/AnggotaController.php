@@ -26,7 +26,7 @@ class AnggotaController extends Controller
         // Cek apakah user sudah mengajukan sebelumnya
         $existing = Anggota::where('user_id', Auth::id())->first();
         if ($existing) {
-            return redirect()->route('dashboard')->with('info', 'Anda sudah mengajukan permohonan sebagai anggota.');
+            return redirect()->route('user.marketplace.index')->with('info', 'Anda sudah mengajukan permohonan sebagai anggota.');
         }
 
         return view('user.anggota.create');
