@@ -85,7 +85,6 @@
     </div>
 </div>
 
-
     {{-- PRODUK TERBARU --}}
     <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Produk Terbaru</h2>
 

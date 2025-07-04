@@ -50,7 +50,7 @@ class Produk extends Model
      */
     public function toko()
     {
-        return $this->belongsTo(Toko::class);
+        return $this->belongsTo(Toko::class)->withTrashed();
     }
 
     /**
@@ -68,6 +68,7 @@ class Produk extends Model
     {
         return $this->hasMany(Varian::class);
     }
+    
     /**
      * Relasi: Produk memiliki banyak Penilaian
      */

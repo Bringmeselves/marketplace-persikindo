@@ -1,26 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Services;
 
-use App\Http\Controllers\Controller;
-use App\Models\Produk;
-use App\Models\Kategori;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
-class MarketplaceController extends Controller
+class KomerceService
 {
-    /**
-     * Mengambil daftar origin (kota) dari API Komerce
-     */
-    private function fetchOrigins()
+    public function fetchOrigins()
     {
-        // Gunakan cache selama 12 jam (720 menit)
         return Cache::remember('komerce_origins_cache', now()->addHours(12), function () {
             $defaultKeywords = [
-                // Kode Pos Bandung dan kota lain (seperti yang kamu punya)
                 '40113', '40195', '40191', '40198', '40197', '40193', '40196',
                 '40153', '40154', '40151', '40152', '40142', '40141',
                 '40121', '40122', '40123', '40124', '40125', '40126', '40127',
@@ -55,41 +45,10 @@ class MarketplaceController extends Controller
         });
     }
 
-    /**
-     * Mencari nama kota berdasarkan ID dari hasil fetchOrigins
-     */
-    private function getCityNameById($id, $origins)
+    public function getCityNameById($id)
     {
-        // Cari kota berdasarkan ID dalam daftar origins
-        $city = collect($origins)->firstWhere('id', $id);
-        return $city['label'] ?? 'Unknown City'; // Jika tidak ditemukan, kembalikan 'Unknown City'
-    }
-
-    /**
-     * Menampilkan halaman utama marketplace
-     */
-    public function index(Request $request)
-    {
-        // Ambil semua kategori
-        $kategori = Kategori::all();
-
-        // Ambil produk yang hanya dijual oleh toko milik user dengan role 'anggota'
-        $query = Produk::whereHas('toko.user', function ($q) {
-            $q->where('role', 'anggota');
-        })->with('toko');
-
-        // Filter produk berdasarkan kategori jika ada permintaan filter
-        if ($request->kategori) {
-            $query->where('kategori_id', $request->kategori);
-        }
-
-        // Paginasi hasil produk
-        $produk = $query->paginate(20);
-
-        // Ambil daftar kota (origin) dari API Komerce
-        $origins = $this->fetchOrigins();
-
-        // Tampilkan view marketplace dengan data produk, kategori, dan origins
-        return view('user.marketplace.index', compact('produk', 'kategori', 'origins'));
+        $origin = $this->fetchOrigins();
+        $city = collect($origin)->firstWhere('id', $id);
+        return $city['label'] ?? null;
     }
 }

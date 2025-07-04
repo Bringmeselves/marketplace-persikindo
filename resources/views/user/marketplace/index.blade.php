@@ -51,56 +51,66 @@
 
     {{-- Produk List --}}
     @if ($produk->count())
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             @foreach ($produk as $item)
-                <div class="bg-white rounded-2xl shadow hover:shadow-md transition flex flex-col overflow-hidden">
-                    {{-- Gambar --}}
-                    <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
-                        <img
-                            src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
-                            alt="{{ $item->nama }}"
-                            class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                        />
-                    </div>
-
-                    {{-- Konten Produk --}}
-                    <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
-                        <div>
-                            <h3 class="font-semibold text-lg text-gray-900 truncate" title="{{ $item->nama }}">
-                                {{ $item->nama }}
-                            </h3>
-                            <p class="text-sm text-gray-500 line-clamp-2">{{ $item->deskripsi ?? '-' }}</p>
-
-                            {{-- Info Toko --}}
-                            @if ($item->toko)
-                                <div class="mt-2 text-sm text-gray-600 space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <i data-lucide="store" class="w-4 h-4 text-indigo-500"></i>
-                                        {{ $item->toko->nama_toko }}
-                                    </div>
-                                    <div class="ml-5 text-gray-500 text-xs">
-                                        <div>{{ $item->toko->city_name ?? 'Tidak diketahui' }}</div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-
-                        {{-- Harga --}}
-                        <div class="text-black-600 font-bold text-lg">
-                            Rp{{ number_format($item->harga, 0, ',', '.') }}
-                        </div>
-                    </div>
-
-                    {{-- Tombol Beli --}}
-                    <div class="border-t bg-gray-50 px-5 py-3">
-                        <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
-                            @csrf
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition flex justify-center items-center gap-2">
-                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
-                            </button>
-                        </form>
-                    </div>
+            <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group">
+                {{-- Gambar --}}
+                <div class="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                    <img
+                        src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
+                        alt="{{ $item->nama }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                 </div>
+
+                {{-- Konten --}}
+                <div class="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h2 class="font-semibold text-base md:text-lg text-gray-900 truncate" title="{{ $item->nama }}">
+                            {{ $item->nama }}
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1 line-clamp-2">
+                            {{ $item->deskripsi ?? '-' }}
+                        </p>
+
+                        {{-- Info Toko --}}
+                        @if ($item->toko)
+                            <div class="mt-3 text-xs text-gray-600 flex flex-col gap-y-1">
+                                {{-- Nama Toko --}}
+                                <div class="flex items-center gap-1">
+                                    <i data-lucide="store" class="w-4 h-4 text-indigo-500"></i>
+                                    <span class="font-medium text-indigo-500">{{ $item->toko->nama_toko }}</span>
+                                </div>
+
+                                {{-- Kota (Origin) --}}
+                                <div class="flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+                                    <span>
+                                        {{
+                                            collect($origins)->firstWhere('id', $item->toko->origin)['label']
+                                            ?? 'Kota tidak diketahui'
+                                        }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    <p class="text-lg font-bold text-indigo-700 mt-4">
+                        Rp{{ number_format($item->harga, 0, ',', '.') }}
+                    </p>
+                </div>
+
+                {{-- Tombol Beli --}}
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                    <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
+                        @csrf
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
+                        </button>
+                    </form>
+                </div>
+            </div>
             @endforeach
         </div>
 

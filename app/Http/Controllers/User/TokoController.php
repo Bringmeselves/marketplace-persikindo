@@ -9,70 +9,50 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Kategori;
 
 class TokoController extends Controller
 {
-    // Ambil daftar kota (origin) dari API Komerce
+    // Ambil daftar kota dari API Komerce dengan cache
     private function fetchOrigins()
     {
-       $defaultKeywords = [
-                // Kode Pos Kota Bandung (update)
-            '40113', '40195', '40191', '40198', '40197', '40193', '40196',
-            '40153', '40154', '40151', '40152', '40142', '40141',
-            '40121', '40122', '40123', '40124', '40125', '40126', '40127',
-            '40128', '40129', '40130', '40131', '40132', '40133',
-            '40134', '40135', '40136', '40137', '40138', '40139', '40140',
-            '40143', '40144', '40145', '40146', '40147', '40148',
-            '40149', '40150', '40155', '40156', '40157', '40158',
-            '40159', '40160', '40161', '40162', '40163', '40164', '40165',
-            '40166',        
+        // Gunakan cache selama 12 jam (720 menit)
+        return Cache::remember('komerce_origins_cache', now()->addHours(12), function () {
+            $defaultKeywords = [
+                // Kode Pos Bandung dan kota lain (seperti yang kamu punya)
+                '40113', '40195', '40191', '40198', '40197', '40193', '40196',
+                '40153', '40154', '40151', '40152', '40142', '40141',
+                '40121', '40122', '40123', '40124', '40125', '40126', '40127',
+                '40128', '40129', '40130', '40131', '40132', '40133',
+                '40134', '40135', '40136', '40137', '40138', '40139', '40140',
+                '40143', '40144', '40145', '40146', '40147', '40148',
+                '40149', '40150', '40155', '40156', '40157', '40158',
+                '40159', '40160', '40161', '40162', '40163', '40164', '40165',
+                '40166',        
+                '40111', '40311', '40551', '17111', '17510', '16111', '16910',
+                '40511', '45111', '45611', '16411', '44111', '45211', '41311',
+                '45511', '45411', '46396', '41111', '41211', '43111', '43311',
+                '45311', '46111', '46411',
+            ];
 
-            '40111', // Kota Bandung
-            '40311', // Kab. Bandung
-            '40551', // Bandung Barat
-            '17111', // Bekasi
-            '17510', // Kab. Bekasi
-            '16111', // Bogor
-            '16910', // Kab. Bogor
-            '40511', // Cimahi
-            '45111', // Cirebon
-            '45611', // Kab. Cirebon
-            '16411', // Depok
-            '44111', // Garut
-            '45211', // Indramayu
-            '41311', // Karawang
-            '45511', // Kuningan
-            '45411', // Majalengka
-            '46396', // Pangandaran
-            '41111', // Purwakarta
-            '41211', // Subang
-            '43111', // Sukabumi
-            '43311', // Kab. Sukabumi
-            '45311', // Sumedang
-            '46111', // Tasikmalaya
-            '46411', // Kab. Tasikmalaya
-        ];
+            $allCities = [];
 
-        $allCities = [];
+            foreach ($defaultKeywords as $kw) {
+                $response = Http::withHeaders([
+                    'x-api-key' => env('KOMERCE_API_KEY'),
+                    'Accept' => 'application/json',
+                ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+                    'keyword' => $kw,
+                ]);
 
-        // Looping untuk mengambil data kota berdasarkan keyword
-        foreach ($defaultKeywords as $kw) {
-            $response = Http::withHeaders([
-                'x-api-key' => env('KOMERCE_API_KEY'),
-                'Accept' => 'application/json',
-            ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
-                'keyword' => $kw,
-            ]);
-
-            // Jika respon sukses dan memiliki data, gabungkan datanya
-            if ($response->ok() && isset($response['data'])) {
-                $allCities = array_merge($allCities, $response['data']);
+                if ($response->ok() && isset($response['data'])) {
+                    $allCities = array_merge($allCities, $response['data']);
+                }
             }
-        }
 
-        // Kembalikan data unik berdasarkan 'id'
-        return collect($allCities)->unique('id')->values()->all();
+            return collect($allCities)->unique('id')->values()->all();
+        });
     }
 
     // Ambil nama kota berdasarkan ID kota

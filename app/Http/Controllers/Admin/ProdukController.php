@@ -23,6 +23,6 @@ class ProdukController extends Controller
         $produk = Produk::findOrFail($id);
         $produk->delete();
 
-        return response()->json(['message' => 'Produk berhasil dihapus oleh admin']);
+        return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dihapus.');
     }
 }
