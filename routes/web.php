@@ -99,15 +99,13 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('pengiriman/cities', [UserPengirimanController::class, 'getCities'])->name('pengiriman.kota');
 
     // API: CEK ONGKIR
-   Route::post('/pengiriman/cek-ongkir', [UserPengirimanController::class, 'cekOngkir'])->name('pengiriman.cekOngkir');
+    Route::post('/pengiriman/cek-ongkir', [UserPengirimanController::class, 'cekOngkir'])->name('pengiriman.cekOngkir');
 
     // Transaksi
     Route::get('/transaksi', [UserTransaksiController::class, 'index'])->name('transaksi.index');
     Route::get('/transaksi/{id}', [UserTransaksiController::class, 'show'])->name('transaksi.show');
     Route::post('/transaksi/store/{checkoutId}', [UserTransaksiController::class, 'store'])->name('transaksi.store');
-
-    // Penjualan
-    Route::get('/penjualan', [UserTransaksiController::class, 'penjualan'])->name('transaksi.penjualan');
+    Route::post('/transaksi/{id}/input-resi', [UserTransaksiController::class, 'inputResi'])->name('transaksi.inputResi');
 
     // Penilaian
     Route::get('/penilaian/{produk}/create', [UserPenilaianController::class, 'create'])->name('penilaian.create');

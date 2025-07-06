@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\Toko;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -205,13 +206,15 @@ class TokoController extends Controller
         $toko = Toko::where('id', $id)->where('user_id', $user->id)->firstOrFail();
         $produkList = $toko->produk()->get();
 
-        // Tambahkan nama kota
         $toko->city_name = $this->getCityNameById($toko->origin);
-
-        // Ambil daftar chat dari pembeli untuk toko ini
         $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
-        
-        return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat'));
+
+        // Ambil transaksi masuk untuk toko ini
+        $transaksiMasuk = Transaksi::whereHas('produk', function ($q) use ($toko) {
+            $q->where('toko_id', $toko->id);
+        })->latest()->get();
+
+        return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat', 'transaksiMasuk'));
     }
 
     // Halaman publik toko

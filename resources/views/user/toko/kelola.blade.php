@@ -83,11 +83,61 @@
             <i data-lucide="plus" class="w-5 h-5"></i>
             Tambah Produk
         </a>
-        <a href="{{ route('user.transaksi.penjualan') }}"
-           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition font-semibold shadow">
-            <i data-lucide="list" class="w-5 h-5"></i>
-            Kelola Penjualan
-        </a>
+    </div>
+
+    {{-- SECTION: Transaksi Masuk --}}
+    <div class="pt-12 space-y-4">
+        <h3 class="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-6 h-6 text-indigo-500"></i>
+            Transaksi Masuk
+        </h3>
+
+        @forelse ($transaksiMasuk as $transaksi)
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                    <div class="text-sm text-gray-700 space-y-1">
+                        <p><span class="font-medium">Produk:</span> {{ $transaksi->produk->nama }}</p>
+                        @if ($transaksi->varian)
+                            <p><span class="font-medium">Varian:</span> {{ $transaksi->varian->nama }}</p>
+                        @endif
+                        <p><span class="font-medium">Pembeli:</span> {{ $transaksi->user->name }}</p>
+                        <p><span class="font-medium">Status:</span> 
+                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold
+                                {{ 
+                                    $transaksi->status === 'diproses' ? 'bg-yellow-100 text-yellow-800' :
+                                    ($transaksi->status === 'dikirim' ? 'bg-blue-100 text-blue-800' :
+                                    ($transaksi->status === 'selesai' ? 'bg-green-100 text-green-800' :
+                                    'bg-red-100 text-red-800'))
+                                }}">
+                                {{ ucfirst($transaksi->status) }}
+                            </span>
+                        </p>
+                        @if ($transaksi->resi)
+                            <p><span class="font-medium">Resi:</span> {{ $transaksi->resi }}</p>
+                        @endif
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        @if ($transaksi->status === 'diproses')
+                            <form action="{{ route('user.transaksi.show', $transaksi->id) }}" method="POST" class="flex items-center gap-2">
+                                @csrf
+                                <input type="text" name="resi" required placeholder="Masukkan No Resi" 
+                                    class="rounded-lg border-gray-300 text-sm px-3 py-2 w-48 focus:ring-indigo-500 focus:border-indigo-500">
+                                <button type="submit"
+                                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                                    Tandai Dikirim
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-center text-gray-400 py-12 space-y-2">
+                <i data-lucide="inbox" class="mx-auto w-8 h-8"></i>
+                <p class="italic">Belum ada transaksi masuk ke toko ini.</p>
+            </div>
+        @endforelse
     </div>
 
     {{-- SECTION: Daftar Produk --}}

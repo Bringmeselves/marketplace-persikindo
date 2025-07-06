@@ -40,30 +40,12 @@
     <div class="bg-white shadow-lg rounded-2xl p-6 space-y-3">
         <h3 class="text-lg font-semibold text-gray-900">Metode Pembayaran Tersedia</h3>
         <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-gray-700 text-sm">
-            <li class="flex items-center gap-2">
-                <i data-lucide="credit-card" class="w-4 h-4 text-indigo-500"></i>
-                Kartu Kredit / Debit
-            </li>
-            <li class="flex items-center gap-2">
-                <i data-lucide="banknote" class="w-4 h-4 text-indigo-500"></i>
-                Transfer Bank (BCA, BNI, BRI, Mandiri)
-            </li>
-            <li class="flex items-center gap-2">
-                <i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i>
-                Virtual Account
-            </li>
-            <li class="flex items-center gap-2">
-                <i data-lucide="smartphone" class="w-4 h-4 text-indigo-500"></i>
-                E-Wallet (GoPay, ShopeePay, DANA, OVO, LinkAja)
-            </li>
-            <li class="flex items-center gap-2">
-                <i data-lucide="scan-line" class="w-4 h-4 text-indigo-500"></i>
-                QRIS
-            </li>
-            <li class="flex items-center gap-2">
-                <i data-lucide="store" class="w-4 h-4 text-indigo-500"></i>
-                Indomaret & Alfamart
-            </li>
+            <li class="flex items-center gap-2"><i data-lucide="credit-card" class="w-4 h-4 text-indigo-500"></i> Kartu Kredit / Debit</li>
+            <li class="flex items-center gap-2"><i data-lucide="banknote" class="w-4 h-4 text-indigo-500"></i> Transfer Bank</li>
+            <li class="flex items-center gap-2"><i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i> Virtual Account</li>
+            <li class="flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4 text-indigo-500"></i> E-Wallet</li>
+            <li class="flex items-center gap-2"><i data-lucide="scan-line" class="w-4 h-4 text-indigo-500"></i> QRIS</li>
+            <li class="flex items-center gap-2"><i data-lucide="store" class="w-4 h-4 text-indigo-500"></i> Indomaret & Alfamart</li>
         </ul>
     </div>
 
@@ -79,12 +61,15 @@
     </div>
 </div>
 
-{{-- Midtrans Snap JS --}}
-<script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+{{-- Snap.js dari Midtrans --}}
+<script src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}">
+</script>
 
+{{-- Trigger Snap on Click --}}
 <script>
     document.getElementById('pay-button').addEventListener('click', function () {
-        window.snap.pay('{{ $snapToken }}', {
+        snap.pay('{{ $snapToken }}', {
             onSuccess: function(result) {
                 window.location.href = "{{ route('user.pembayaran.success', $checkout->id) }}";
             },

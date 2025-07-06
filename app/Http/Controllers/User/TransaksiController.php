@@ -114,4 +114,22 @@ class TransaksiController extends Controller
         return redirect()->route('user.transaksi.index')
             ->with('success', 'Transaksi berhasil dibuat.');
     }
+
+    public function inputResi(Request $request, $id)
+    {
+        $request->validate([
+            'resi' => 'required|string|max:255',
+        ]);
+
+        $transaksi = \App\Models\Transaksi::findOrFail($id);
+
+        // Pastikan yang menginput adalah pemilik toko
+        $toko = Toko::where('id', $transaksi->toko_id)->where('user_id', Auth::id())->firstOrFail();
+
+        $transaksi->resi = $request->resi;
+        $transaksi->status = 'dikirim'; // Ubah status
+        $transaksi->save();
+
+        return back()->with('success', 'Resi berhasil diinput dan status diubah menjadi dikirim.');
+    }
 }

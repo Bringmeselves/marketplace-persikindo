@@ -49,11 +49,9 @@
                     @php $user = auth()->user()->fresh(); @endphp
 
                     @if($user->role === 'user')
-                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Marketplace</a></li>
                         <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
                         <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
                     @elseif($user->role === 'anggota')
-                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Marketplace</a></li>
                         <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
                         @if($user->toko)
                             <li><a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="text-black font-semibold hover:text-blue-500">Toko Saya</a></li>

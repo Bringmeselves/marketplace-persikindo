@@ -48,6 +48,13 @@ class Toko extends Model
         return $this->hasMany(Pengiriman::class);   
     }
 
+    public function transaksiMasuk()
+    {
+        return \App\Models\Transaksi::whereHas('produk', function ($query) {
+            $query->where('toko_id', $this->id);
+        });
+    }
+
     protected static function boot()
     {
         parent::boot();
