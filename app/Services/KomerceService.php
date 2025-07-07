@@ -32,7 +32,7 @@ class KomerceService
                 $response = Http::withHeaders([
                     'x-api-key' => env('KOMERCE_API_KEY'),
                     'Accept' => 'application/json',
-                ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+                ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
                     'keyword' => $kw,
                 ]);
 

@@ -13,36 +13,37 @@ use Illuminate\Support\Facades\Auth;
 class PenilaianController extends Controller
 {
     public function create(Produk $produk)
-    {
-        $userId = Auth::id();
+{
+    $userId = Auth::id();
 
-        // Ambil transaksi terakhir user terhadap produk tersebut
-        $transaksi = Transaksi::where('user_id', $userId)
-            ->where('produk_id', $produk->id)
-            ->latest()
-            ->first();
+    // Ambil transaksi selesai yang punya produk ini
+    $transaksi = Transaksi::where('user_id', $userId)
+        ->where('status', 'selesai')
+        ->whereHas('checkout.item', function ($query) use ($produk) {
+            $query->where('produk_id', $produk->id);
+        })
+        ->latest()
+        ->first();
 
-        if (!$transaksi) {
-            return back()->with('error', 'Anda belum pernah membeli produk ini.');
-        }
-
-        // Cek apakah sudah pernah menilai
-        $sudahNilai = Penilaian::where('produk_id', $produk->id)
-            ->where('user_id', $userId)
-            ->first();
-
-        if ($sudahNilai) {
-            return redirect()->route('user.transaksi.index')->with('info', 'Anda sudah memberi penilaian untuk produk ini.');
-        }
-
-        // Ambil varian jika ada
-        $varian = null;
-        if ($transaksi->varian_id) {
-            $varian = Varian::find($transaksi->varian_id);
-        }
-
-        return view('user.penilaian.create', compact('produk', 'varian'));
+    if (!$transaksi) {
+        return back()->with('error', 'Anda belum pernah menyelesaikan transaksi untuk produk ini.');
     }
+
+    // Cek apakah sudah pernah menilai
+    $sudahNilai = Penilaian::where('produk_id', $produk->id)
+        ->where('user_id', $userId)
+        ->exists();
+
+    if ($sudahNilai) {
+        return redirect()->route('user.transaksi.index')->with('info', 'Anda sudah memberi penilaian untuk produk ini.');
+    }
+
+    // Ambil varian jika ada (ambil dari transaksi)
+    $checkoutItem = $transaksi->checkout->item->firstWhere('produk_id', $produk->id);
+    $varian = $checkoutItem?->varian;
+
+    return view('user.penilaian.create', compact('produk', 'varian'));
+}
 
     public function store(Request $request)
 {
@@ -56,19 +57,22 @@ class PenilaianController extends Controller
 
     $produkId = $request->produk_id;
 
-    // Cek apakah user pernah beli produk ini
-    $pernahBeli = Transaksi::where('user_id', $userId)
-        ->where('produk_id', $produkId)
+    // Cek apakah user pernah menyelesaikan transaksi dengan produk ini
+    $pernahSelesai = Transaksi::where('user_id', $userId)
+        ->where('status', 'selesai')
+        ->whereHas('checkout.item', function ($query) use ($produkId) {
+            $query->where('produk_id', $produkId);
+        })
         ->exists();
 
-    if (!$pernahBeli) {
-        return back()->with('error', 'Anda belum membeli produk ini.');
+    if (!$pernahSelesai) {
+        return back()->with('error', 'Anda belum menyelesaikan transaksi untuk produk ini.');
     }
 
     // Cek apakah user sudah beri penilaian
     $sudahNilai = Penilaian::where('produk_id', $produkId)
         ->where('user_id', $userId)
-        ->first();
+        ->exists();
 
     if ($sudahNilai) {
         return redirect()->route('user.transaksi.index')->with('info', 'Penilaian sudah ada.');
@@ -83,6 +87,7 @@ class PenilaianController extends Controller
 
     return redirect()->route('user.transaksi.index')->with('success', 'Penilaian berhasil disimpan.');
 }
+
 public function destroy($id)
 {
     $penilaian = Penilaian::where('id', $id)

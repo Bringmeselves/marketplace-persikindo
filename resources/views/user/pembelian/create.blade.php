@@ -5,12 +5,6 @@
 @section('content')
 <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
 
-    {{-- Judul Halaman --}}
-    <div class="flex items-center gap-3">
-        <i data-lucide="shopping-cart" class="w-6 h-6 text-indigo-600"></i>
-        <h2 class="text-3xl font-bold text-gray-900">Form Pembelian Produk</h2>
-    </div>
-
     {{-- SECTION: Produk --}}
     <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 space-y-6">
         <div class="grid md:grid-cols-3 gap-6 items-start">

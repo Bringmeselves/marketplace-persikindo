@@ -17,7 +17,6 @@
         <div class="space-y-6">
             @foreach ($transaksiList as $transaksi)
                 @php
-                    // Hitung total produk
                     $totalProduk = 0;
                 @endphp
 
@@ -31,7 +30,7 @@
                     </div>
 
                     <div class="space-y-3">
-                        {{-- Tampilkan semua item dalam transaksi --}}
+                        {{-- Daftar Item Transaksi --}}
                         @if ($transaksi->checkout && $transaksi->checkout->item)
                             @foreach ($transaksi->checkout->item as $item)
                                 @php
@@ -45,14 +44,14 @@
 
                                 {{-- Item Produk --}}
                                 <div class="flex flex-col md:flex-row gap-4 border-b pb-3">
-                                    {{-- Gambar --}}
+                                    {{-- Gambar Produk --}}
                                     <div class="w-24 h-24 flex-shrink-0 rounded overflow-hidden bg-gray-100">
                                         <img src="{{ asset('storage/' . ($varian->gambar ?? $produk->gambar ?? 'img/default.png')) }}"
                                              alt="{{ $produk->nama ?? 'Produk' }}"
                                              class="object-cover w-full h-full">
                                     </div>
 
-                                    {{-- Info --}}
+                                    {{-- Informasi Produk --}}
                                     <div class="flex-grow">
                                         <p class="font-semibold text-gray-900">
                                             {{ $produk->nama ?? 'Produk tidak ditemukan' }}
@@ -69,7 +68,7 @@
                             @endforeach
                         @endif
 
-                        {{-- Informasi Total --}}
+                        {{-- Ringkasan Transaksi --}}
                         <div class="pt-2 text-sm text-gray-700 space-y-1">
                             <div class="flex justify-between">
                                 <span class="font-medium">Total Produk:</span>
@@ -90,21 +89,14 @@
                                 <span>{{ $transaksi->created_at->format('d M Y H:i') }}</span>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Tombol Aksi --}}
-                    <div class="flex flex-wrap gap-2 justify-end pt-2">
-                        <a href="{{ route('user.transaksi.show', $transaksi->id) }}"
-                           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-100 text-indigo-800 hover:bg-indigo-200 text-sm font-semibold">
-                            <i data-lucide="eye" class="w-4 h-4"></i> Lihat Detail
-                        </a>
-
-                        @if ($transaksi->status === 'selesai')
-                            <a href="{{ route('user.penilaian.create', ['transaksi' => $transaksi->id]) }}"
-                               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-green-100 text-green-800 hover:bg-green-200 text-sm font-semibold">
-                                <i data-lucide="star" class="w-4 h-4"></i> Beri Penilaian
+                        {{-- Tombol Lihat Detail --}}
+                        <div class="pt-4 flex justify-end">
+                            <a href="{{ route('user.transaksi.show', $transaksi->id) }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+                                <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Lihat Detail
                             </a>
-                        @endif
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -112,7 +104,7 @@
     @endif
 </div>
 
-{{-- Inisialisasi ikon --}}
+{{-- Inisialisasi Ikon --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => lucide.createIcons());

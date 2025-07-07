@@ -5,8 +5,6 @@
 @section('content')
 <div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
 
-    <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Kelola Toko</h2>
-
     {{-- Notifikasi --}}
     @if(session('success'))
         <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded-lg shadow-sm">
@@ -86,51 +84,108 @@
     </div>
 
     {{-- SECTION: Transaksi Masuk --}}
-    <div class="pt-12 space-y-4">
-        <h3 class="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-            <i data-lucide="shopping-bag" class="w-6 h-6 text-indigo-500"></i>
+    <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+        <h2 class="text-3xl font-bold text-gray-900 pb-4 border-b flex items-center gap-2">
+            <i data-lucide="shopping-bag" class="w-8 h-8 text-indigo-500"></i>
             Transaksi Masuk
-        </h3>
+        </h2>
+
+        {{-- ALERT: Pesan Sukses --}}
+        @if (session('success'))
+            <div class="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm">
+                {{ session('success') }}
+            </div>
+        @endif
 
         @forelse ($transaksiMasuk as $transaksi)
-            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-2">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                    <div class="text-sm text-gray-700 space-y-1">
-                        <p><span class="font-medium">Produk:</span> {{ $transaksi->produk->nama }}</p>
-                        @if ($transaksi->varian)
-                            <p><span class="font-medium">Varian:</span> {{ $transaksi->varian->nama }}</p>
-                        @endif
-                        <p><span class="font-medium">Pembeli:</span> {{ $transaksi->user->name }}</p>
-                        <p><span class="font-medium">Status:</span> 
-                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold
-                                {{ 
-                                    $transaksi->status === 'diproses' ? 'bg-yellow-100 text-yellow-800' :
-                                    ($transaksi->status === 'dikirim' ? 'bg-blue-100 text-blue-800' :
-                                    ($transaksi->status === 'selesai' ? 'bg-green-100 text-green-800' :
-                                    'bg-red-100 text-red-800'))
-                                }}">
-                                {{ ucfirst($transaksi->status) }}
-                            </span>
-                        </p>
-                        @if ($transaksi->resi)
-                            <p><span class="font-medium">Resi:</span> {{ $transaksi->resi }}</p>
-                        @endif
-                    </div>
+            @php
+                $item = $transaksi->checkout->item->first();
+                $produk = $item->produk ?? null;
+                $varian = $item->varian ?? null;
+                $jumlah = $item->jumlah ?? 0;
+                $harga = $varian->harga ?? $produk->harga ?? 0;
+                $subtotal = $jumlah * $harga;
+                $ongkir = $transaksi->pengiriman->ongkir ?? 0;
+                $total = $transaksi->pembayaran->total ?? ($subtotal + $ongkir);
+                $pengiriman = $transaksi->pengiriman ?? null;
+            @endphp
 
-                    <div class="flex items-center gap-2">
-                        @if ($transaksi->status === 'diproses')
-                            <form action="{{ route('user.transaksi.show', $transaksi->id) }}" method="POST" class="flex items-center gap-2">
-                                @csrf
-                                <input type="text" name="resi" required placeholder="Masukkan No Resi" 
-                                    class="rounded-lg border-gray-300 text-sm px-3 py-2 w-48 focus:ring-indigo-500 focus:border-indigo-500">
-                                <button type="submit"
-                                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-                                    Tandai Dikirim
-                                </button>
-                            </form>
+            <div class="bg-white shadow rounded-2xl p-6 space-y-6">
+                {{-- Status --}}
+                <div class="flex justify-between items-center border-b pb-4">
+                    <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->id }}</h3>
+                    <span class="inline-block text-sm font-medium px-3 py-1 rounded-full capitalize 
+                        {{ 
+                            $transaksi->status === 'diproses' ? 'bg-yellow-100 text-yellow-800' :
+                            ($transaksi->status === 'dikirim' ? 'bg-blue-100 text-blue-800' :
+                            ($transaksi->status === 'selesai' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'))
+                        }}">
+                        {{ $transaksi->status }}
+                    </span>
+                </div>
+
+                {{-- Produk --}}
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-full md:w-32 h-32 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img src="{{ asset('storage/' . ($varian->gambar ?? $produk->gambar ?? 'img/default.png')) }}"
+                            alt="{{ $produk->nama ?? 'Produk' }}"
+                            class="object-cover w-full h-full">
+                    </div>
+                    <div class="flex-grow space-y-2 text-sm text-gray-700">
+                        <h4 class="text-base font-semibold text-gray-800">Detail Produk</h4>
+                        <div class="flex justify-between"><span>Nama Produk</span><span class="font-medium">{{ $produk->nama ?? '-' }}</span></div>
+                        @if ($varian)
+                        <div class="flex justify-between"><span>Varian</span><span>{{ $varian->nama }}</span></div>
                         @endif
+                        <div class="flex justify-between"><span>Jumlah</span><span>{{ $jumlah }}</span></div>
+                        <div class="flex justify-between"><span>Harga</span><span>Rp{{ number_format($harga, 0, ',', '.') }}</span></div>
+                        <div class="flex justify-between"><span>Subtotal</span><span>Rp{{ number_format($subtotal, 0, ',', '.') }}</span></div>
+                        <div class="flex justify-between"><span>Ongkir</span><span>Rp{{ number_format($ongkir, 0, ',', '.') }}</span></div>
+                        <div class="flex justify-between font-semibold text-gray-900"><span>Total</span><span>Rp{{ number_format($total, 0, ',', '.') }}</span></div>
+                        <div class="flex justify-between"><span>Pembeli</span><span>{{ $transaksi->user->name }}</span></div>
+                        <div class="flex justify-between"><span>Tanggal</span><span>{{ $transaksi->created_at->format('d M Y H:i') }}</span></div>
                     </div>
                 </div>
+
+                {{-- Informasi Pengiriman --}}
+                @if ($pengiriman)
+                    <div class="space-y-2 text-sm text-gray-700 border-t pt-4">
+                        <h4 class="text-base font-semibold text-gray-800">Informasi Pengiriman</h4>
+                        <div class="flex justify-between"><span>Kurir</span><span>{{ strtoupper($pengiriman->kurir) }}</span></div>
+                        <div class="flex justify-between"><span>Layanan</span><span>{{ $pengiriman->layanan }}</span></div>
+                        <div class="flex justify-between"><span>Ongkir</span><span>Rp{{ number_format($pengiriman->ongkir, 0, ',', '.') }}</span></div>
+                        <div class="flex justify-between">
+                            <span>Nomor Resi</span>
+                            <span class="{{ $transaksi->resi ? 'text-green-700 font-mono' : 'text-gray-400 italic' }}">
+                                {{ $transaksi->resi ?? 'Belum diinput' }}
+                            </span>
+                        </div>
+                        <div class="pt-4 space-y-1 border-t">
+                            <h5 class="font-semibold text-gray-800">Alamat Penerima</h5>
+                            <div class="flex justify-between"><span>Nama</span><span>{{ $pengiriman->nama_lengkap }}</span></div>
+                            <div class="flex justify-between"><span>Alamat</span><span class="text-right">{{ $pengiriman->alamat_penerima }}</span></div>
+                            <div class="flex justify-between"><span>Kota & Kode Pos</span><span>{{ $pengiriman->city_name }}, {{ $pengiriman->kode_pos }}</span></div>
+                            <div class="flex justify-between"><span>WA</span><span>{{ $pengiriman->nomor_wa }}</span></div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Form Input Resi --}}
+                @if ($transaksi->status === 'diproses' && !$transaksi->resi)
+                    <div class="pt-2 border-t">
+                        <form action="{{ route('user.transaksi.inputResi', $transaksi->id) }}" method="POST" class="flex flex-col sm:flex-row sm:items-center gap-2 mt-4">
+                            @csrf
+                            <input type="text" name="resi" required placeholder="Masukkan No Resi"
+                                class="rounded-lg border-gray-300 text-sm px-3 py-2 w-full sm:w-64 focus:ring-indigo-500 focus:border-indigo-500"
+                                value="{{ old('resi') }}">
+                            <button type="submit"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                                Tandai Dikirim
+                            </button>
+                        </form>
+                    </div>
+                @endif
             </div>
         @empty
             <div class="text-center text-gray-400 py-12 space-y-2">

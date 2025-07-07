@@ -103,9 +103,10 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
 
     // Transaksi
     Route::get('/transaksi', [UserTransaksiController::class, 'index'])->name('transaksi.index');
-    Route::get('/transaksi/{id}', [UserTransaksiController::class, 'show'])->name('transaksi.show');
     Route::post('/transaksi/store/{checkoutId}', [UserTransaksiController::class, 'store'])->name('transaksi.store');
     Route::post('/transaksi/{id}/input-resi', [UserTransaksiController::class, 'inputResi'])->name('transaksi.inputResi');
+    Route::get('/transaksi/{id}', [UserTransaksiController::class, 'show'])->name('transaksi.show');
+    Route::patch('/transaksi/{transaksi}/selesai', [UserTransaksiController::class, 'selesai'])->name('transaksi.selesai');
 
     // Penilaian
     Route::get('/penilaian/{produk}/create', [UserPenilaianController::class, 'create'])->name('penilaian.create');

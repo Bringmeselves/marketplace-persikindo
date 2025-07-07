@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
 use App\Models\Checkout;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -121,15 +122,34 @@ class TransaksiController extends Controller
             'resi' => 'required|string|max:255',
         ]);
 
-        $transaksi = \App\Models\Transaksi::findOrFail($id);
+        $transaksi = Transaksi::with('produk.toko')->findOrFail($id);
+
+        $toko = $transaksi->produk->toko ?? null;
 
         // Pastikan yang menginput adalah pemilik toko
-        $toko = Toko::where('id', $transaksi->toko_id)->where('user_id', Auth::id())->firstOrFail();
+        if (!$toko || $toko->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak berhak menginput resi untuk transaksi ini.');
+        }
 
         $transaksi->resi = $request->resi;
-        $transaksi->status = 'dikirim'; // Ubah status
+        $transaksi->status = 'dikirim';
         $transaksi->save();
 
         return back()->with('success', 'Resi berhasil diinput dan status diubah menjadi dikirim.');
+    }
+
+    public function selesai($id)
+    {
+        $transaksi = Transaksi::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+
+        if ($transaksi->status !== 'dikirim') {
+            return back()->with('error', 'Transaksi belum bisa diselesaikan.');
+        }
+
+        $transaksi->status = 'selesai';
+        $transaksi->save();
+
+        return redirect()->route('user.transaksi.show', $transaksi->id)
+            ->with('success', 'Transaksi berhasil diselesaikan.');
     }
 }

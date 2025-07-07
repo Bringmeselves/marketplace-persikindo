@@ -24,7 +24,7 @@ class PengirimanController extends Controller
         $response = Http::withHeaders([
             'x-api-key' => env('KOMERCE_API_KEY'),
             'Accept' => 'application/json',
-        ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search');
+        ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search');
 
         $data = $response->json();
         $cities = $data['data'] ?? [];
@@ -95,7 +95,7 @@ class PengirimanController extends Controller
     // Panggil API Komerce untuk mendapatkan daftar kurir (shipping_name)
     $response = Http::withHeaders([
         'x-api-key' => env('KOMERCE_API_KEY'),
-    ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
+    ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
         'shipper_destination_id'   => $origin,
         'receiver_destination_id'  => $destination,
         'weight'                   => $weight,
@@ -158,6 +158,7 @@ class PengirimanController extends Controller
      */
     public function getCities(Request $request)
     {
+        
         try {
         $defaultKeywords = [
                 // Kode Pos Kota Bandung (update)
@@ -205,7 +206,7 @@ class PengirimanController extends Controller
                 $response = Http::withHeaders([
                     'x-api-key' => env('KOMERCE_API_KEY'),
                     'Accept' => 'application/json',
-                ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+                ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
                     'keyword' => $kw,
                 ]);
 
@@ -265,7 +266,7 @@ class PengirimanController extends Controller
             // Panggil API ongkir Komerce
             $response = Http::withHeaders([
                 'x-api-key' => env('KOMERCE_API_KEY'),
-            ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
+            ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
                 'shipper_destination_id'   => $origin,
                 'receiver_destination_id'  => $request->cities,
                 'weight'                   => $request->berat,
@@ -338,7 +339,7 @@ class PengirimanController extends Controller
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
                 'api-key' => 'LT17D1mxfee993deed007adcvWYZZIH3',
-            ])->post('https://collaborator.komerce.id/api/v1/shipping/delivery', [
+            ])->timeout(10)->post('https://collaborator.komerce.id/api/v1/shipping/delivery', [
                 'origin' => $origin,
                 'destination' => $destination,
                 'weight' => $weight,

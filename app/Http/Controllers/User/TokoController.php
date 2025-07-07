@@ -43,7 +43,7 @@ class TokoController extends Controller
                 $response = Http::withHeaders([
                     'x-api-key' => env('KOMERCE_API_KEY'),
                     'Accept' => 'application/json',
-                ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+                ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
                     'keyword' => $kw,
                 ]);
 
@@ -210,9 +210,13 @@ class TokoController extends Controller
         $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
 
         // Ambil transaksi masuk untuk toko ini
-        $transaksiMasuk = Transaksi::whereHas('produk', function ($q) use ($toko) {
+        $transaksiMasuk = Transaksi::where('status', 'diproses') // hanya status diproses
+        ->whereNull('resi') // dan belum diisi resi
+        ->whereHas('produk', function ($q) use ($toko) {
             $q->where('toko_id', $toko->id);
-        })->latest()->get();
+        })
+        ->latest()
+        ->get();
 
         return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat', 'transaksiMasuk'));
     }
