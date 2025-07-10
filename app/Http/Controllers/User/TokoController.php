@@ -210,13 +210,14 @@ class TokoController extends Controller
         $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
 
         // Ambil transaksi masuk untuk toko ini
-        $transaksiMasuk = Transaksi::where('status', 'diproses') // hanya status diproses
+        $transaksiMasuk = Transaksi::with(['checkout.item.produk', 'checkout.item.varian', 'pengiriman', 'pembayaran', 'user'])
+        ->where('status', 'diproses') // hanya status diproses
         ->whereNull('resi') // dan belum diisi resi
         ->whereHas('produk', function ($q) use ($toko) {
             $q->where('toko_id', $toko->id);
         })
         ->latest()
-        ->get();
+        ->paginate(3);
 
         return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat', 'transaksiMasuk'));
     }

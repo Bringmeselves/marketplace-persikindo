@@ -21,6 +21,7 @@ class Toko extends Model
         'origin',
         'foto_toko',
         'nomer_wa',
+        'saldo',
         'user_id',
     ];
 

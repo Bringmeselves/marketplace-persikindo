@@ -29,7 +29,7 @@ class TransaksiController extends Controller
             ])
             ->where('user_id', Auth::id())
             ->latest()
-            ->get();
+            ->paginate(3);
 
         if ($transaksiList->isEmpty()) {
             return view('user.transaksi.index', ['transaksiList' => $transaksiList])
@@ -140,16 +140,33 @@ class TransaksiController extends Controller
 
     public function selesai($id)
     {
-        $transaksi = Transaksi::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $transaksi = Transaksi::with('produk.toko', 'pembayaran')
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
+        // Cek apakah transaksi memang sudah dikirim
         if ($transaksi->status !== 'dikirim') {
             return back()->with('error', 'Transaksi belum bisa diselesaikan.');
         }
 
+        // Ambil total pembayaran
+        $total = optional($transaksi->pembayaran)->total_bayar;
+
+        // Ambil data toko dari produk
+        $toko = optional($transaksi->produk)->toko;
+
+        // Tambahkan saldo ke toko jika total ada
+        if ($toko && $total) {
+            $toko->saldo = $toko->saldo + $total;
+            $toko->save();
+        }
+
+        // Ubah status transaksi jadi selesai
         $transaksi->status = 'selesai';
         $transaksi->save();
 
         return redirect()->route('user.transaksi.show', $transaksi->id)
-            ->with('success', 'Transaksi berhasil diselesaikan.');
+            ->with('success', 'Transaksi berhasil diselesaikan dan saldo telah ditransfer ke toko.');
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('origin')->nullable();
             $table->string('foto_toko')->nullable();
             $table->string('nomer_wa')->nullable();
+            $table->decimal('saldo', 15, 2)->default(0);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

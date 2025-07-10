@@ -3,7 +3,7 @@
 @section('title', 'Checkout')
 
 @section('content')
-<div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-10 text-gray-800">
+<div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10">
     <h2 class="text-3xl font-bold text-gray-900 pb-4 border-b">Checkout</h2>
 
     {{-- Notifikasi --}}
@@ -25,48 +25,60 @@
     @endif
 
     {{-- Tambah Produk --}}
-    <div class="bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        <h3 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-500"></i>
-            Tambah Produk
-        </h3>
+    <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-xl p-6 space-y-8 border border-gray-100">
 
-        <form action="{{ route('user.checkout.start') }}" method="POST" class="grid md:grid-cols-3 gap-4 gap-y-6">
-            @csrf
-            <input type="hidden" name="produk_id" id="input-produk-id">
+            {{-- Header --}}
+            <div class="border-b pb-4">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-indigo-500"></i>
+                    Tambah Produk
+                </h2>
+                <p class="text-sm text-gray-500">Pilih varian produk dan jumlah yang ingin ditambahkan ke checkout.</p>
+            </div>
 
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Varian</label>
-                <div class="relative">
-                    <select id="select-varian" name="varian_id" required
-                        class="tom-select w-full appearance-none rounded-xl border-gray-300 shadow-sm focus:ring-indigo-300 pr-10">
-                        @foreach ($checkout->toko->produk as $produk)
-                            @foreach ($produk->varian as $varian)
-                                <option value="{{ $varian->id }}" data-produk-id="{{ $produk->id }}">
-                                    {{ $produk->nama }} - {{ $varian->nama }}
-                                </option>
+            {{-- Form Tambah Produk --}}
+            <form action="{{ route('user.checkout.start') }}" method="POST" class="grid md:grid-cols-3 gap-6 gap-y-8">
+                @csrf
+                <input type="hidden" name="produk_id" id="input-produk-id">
+
+                {{-- Pilih Varian --}}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Varian</label>
+                    <div class="relative">
+                        <select id="select-varian" name="varian_id" required
+                            class="tom-select w-full rounded-xl border border-gray-300 bg-white shadow-inner focus:ring-2 focus:ring-indigo-400 pr-10 transition duration-200">
+                            @foreach ($checkout->toko->produk as $produk)
+                                @foreach ($produk->varian as $varian)
+                                    <option value="{{ $varian->id }}" data-produk-id="{{ $produk->id }}">
+                                        {{ $produk->nama }} - {{ $varian->nama }}
+                                    </option>
+                                @endforeach
                             @endforeach
-                        @endforeach
-                    </select>
-                    <i id="dropdown-icon"
-                       data-lucide="chevron-down"
-                       class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer z-10"></i>
+                        </select>
+                        <i id="dropdown-icon"
+                        data-lucide="chevron-down"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer z-10"></i>
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah</label>
-                <input type="number" name="jumlah" value="1" min="1" required
-                    class="w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-300">
-            </div>
+                {{-- Jumlah --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                    <input type="number" name="jumlah" value="1" min="1" required
+                        class="w-full rounded-xl border border-gray-300 bg-white shadow-inner focus:ring-2 focus:ring-indigo-400 transition duration-200">
+                </div>
 
-            <div class="md:col-span-3 text-right mt-2">
-                <button type="submit"
-                    class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-xl shadow-sm transition">
-                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah ke Checkout
-                </button>
-            </div>
-        </form>
+                {{-- Tombol Submit --}}
+                <div class="md:col-span-3 text-right mt-2">
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                        <i data-lucide="plus" class="w-5 h-5"></i> Tambah ke Checkout
+                    </button>
+                </div>
+            </form>
+
+        </div>
     </div>
 
     {{-- Produk Checkout --}}
@@ -128,15 +140,23 @@
         </div>
     @endif
 
-    {{-- Info Toko --}}
-    <div class="bg-white shadow-lg rounded-2xl p-6 flex items-center gap-6">
-        <img src="{{ asset('storage/' . $checkout->toko->foto_toko) }}" class="w-16 h-16 rounded-full object-cover border" alt="Foto Toko">
-        <div>
-            <h4 class="font-semibold text-gray-900">{{ $checkout->toko->nama_toko }}</h4>
-            <p class="text-sm text-gray-600">{{ $checkout->toko->alamat }}</p>
-            <p>{{ $checkout->toko->city_name ?? 'Origin belum di-set' }}</p>
+    {{-- SECTION: Toko --}}
+    <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block">
+        <div class="bg-white border rounded-2xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition">
+            @if($produk->toko->foto_toko)
+                <img src="{{ asset('storage/' . $produk->toko->foto_toko) }}" alt="Foto Toko"
+                     class="w-20 h-20 object-cover rounded-full border shadow-sm">
+            @else
+                <div class="w-20 h-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full text-xs text-center">
+                    Tidak ada<br>foto toko
+                </div>
+            @endif
+            <div class="text-sm space-y-1">
+                <h4 class="text-lg font-semibold text-gray-900">{{ $produk->toko->nama_toko }}</h4>
+                <p class="text-gray-600">{{ $produk->toko->alamat }}</p>
+            </div>
         </div>
-    </div>
+    </a>
 
     {{-- Alamat Pengiriman --}}
     <div class="bg-white shadow-lg rounded-2xl p-6">
@@ -185,10 +205,11 @@
     </div>
 
     {{-- Tombol Checkout --}}
-    <div class="text-center md:text-right pt-6">
+    <div class="pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
         @if ($checkout->pengiriman && $checkout->pengiriman->kurir)
             <form action="{{ route('user.pembayaran.create', $checkout->id) }}" method="GET">
-                <button type="submit" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition">
+                <button type="submit"
+                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-xl shadow-md transition duration-200">
                     <i data-lucide="wallet" class="w-5 h-5"></i> Lanjut ke Pembayaran
                 </button>
             </form>
