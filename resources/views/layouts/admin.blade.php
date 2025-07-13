@@ -40,29 +40,47 @@
 
 <div class="flex min-h-screen">
     {{-- Sidebar --}}
-    <aside class="w-64 bg-white border-r flex flex-col justify-between">
+    <aside class="w-64 bg-white border-r flex flex-col justify-between shadow-sm">
         <div>
-            <div class="px-6 py-6 text-2xl font-bold border-b">PERSIKINDO</div>
+            <div class="px-6 py-6 text-2xl font-bold border-b text-gray-900">
+                PERSIKINDO
+            </div>
             <nav class="p-6">
-                <ul class="space-y-4">
+                <ul class="space-y-4 text-sm text-gray-700 font-medium">
                     <li>
-                        <a href="{{ route('admin.anggota.index') }}" class="block font-semibold text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.anggota.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="users" class="w-5 h-5"></i>
                             Kelola Anggota
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.toko.index') }}" class="block font-semibold text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.toko.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="store" class="w-5 h-5"></i>
                             Kelola Toko
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.produk.index') }}" class="block font-semibold text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.produk.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="box" class="w-5 h-5"></i>
                             Kelola Produk
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.kategori.index') }}" class="block font-semibold text-gray-700 hover:text-blue-600">
+                        <a href="{{ route('admin.kategori.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="tag" class="w-5 h-5"></i>
                             Kelola Kategori
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.penarikan.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="wallet" class="w-5 h-5"></i>
+                            Kelola Penarikan
+                        </a>
+                    </li>
+                     <li>
+                        <a href="{{ route('admin.transaksi.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
+                            <i data-lucide="receipt" class="w-5 h-5"></i>
+                            Kelola Transaksi
                         </a>
                     </li>
                 </ul>
@@ -70,21 +88,23 @@
         </div>
 
         {{-- Profil & Logout --}}
-        <div class="p-6 border-t">
+        <div class="px-6 py-4 border-t bg-gray-50">
             @php
                 $user = auth()->user()->fresh();
                 $photoUrl = $user->photo ? Storage::url($user->photo) : asset('images/default-avatar.png');
             @endphp
-            <div class="flex items-center gap-3 mb-3">
+            <div class="flex items-center gap-3 mb-4">
                 <img src="{{ $photoUrl }}" alt="Profil" class="w-10 h-10 rounded-full object-cover border" />
                 <div>
-                    <div class="text-sm font-semibold">{{ $user->name }}</div>
+                    <div class="text-sm font-semibold text-gray-900">{{ $user->name }}</div>
                     <a href="{{ route('profile.edit') }}" class="text-xs text-blue-500 hover:underline">Edit Profil</a>
                 </div>
             </div>
+
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn-danger w-full">
+                <button type="submit"
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Logout
                 </button>
             </form>
@@ -103,6 +123,12 @@
 <div id="loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center;">
     <div class="spinner"></div>
 </div>
+
+{{-- Lucide Icon --}}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+</script>
 
 {{-- Spinner Style --}}
 <style>

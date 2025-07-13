@@ -105,9 +105,30 @@
             <p class="text-sm text-gray-500">Saldo hasil penjualan produk dari toko ini.</p>
         </div>
 
-        {{-- Saldo --}}
-        <div class="text-3xl font-bold text-gray-800">
-            Rp{{ number_format($toko->saldo ?? 0, 0, ',', '.') }}
+        {{-- Saldo dan Tombol Aksi --}}
+        <div class="flex items-center justify-between flex-wrap gap-4">
+
+            {{-- Saldo --}}
+            <div class="text-3xl font-bold text-gray-800">
+                Rp{{ number_format($toko->saldo ?? 0, 0, ',', '.') }}
+            </div>
+
+            {{-- Tombol Aksi --}}
+            <div class="flex items-center gap-3">
+                {{-- Tombol Riwayat Penarikan --}}
+                <a href="{{ route('user.penarikan.index') }}"
+                    class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2 px-4 rounded-xl transition shadow-sm"
+                    title="Riwayat Penarikan">
+                    <i data-lucide="clock" class="w-4 h-4"></i> Riwayat
+                </a>
+
+                {{-- Tombol Tarik Uang --}}
+                <a href="{{ route('user.penarikan.create') }}"
+                    class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-4 rounded-xl transition shadow"
+                    title="Tarik Uang">
+                    <i data-lucide="wallet" class="w-4 h-4"></i> Tarik Uang
+                </a>
+            </div>
         </div>
     </div>
 
@@ -122,12 +143,13 @@
             <p class="text-sm text-gray-500">Lakukan tindakan untuk menambah produk atau mengelola toko.</p>
         </div>
 
-        {{-- Tombol Aksi --}}
-        <div class="flex flex-wrap justify-center gap-4">
+       {{-- Tombol Aksi --}}
+        <div class="flex justify-end gap-4">
+            {{-- Tombol Tambah Produk --}}
             <a href="{{ route('user.produk.create', ['toko_id' => $toko->id]) }}"
-            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition font-semibold shadow">
+            class="w-12 h-12 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow"
+            title="Tambah Produk">
                 <i data-lucide="plus" class="w-5 h-5"></i>
-                Tambah Produk
             </a>
         </div>
     </div>

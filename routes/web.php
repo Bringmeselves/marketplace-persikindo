@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\TokoController as AdminTokoController;
 use App\Http\Controllers\User\ProdukController as UserProdukController;
 use App\Http\Controllers\Admin\ProdukController as AdminProdukController;
 use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
+use App\Http\Controllers\Admin\PenarikanController as AdminPenarikanController;
+use App\Http\Controllers\Admin\TransaksiController as AdminTransaksiController; 
+
 use App\Http\Controllers\User\PembelianController as UserPembelianController;
 use App\Http\Controllers\User\CheckoutController as UserCheckoutController;
 use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
@@ -18,6 +21,7 @@ use App\Http\Controllers\User\PembayaranController as UserPembayaranController;
 use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
 use App\Http\Controllers\User\PenilaianController as UserPenilaianController;
 use App\Http\Controllers\User\ChatController as UserChatController;
+use App\Http\Controllers\User\PenarikanController as UserPenarikanController;
 /*
 |---------------------------------------------------------------------------
 | Web Routes
@@ -122,11 +126,14 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     
     // Pembayaran
     Route::get('/{checkoutId}', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
-    Route::post('/{checkoutId}', [UserPembayaranController::class, 'store'])->name('pembayaran.store');
     Route::get('/midtrans/{checkoutId}', [UserPembayaranController::class, 'midtransPay'])->name('pembayaran.midtrans');
     Route::get('/success/{checkoutId}', [UserPembayaranController::class, 'success'])->name('pembayaran.success');
     Route::get('/pending/{checkoutId}', [UserPembayaranController::class, 'pending'])->name('pembayaran.pending');
 
+    // Penarikan
+    Route::get('/penarikan/create', [UserPenarikanController::class, 'create'])->name('penarikan.create');
+    Route::post('/penarikan', [UserPenarikanController::class, 'store'])->name('penarikan.store');
+    Route::get('/penarikan/index', [UserPenarikanController::class, 'index'])->name('penarikan.index');
 });
 
 // ==========================
@@ -155,6 +162,16 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/kategori/{kategori}/edit', [AdminKategoriController::class, 'edit'])->name('kategori.edit');
     Route::put('/kategori/{kategori}', [AdminKategoriController::class, 'update'])->name('kategori.update');
     Route::delete('/kategori/{kategori}', [AdminKategoriController::class, 'destroy'])->name('kategori.destroy');
+
+    // Penarikan
+    Route::get('/penarikan', [AdminPenarikanController::class, 'index'])->name('penarikan.index');
+    Route::get('/penarikan/{id}', [AdminPenarikanController::class, 'show'])->name('penarikan.show');
+    Route::put('/penarikan/{id}', [AdminPenarikanController::class, 'update'])->name('penarikan.update');
+    Route::post('/penarikan/{id}/reject', [AdminPenarikanController::class, 'reject'])->name('penarikan.reject');
+
+    // Transaksi
+    Route::get('/transaksi', [AdminTransaksiController::class, 'index'])->name('transaksi.index');
+
 });
 
 // 🔐 Route otentikasi Laravel Breeze / Fortify

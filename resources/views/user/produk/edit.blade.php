@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Produk')
+@section('title', 'Edit Produk')
 
 @section('content')
 <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10">
@@ -8,12 +8,13 @@
 
         {{-- Header --}}
         <div class="border-b pb-4">
-            <h2 class="text-2xl font-bold text-gray-900">Tambah Produk Baru</h2>
-            <p class="text-sm text-gray-500">Isi informasi detail produk yang akan Anda jual.</p>
+            <h2 class="text-2xl font-bold text-gray-900">Edit Produk</h2>
+            <p class="text-sm text-gray-500">Perbarui informasi produk Anda di bawah ini.</p>
         </div>
 
-        <form action="{{ route('user.produk.store') }}" method="POST" enctype="multipart/form-data" class="space-y-10">
+        <form action="{{ route('user.produk.update', $produk->id) }}" method="POST" enctype="multipart/form-data" class="space-y-10">
             @csrf
+            @method('PUT')
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {{-- Kolom Kiri: Preview Gambar --}}
                 <div class="space-y-2">
@@ -22,8 +23,8 @@
                         id="preview-container" 
                         class="relative w-full h-64 bg-gray-100 border border-dashed border-gray-300 hover:border-gray-500 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden"
                     >
-                        <img id="preview-produk" src="#" alt="Preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" />
-                        <span id="placeholder-produk" class="text-gray-400 text-sm z-10">Klik untuk pilih gambar</span>
+                        <img id="preview-produk" src="{{ asset('storage/' . $produk->gambar) }}" alt="Preview" class="absolute inset-0 w-full h-full object-cover rounded-xl" />
+                        <span id="placeholder-produk" class="text-gray-400 text-sm z-10 hidden">Klik untuk pilih gambar</span>
                     </div>
                     <input type="file" name="gambar" id="gambar" accept="image/*" class="hidden">
                     @error('gambar') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
@@ -33,7 +34,7 @@
                 <div class="md:col-span-2 space-y-6">
                     <div>
                         <label for="nama" class="block text-sm font-semibold text-gray-700 mb-1">Nama Produk</label>
-                        <input type="text" name="nama" id="nama"
+                        <input type="text" name="nama" id="nama" value="{{ old('nama', $produk->nama) }}"
                             class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required>
                     </div>
 
@@ -41,9 +42,9 @@
                         <label for="kategori_id" class="block text-sm font-semibold text-gray-700 mb-1">Kategori</label>
                         <select name="kategori_id" id="kategori_id"
                             class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required>
-                            <option disabled selected>Pilih Kategori</option>
+                            <option disabled>Pilih Kategori</option>
                             @foreach($kategori as $kat)
-                                <option value="{{ $kat->id }}">{{ $kat->name }}</option>
+                                <option value="{{ $kat->id }}" {{ $kat->id == $produk->kategori_id ? 'selected' : '' }}>{{ $kat->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -51,12 +52,12 @@
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <label for="harga" class="block text-sm font-semibold text-gray-700 mb-1">Harga</label>
-                            <input type="number" name="harga" id="harga"
+                            <input type="number" name="harga" id="harga" value="{{ old('harga', $produk->harga) }}"
                                 class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required>
                         </div>
                         <div>
                             <label for="stok" class="block text-sm font-semibold text-gray-700 mb-1">Stok</label>
-                            <input type="number" name="stok" id="stok"
+                            <input type="number" name="stok" id="stok" value="{{ old('stok', $produk->stok) }}"
                                 class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required>
                         </div>
                     </div>
@@ -64,7 +65,7 @@
                     <div>
                         <label for="deskripsi" class="block text-sm font-semibold text-gray-700 mb-1">Deskripsi</label>
                         <textarea name="deskripsi" id="deskripsi" rows="4"
-                            class="w-full rounded-xl border border-gray-300 px-5 py-3 resize-none shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required></textarea>
+                            class="w-full rounded-xl border border-gray-300 px-5 py-3 resize-none shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900" required>{{ old('deskripsi', $produk->deskripsi) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -73,15 +74,17 @@
             <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-900">Varian Produk</h3>
                 <div id="varian-container" class="space-y-4">
+                    @foreach($produk->varian as $var)
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                        <input type="text" name="varian[nama][]" placeholder="Nama Varian" class="rounded-xl border-gray-300 px-4 py-2" required>
-                        <input type="number" name="varian[stok][]" placeholder="Stok" class="rounded-xl border-gray-300 px-4 py-2" required>
-                        <input type="number" name="varian[harga][]" placeholder="Harga" class="rounded-xl border-gray-300 px-4 py-2" required>
-                        <input type="file" name="varian[gambar][]" accept="image/*" class="rounded-xl border-gray-300 px-4 py-2">
+                        <input type="text" name="varian[nama][]" value="{{ $var->nama }}" placeholder="Nama Varian" class="rounded-xl border-gray-300 px-4 py-2" required>
+                        <input type="number" name="varian[stok][]" value="{{ $var->stok }}" placeholder="Stok" class="rounded-xl border-gray-300 px-4 py-2" required>
+                        <input type="number" name="varian[harga][]" value="{{ $var->harga }}" placeholder="Harga" class="rounded-xl border-gray-300 px-4 py-2" required>
+                        <input type="file" name="varian[gambar][]" class="rounded-xl border-gray-300 px-4 py-2">
                         <button type="button" onclick="hapusVarian(this)" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition">
                             <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus
                         </button>
                     </div>
+                    @endforeach
                 </div>
 
                 <button type="button" onclick="tambahVarian()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
@@ -91,7 +94,7 @@
 
             <div>
                 <button type="submit" class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition">
-                    <i data-lucide="save" class="w-5 h-5"></i> Simpan Produk
+                    <i data-lucide="save" class="w-5 h-5"></i> Simpan Perubahan
                 </button>
             </div>
         </form>
@@ -113,7 +116,6 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 preview.src = e.target.result;
-                preview.classList.remove('hidden');
                 placeholder.classList.add('hidden');
             };
             reader.readAsDataURL(input.files[0]);
