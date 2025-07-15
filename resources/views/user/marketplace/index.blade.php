@@ -101,14 +101,28 @@
                     </p>
                 </div>
 
-                {{-- Tombol Beli --}}
+                {{-- Tombol Aksi: Beli & Tambah ke Keranjang --}}
                 <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                    <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
-                        @csrf
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
-                            <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
-                        </button>
-                    </form>
+                    <div class="flex items-center gap-2">
+                        {{-- Tombol Beli --}}
+                        <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
+                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
+                            </button>
+                        </form>
+
+                        {{-- Tombol Tambah ke Keranjang --}}
+                        <form action="{{ route('user.keranjang.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="produk_id" value="{{ $item->id }}">
+                            <input type="hidden" name="varian_id" value="{{ $item->varian->first()->id ?? '' }}">
+
+                            <button type="submit" class="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 transition">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -128,4 +142,39 @@
 {{-- Lucide Icon --}}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>lucide.createIcons();</script>
+
+{{-- SweetAlert Notification --}}
+@if (session('success') || session('error') || session('welcome'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#6366f1',
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#ef4444',
+                });
+            @endif
+
+            @if (session('welcome'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Selamat Datang',
+                    text: '{{ session('welcome') }}',
+                    confirmButtonColor: '#3b82f6',
+                });
+            @endif
+        });
+    </script>
+@endif
 @endsection

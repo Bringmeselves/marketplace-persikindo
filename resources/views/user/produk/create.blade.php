@@ -69,6 +69,14 @@
                 </div>
             </div>
 
+            {{-- Alert error stok varian --}}
+            @if ($errors->has('varian.stok'))
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative mb-6" role="alert">
+                    <strong class="font-bold">Peringatan:</strong>
+                    <span class="block sm:inline">{{ $errors->first('varian.stok') }}</span>
+                </div>
+            @endif
+
             {{-- Varian Produk --}}
             <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-gray-900">Varian Produk</h3>

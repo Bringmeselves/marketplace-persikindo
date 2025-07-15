@@ -7,6 +7,7 @@ use App\Models\Checkout;
 use App\Models\CheckoutItem;
 use App\Models\Produk;
 use App\Models\Varian;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,7 +53,7 @@ class CheckoutController extends Controller
             $checkout = Checkout::create([
                 'user_id'     => Auth::id(),
                 'toko_id'     => $produk->toko->id,
-                'produk_id'   => $produk->id,
+                
                 'status'      => 'pending',
                 'total_harga' => 0,
             ]);
@@ -77,7 +78,6 @@ class CheckoutController extends Controller
         } else {
             // Jika belum ada, buat item baru di checkout
             $checkout->item()->create([
-                'user_id'      => Auth::id(),
                 'toko_id'      => $produk->toko->id,
                 'produk_id'    => $produk->id,
                 'varian_id'    => $varian->id,
@@ -197,5 +197,4 @@ class CheckoutController extends Controller
             ->with('success', 'Item berhasil dihapus dari checkout.');
     }
 }
-
 

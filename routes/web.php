@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\ProdukController as AdminProdukController;
 use App\Http\Controllers\Admin\KategoriController as AdminKategoriController;
 use App\Http\Controllers\Admin\PenarikanController as AdminPenarikanController;
 use App\Http\Controllers\Admin\TransaksiController as AdminTransaksiController; 
-
+use App\Http\Controllers\User\KeranjangController as UserKeranjangController;
 use App\Http\Controllers\User\PembelianController as UserPembelianController;
 use App\Http\Controllers\User\CheckoutController as UserCheckoutController;
 use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
@@ -76,6 +76,13 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     // Pembelian
     Route::get('produk/{produk_id}/beli', [UserPembelianController::class, 'create'])->name('pembelian.create');
     Route::post('produk/beli', [UserPembelianController::class, 'store'])->name('pembelian.store');
+
+    // Keranjang
+    Route::get('/keranjang', [UserKeranjangController::class, 'index'])->name('keranjang.index');
+    Route::post('/keranjang', [UserKeranjangController::class, 'store'])->name('keranjang.store');
+    Route::post('/keranjang/checkout', [UserKeranjangController::class, 'checkout'])->name('keranjang.checkout');
+    Route::put('/keranjang/{key}', [UserKeranjangController::class, 'update'])->name('keranjang.update');
+    Route::delete('/keranjang/{key}', [UserKeranjangController::class, 'destroy'])->name('keranjang.destroy');
 
     // Checkout
     Route::post('checkout/start', [UserCheckoutController::class, 'start'])->name('checkout.start');

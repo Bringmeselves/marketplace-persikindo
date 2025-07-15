@@ -14,7 +14,6 @@ class Pengiriman extends Model
 
     protected $fillable = [
         'user_id',
-        'produk_id',
         'toko_id',
         'checkout_id',
         'nama_lengkap',
@@ -33,12 +32,6 @@ class Pengiriman extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    // Relasi ke Produk
-    public function produk()
-    {
-        return $this->belongsTo(Produk::class);
     }
 
     // Relasi ke Toko

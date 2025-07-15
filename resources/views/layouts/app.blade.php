@@ -43,15 +43,16 @@
         {{-- Navigasi --}}
         <nav>
             <ul class="flex gap-6 list-none">
-                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
-
                 @if(auth()->check())
                     @php $user = auth()->user()->fresh(); @endphp
 
                     @if($user->role === 'user')
                         <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
+                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
                         <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
-                    @elseif($user->role === 'anggota')
+
+                        @elseif($user->role === 'anggota')
+                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
                         <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
                         @if($user->toko)
                             <li><a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="text-black font-semibold hover:text-blue-500">Toko Saya</a></li>
@@ -63,17 +64,24 @@
             </ul>
         </nav>
     {{-- Wrapper Chat dan Dropdown User --}}
-    <div class="flex items-center gap-5 relative" x-data="{ openUser: false }">
+    @auth
+        <div class="flex items-center gap-5 relative" x-data="{ openUser: false }">
 
-        {{-- Tombol Chat --}}
-        <a href="{{ route('user.chat.index') }}"
-            class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
-            aria-label="Chat">
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
-        </a>
+            {{-- Tombol Keranjang --}}
+            <a href="{{ route('user.keranjang.index') }}"
+                class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
+                aria-label="Keranjang">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+            </a>
 
-        {{-- Dropdown Pengguna --}}
-        @if(auth()->check())
+            {{-- Tombol Chat --}}
+            <a href="{{ route('user.chat.index') }}"
+                class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
+                aria-label="Chat">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+            </a>
+
+            {{-- Dropdown Pengguna --}}
             @php
                 $photoUrl = $user->photo ? Storage::url($user->photo) : asset('images/default-avatar.png');
             @endphp
@@ -101,9 +109,8 @@
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
                 </div>
             </div>
-        @endif
-
-    </div>
+        </div>
+    @endauth
 </header>
 
     {{-- Konten --}}
@@ -202,5 +209,6 @@
         }
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

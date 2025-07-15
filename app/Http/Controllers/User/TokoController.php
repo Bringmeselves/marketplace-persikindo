@@ -209,17 +209,32 @@ class TokoController extends Controller
         $toko->city_name = $this->getCityNameById($toko->origin);
         $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
 
-        // Ambil transaksi masuk untuk toko ini
+        // Transaksi yang belum diisi resi
         $transaksiMasuk = Transaksi::with(['checkout.item.produk', 'checkout.item.varian', 'pengiriman', 'pembayaran', 'user'])
-        ->where('status', 'diproses') // hanya status diproses
-        ->whereNull('resi') // dan belum diisi resi
-        ->whereHas('produk', function ($q) use ($toko) {
-            $q->where('toko_id', $toko->id);
-        })
-        ->latest()
-        ->paginate(3);
+            ->where('status', 'diproses')
+            ->whereNull('resi')
+            ->whereHas('produk', function ($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })
+            ->latest()
+            ->paginate(3);
 
-        return view('user.toko.kelola', compact('toko', 'produkList', 'daftarChat', 'transaksiMasuk'));
+        // menampilkan riwayat transaksi (yang sudah dikirim/selesai/dibatalkan)
+        $riwayatTransaksi = Transaksi::with(['checkout.item.produk', 'pengiriman', 'pembayaran', 'user'])
+            ->whereIn('status', ['dikirim', 'selesai', 'dibatalkan']) // status selain diproses
+            ->whereHas('produk', function ($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })
+            ->latest()
+            ->get();
+
+        return view('user.toko.kelola', compact(
+            'toko',
+            'produkList',
+            'daftarChat',
+            'transaksiMasuk',
+            'riwayatTransaksi'
+        ));
     }
 
     // Halaman publik toko

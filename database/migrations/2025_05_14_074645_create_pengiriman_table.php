@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('checkout_id')->constrained('checkout')->onDelete('cascade');
-            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
             $table->foreignId('toko_id')->constrained('toko')->onDelete('cascade');
             $table->string('nama_lengkap');
             $table->string('nomor_wa')->nullable();

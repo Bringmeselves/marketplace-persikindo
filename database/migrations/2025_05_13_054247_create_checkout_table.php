@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('checkout', function (Blueprint $table) {
         $table->id();
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
         $table->foreignId('toko_id')->constrained('toko')->onDelete('cascade');
         $table->integer('total_harga')->default(0);
         $table->string('status')->default('pending'); // pending, selesai, dibayar, dll

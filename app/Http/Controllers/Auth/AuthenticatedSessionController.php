@@ -30,6 +30,9 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
 
+          // Flash session message untuk SweetAlert
+        session()->flash('success', 'Selamat datang kembali, ' . $user->name . '!');
+        
         if ($user->role === 'admin') {
             return redirect()->route('admin.anggota.index');
         }

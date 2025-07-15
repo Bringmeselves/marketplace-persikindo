@@ -66,7 +66,6 @@ class PengirimanController extends Controller
             ['checkout_id' => $checkout->id],
             [
                 'user_id'         => Auth::id(),
-                'produk_id'       => $checkout->produk_id,
                 'toko_id'         => $checkout->toko_id,
                 'nama_lengkap'    => $request->nama_lengkap,
                 'alamat_penerima' => $request->alamat_penerima,

@@ -17,6 +17,7 @@ class CheckoutItem extends Model
         'user_id',
         'produk_id',
         'varian_id',
+        'checkout_id',
         'toko_id',
         'jumlah',
         'harga_satuan',
