@@ -51,4 +51,40 @@ class KomerceService
         $city = collect($origin)->firstWhere('id', $id);
         return $city['label'] ?? null;
     }
+
+    // Ambil dan cache data kota tujuan dari API Komerce
+    public function fetchCities()
+    {
+        return Cache::remember('komerce_cities_cache', now()->addHours(12), function () {
+            $keywords = range(1, 9999); // bisa disesuaikan untuk jangkauan ID
+
+            $allCities = [];
+
+            foreach ($keywords as $kw) {
+                $response = Http::withHeaders([
+                    'x-api-key' => env('KOMERCE_API_KEY'),
+                    'Accept' => 'application/json',
+                ])->timeout(10)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
+                    'keyword' => $kw,
+                ]);
+
+                if ($response->ok() && isset($response['data'])) {
+                    $allCities = array_merge($allCities, $response['data']);
+                }
+
+                // Batasi iterasi agar tidak overload API
+                if (count($allCities) >= 1000) break;
+            }
+
+            return collect($allCities)->unique('id')->values()->all();
+        });
+    }
+
+    // Ambil nama kota dari ID tujuan (cities)
+    public function getDestinationCityNameById($id)
+    {
+        $cities = $this->fetchCities();
+        $city = collect($cities)->firstWhere('id', (string) $id);
+        return $city['label'] ?? null;
+    }
 }

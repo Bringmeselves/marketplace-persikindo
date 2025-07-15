@@ -42,6 +42,15 @@
             </label>
         </div>
 
+        <!-- Google Login Button -->
+        <div class="mb-4">
+            <a href="{{ route('google.login') }}"
+                class="flex items-center justify-center bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-md px-4 py-2 transition">
+                <i class="fab fa-google mr-2"></i>
+                <span class="font-semibold">Sign in with Google</span>
+            </a>
+        </div>
+
         <!-- Submit & Forgot Password -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             @if (Route::has('password.request'))

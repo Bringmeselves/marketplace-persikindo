@@ -57,6 +57,15 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-sm text-red-600" />
         </div>
 
+        <!-- Google Login Button -->
+        <div class="mb-4">
+            <a href="{{ route('google.login') }}"
+                class="flex items-center justify-center bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded-md px-4 py-2 transition">
+                <i class="fab fa-google mr-2"></i>
+                <span class="font-semibold">Sign in with Google</span>
+            </a>
+        </div>
+
         <!-- Submit & Link to Login -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
             <a class="text-sm text-black hover:text-gray-700 font-semibold transition" href="{{ route('login') }}">

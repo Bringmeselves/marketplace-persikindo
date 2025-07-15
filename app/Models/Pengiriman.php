@@ -48,31 +48,20 @@ class Pengiriman extends Model
 
      // Accessor untuk mendapatkan nama kota dari ID 'cities'
     public function getCityNameAttribute()
-    {   
+    {
         \Log::info('--- Accessor getCityNameAttribute dipanggil ---');
         \Log::info('Cek CITIES:', ['cities' => $this->cities]);
 
         try {
-            $response = Http::withHeaders([
-                'x-api-key' => env('KOMERCE_API_KEY'),
-                'Accept' => 'application/json',
-            ])->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/destination/search', [
-                'keyword' => $this->cities,
-            ]);
+            // Pakai service KomerceService
+            $komerceService = app(\App\Services\KomerceService::class);
+            $cityName = $komerceService->getCityNameById($this->cities);
 
-            \Log::info('Cek RESPONSE:', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            \Log::info('Nama Kota Ditemukan:', ['city_name' => $cityName]);
 
-            if ($response->ok() && isset($response['data'][0])) {
-                return $response['data'][0]['city_name'] ?? '-';
-            }
-
-            return '-';
+            return $cityName ?? '-';
         } catch (\Exception $e) {
-            \Log::error('Gagal ambil city name: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
+            \Log::error('Gagal ambil city name dari service: ' . $e->getMessage());
             return '-';
         }
     }

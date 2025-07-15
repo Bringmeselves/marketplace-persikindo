@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\User\MarketplaceController as UserMarketplaceController;
 use App\Http\Controllers\User\AnggotaController as UserAnggotaController;
 use App\Http\Controllers\Admin\AnggotaController as AdminAnggotaController;
@@ -27,6 +28,11 @@ use App\Http\Controllers\User\PenarikanController as UserPenarikanController;
 | Web Routes
 |---------------------------------------------------------------------------
 */
+
+
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
 
 // Halaman Welcome
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
