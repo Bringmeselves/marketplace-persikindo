@@ -32,58 +32,53 @@
                 @endforeach
             </div>
 
-            <!-- Navigasi Panah -->
             <div class="swiper-button-next text-white"></div>
             <div class="swiper-button-prev text-white"></div>
-
-            <!-- Navigasi Bulat -->
             <div class="swiper-pagination"></div>
         </div>
     </div>
 
     {{-- FITUR UTAMA --}}
-<div class="mb-20">
-    <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Kenapa Belanja di Sini?</h2>
+    <div class="mb-20">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Kenapa Belanja di Sini?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            @php
+                $features = [
+                    ['icon' => 'shield-check', 'title' => 'Aman & Terverifikasi', 'desc' => 'Hanya untuk anggota resmi Persikindo dan diawasi oleh admin profesional.'],
+                    ['icon' => 'store', 'title' => 'Dukung UMKM Lokal', 'desc' => 'Jelajahi dan dukung ribuan produk dari pelaku UMKM di seluruh Indonesia.'],
+                    ['icon' => 'wallet', 'title' => 'Transaksi Mudah', 'desc' => 'Sistem pembayaran dan pengiriman yang terintegrasi dan user-friendly.'],
+                ];
+            @endphp
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        @php
-            $features = [
-                ['icon' => 'shield-check', 'title' => 'Aman & Terverifikasi', 'desc' => 'Hanya untuk anggota resmi Persikindo dan diawasi oleh admin profesional.'],
-                ['icon' => 'store', 'title' => 'Dukung UMKM Lokal', 'desc' => 'Jelajahi dan dukung ribuan produk dari pelaku UMKM di seluruh Indonesia.'],
-                ['icon' => 'wallet', 'title' => 'Transaksi Mudah', 'desc' => 'Sistem pembayaran dan pengiriman yang terintegrasi dan user-friendly.'],
-            ];
-        @endphp
-
-        @foreach($features as $feature)
-        <div class="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group">
-            <div class="flex justify-center mb-4">
-                <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition">
-                    @switch($feature['icon'])
-                        @case('shield-check')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m1-5.5L12 2L4 5.5v6c0 5.25 3.75 9.75 8 11c4.25-1.25 8-5.75 8-11v-6z" />
-                            </svg>
-                            @break
-                        @case('store')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 7l1.34 8.27a2 2 0 001.98 1.73h10.36a2 2 0 001.98-1.73L20 7M9 10v4m6-4v4" />
-                            </svg>
-                            @break
-                        @case('wallet')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2h3V9h-3z" />
-                            </svg>
-                            @break
-                    @endswitch
+            @foreach($features as $feature)
+            <div class="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-indigo-100 text-indigo-600 p-4 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition">
+                        @switch($feature['icon'])
+                            @case('shield-check')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m1-5.5L12 2L4 5.5v6c0 5.25 3.75 9.75 8 11c4.25-1.25 8-5.75 8-11v-6z" />
+                                </svg>
+                                @break
+                            @case('store')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 7l1.34 8.27a2 2 0 001.98 1.73h10.36a2 2 0 001.98-1.73L20 7M9 10v4m6-4v4" />
+                                </svg>
+                                @break
+                            @case('wallet')
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2h3V9h-3z" />
+                                </svg>
+                                @break
+                        @endswitch
+                    </div>
                 </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $feature['title'] }}</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">{{ $feature['desc'] }}</p>
             </div>
-
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $feature['title'] }}</h3>
-            <p class="text-sm text-gray-600 leading-relaxed">{{ $feature['desc'] }}</p>
+            @endforeach
         </div>
-        @endforeach
     </div>
-</div>
 
     {{-- PRODUK TERBARU --}}
     <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Produk Terbaru</h2>
@@ -122,12 +117,20 @@
                 </div>
 
                 <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                    <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET" onsubmit="return handleLoginRedirect(event)">
+                    @auth
+                    <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
                         @csrf
                         <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all">
                             Beli
                         </button>
                     </form>
+                    @endauth
+
+                    @guest
+                    <button onclick="window.location.href='{{ route('login') }}'" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all">
+                        Beli Sekarang!
+                    </button>
+                    @endguest
                 </div>
             </div>
             @endforeach
@@ -137,19 +140,8 @@
             Belum ada produk tersedia.
         </p>
     @endif
-</div>
 
-{{-- Redirect jika belum login saat klik Beli --}}
-<script>
-function handleLoginRedirect(event) {
-    @guest
-        event.preventDefault();
-        window.location.href = "{{ route('login') }}";
-        return false;
-    @endguest
-    return true;
-}
-</script>
+</div>
 
 {{-- Swiper Init --}}
 <script>

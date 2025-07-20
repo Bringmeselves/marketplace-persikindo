@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('npwp');
             $table->string('sertifikat_halal')->nullable(); // opsional, file path
             $table->string('pirt')->nullable(); // opsional, file path
+            $table->string('catatan')->nullable(); // untuk admin memberikan catatan jika ditolak
 
             $table->softDeletes();
             $table->timestamps();

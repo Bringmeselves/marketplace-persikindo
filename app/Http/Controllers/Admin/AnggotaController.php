@@ -80,8 +80,12 @@ class AnggotaController extends Controller
     /**
      * Menolak pengajuan anggota.
      */
-    public function reject($id)
+    public function reject(Request $request, $id)
     {
+        $request->validate([
+            'catatan' => 'required|string|max:255',
+        ]);
+
         $anggota = Anggota::findOrFail($id);
 
         if ($anggota->status !== 'pending') {
@@ -90,6 +94,7 @@ class AnggotaController extends Controller
 
         $anggota->update([
             'status' => 'rejected',
+            'catatan' => $request->catatan,
         ]);
 
         return redirect()->route('admin.anggota.index')->with('success', 'Pendaftaran anggota berhasil ditolak.');

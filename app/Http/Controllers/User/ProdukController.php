@@ -106,6 +106,17 @@ class ProdukController extends Controller
             'toko_id' => $user->toko->id,
         ]);
 
+        // Validasi minimal satu varian harus diisi
+            if (
+                empty($request->varian['nama']) || 
+                !is_array($request->varian['nama']) || 
+                count(array_filter($request->varian['nama'])) < 1
+            ) {
+                return redirect()->back()->withInput()->withErrors([
+                    'varian.nama' => 'Minimal satu varian harus ditambahkan.',
+                ]);
+            }
+
         // Simpan semua varian yang diinput
         if ($request->has('varian')) {
             foreach ($request->varian['nama'] as $i => $namaVarian) {
@@ -125,7 +136,6 @@ class ProdukController extends Controller
                 ]);
             }
         }
-
         return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk dan variannya berhasil ditambahkan.');
     }
 
@@ -160,7 +170,7 @@ class ProdukController extends Controller
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk mengedit produk ini.');
         }
 
-        // Validasi input update
+        // Validasi input
         $validated = Validator::make($request->all(), [
             'nama' => 'required|string|max:255',
             'deskripsi' => 'required|string|max:1000',
@@ -168,13 +178,28 @@ class ProdukController extends Controller
             'stok' => 'required|integer|min:0',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kategori_id' => 'required|exists:kategori,id',
+            'varian.nama.*' => 'required|string|max:100',
+            'varian.stok.*' => 'required|integer|min:0',
+            'varian.harga.*' => 'required|numeric|min:0',
+            'varian.gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validated->fails()) {
             return redirect()->back()->withErrors($validated)->withInput();
         }
 
-        // Simpan gambar baru jika diupload
+        // Validasi minimal satu varian harus diisi
+        if (
+            empty($request->varian['nama']) || 
+            !is_array($request->varian['nama']) || 
+            count(array_filter($request->varian['nama'])) < 1
+        ) {
+            return redirect()->back()->withInput()->withErrors([
+                'varian.nama' => 'Minimal satu varian harus ditambahkan.',
+            ]);
+        }
+
+        // Simpan gambar baru jika ada
         if ($request->hasFile('gambar')) {
             $gambarPath = $request->file('gambar')->store('produk_gambar', 'public');
             $produk->gambar = $gambarPath;
@@ -189,8 +214,30 @@ class ProdukController extends Controller
             'kategori_id' => $request->kategori_id,
         ]);
 
-        return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk berhasil diperbarui.');
+        // Hapus semua varian lama terlebih dahulu
+        $produk->varian()->delete();
+
+        // Tambahkan varian baru dari form
+        if ($request->has('varian.nama')) {
+            foreach ($request->varian['nama'] as $index => $namaVarian) {
+                $gambarVarian = null;
+
+                // Cek jika ada file gambar untuk varian ini
+                if ($request->hasFile("varian.gambar.$index")) {
+                    $gambarVarian = $request->file("varian.gambar.$index")->store('produk_varian', 'public');
+                }
+
+                $produk->varian()->create([
+                    'nama' => $namaVarian,
+                    'stok' => $request->varian['stok'][$index],
+                    'harga' => $request->varian['harga'][$index],
+                    'gambar' => $gambarVarian,
+                ]);
+            }
+        }
+        return redirect()->route('user.toko.kelola', ['id' => $user->toko->id])->with('success', 'Produk dan varian berhasil diperbarui.');
     }
+    
 
     /**
      * Menghapus produk dan seluruh variannya

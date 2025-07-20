@@ -165,7 +165,7 @@
             });
         });
 
-        // Konfirmasi untuk tolak anggota
+        // Konfirmasi untuk tolak anggota dengan input catatan
         document.querySelectorAll('.btn-tolak').forEach(button => {
             button.addEventListener('click', function () {
                 const form = this.closest('form');
@@ -173,18 +173,34 @@
 
                 Swal.fire({
                     title: 'Tolak Pendaftaran?',
-                    text: `Pendaftaran atas nama "${nama}" akan ditolak.`,
+                    html: `
+                        <p>Pendaftaran atas nama "<strong>${nama}</strong>" akan ditolak.</p>
+                        <textarea id="catatan" class="swal2-textarea" placeholder="Catatan penolakan (opsional)" style="margin-top:1rem;"></textarea>
+                    `,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#f59e0b',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Ya, tolak',
-                    cancelButtonText: 'Batal'
+                    cancelButtonText: 'Batal',
+                    preConfirm: () => {
+                        return document.getElementById('catatan').value;
+                    }
                 }).then(result => {
-                    if (result.isConfirmed) form.submit();
+                    if (result.isConfirmed) {
+                        // Buat input hidden untuk catatan lalu submit
+                        const catatanInput = document.createElement('input');
+                        catatanInput.type = 'hidden';
+                        catatanInput.name = 'catatan';
+                        catatanInput.value = result.value;
+
+                        form.appendChild(catatanInput);
+                        form.submit();
+                    }
                 });
             });
         });
+
     });
 </script>
 @endsection

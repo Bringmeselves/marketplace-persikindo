@@ -12,6 +12,21 @@
             <p class="text-sm text-gray-500">Isi informasi detail produk yang akan Anda jual.</p>
         </div>
 
+        {{-- Alert Error --}}
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-xl text-sm flex items-start gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5 mt-0.5"></i>
+                <div>
+                    <strong class="block font-semibold">Terjadi kesalahan:</strong>
+                    <ul class="mt-2 list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('user.produk.store') }}" method="POST" enctype="multipart/form-data" class="space-y-10">
             @csrf
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

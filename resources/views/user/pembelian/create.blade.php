@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Form Pembelian Produk')
+@section('title', 'Pembelian Produk')
 
 @section('content')
 <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10">

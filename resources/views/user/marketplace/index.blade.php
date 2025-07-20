@@ -73,6 +73,14 @@
                             {{ $item->deskripsi ?? '-' }}
                         </p>
 
+                        {{-- Catatan Penolakan --}}
+                        @if ($item->user->anggota && $item->user->anggota->status === 'rejected' && $item->user->anggota->catatan)
+                            <div class="mt-4 p-3 border border-yellow-300 bg-yellow-50 text-yellow-700 text-xs rounded-lg">
+                                <strong>Catatan Penolakan Admin:</strong><br>
+                                {{ $item->user->anggota->catatan }}
+                            </div>
+                        @endif
+
                         {{-- Info Toko --}}
                         @if ($item->toko)
                             <div class="mt-3 text-xs text-gray-600 flex flex-col gap-y-1">

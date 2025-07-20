@@ -69,26 +69,25 @@
                     <p class="text-red-600 text-sm">Tidak ada PIRT.</p>
                 @endif
             </div>
-        </div>
 
-        {{-- Bukti Pendaftaran --}}
-        <div class="border-t pt-6">
-            <div class="space-y-2">
-                <div class="flex items-center gap-2 text-sm text-gray-500 font-medium">
-                    <i data-lucide="image" class="w-4 h-4"></i>
-                    Bukti Pendaftaran (KTP)
+             {{-- Bukti Pendaftaran --}}
+            <div class="border-t pt-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2 text-sm text-gray-500 font-medium">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                        Bukti Pendaftaran (KTP)
+                    </div>
+                    @if($anggota->bukti_pendaftaran)
+                        <a href="{{ Storage::url($anggota->bukti_pendaftaran) }}" target="_blank"
+                        class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                            <i data-lucide="eye" class="w-4 h-4"></i> Lihat Bukti Pendaftaran
+                        </a>
+                    @else
+                        <p class="text-red-600 text-sm">Tidak ada bukti pendaftaran.</p>
+                    @endif
                 </div>
-                @if($anggota->bukti_pendaftaran)
-                    <a href="{{ Storage::url($anggota->bukti_pendaftaran) }}" target="_blank"
-                       class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 font-medium text-sm">
-                        <i data-lucide="eye" class="w-4 h-4"></i> Lihat Bukti Pendaftaran
-                    </a>
-                @else
-                    <p class="text-red-600 text-sm">Tidak ada bukti pendaftaran.</p>
-                @endif
             </div>
         </div>
-
     </div>
 </div>
 

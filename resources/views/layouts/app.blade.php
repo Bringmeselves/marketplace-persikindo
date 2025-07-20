@@ -41,28 +41,29 @@
         <div class="logo text-2xl font-bold">PERSIKINDO</div>
 
         {{-- Navigasi --}}
-        <nav>
-            <ul class="flex gap-6 list-none">
-                @if(auth()->check())
-                    @php $user = auth()->user()->fresh(); @endphp
+<nav>
+    <ul class="flex gap-6 list-none">
+        @if(auth()->check())
+            @php $user = auth()->user()->fresh(); @endphp
 
-                    @if($user->role === 'user')
-                        <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
-                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
-                        <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
+            @if($user->role === 'user')
+                <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
+                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
+                <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
 
-                        @elseif($user->role === 'anggota')
-                        <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
-                        <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
-                        @if($user->toko)
-                            <li><a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="text-black font-semibold hover:text-blue-500">Toko Saya</a></li>
-                        @else
-                            <li><a href="{{ route('user.toko.create') }}" class="text-black font-semibold hover:text-blue-500">Buat Toko</a></li>
-                        @endif
-                    @endif
+            @elseif($user->role === 'anggota')
+                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
+                <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
+                @if($user->toko)
+                    <li><a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="text-black font-semibold hover:text-blue-500">Toko Saya</a></li>
+                @else
+                    <li><a href="{{ route('user.toko.create') }}" class="text-black font-semibold hover:text-blue-500">Buat Toko</a></li>
                 @endif
-            </ul>
-        </nav>
+            @endif
+        @endif
+    </ul>
+</nav>
+
     {{-- Wrapper Chat dan Dropdown User --}}
     @auth
         <div class="flex items-center gap-5 relative" x-data="{ openUser: false }">

@@ -24,6 +24,7 @@ class Anggota extends Model
         'npwp',
         'sertifikat_halal',
         'pirt',
+        'catatan'
     ];
 
     /**

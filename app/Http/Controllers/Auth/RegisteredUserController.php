@@ -29,33 +29,35 @@ class RegisteredUserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => [
-            'required',
-            'string',
-            'lowercase',
-            'email',
-            'max:255',
-            'unique:' . User::class,
-            'regex:/@gmail\.com$/i' // hanya Gmail (opsional)
-        ],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'unique:' . User::class,
+                'regex:/@gmail\.com$/i'
+            ],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 'user', // tambahkan role secara manual
-    ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user',
+        ]);
 
-    event(new Registered($user));
+        event(new Registered($user));
 
-    Auth::login($user);
+        Auth::login($user);
 
-    return redirect(route('user.marketplace.index', absolute: false));
-}
+        // Kirim notifikasi email selamat datang
+        $user->notify(new WelcomeNotification());
 
+        return redirect(route('user.marketplace.index', absolute: false));
+    }
 }

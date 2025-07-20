@@ -24,63 +24,6 @@
         </div>
     @endif
 
-    {{-- Tambah Produk --}}
-    <div class="space-y-6">
-        <div class="bg-white rounded-2xl shadow-xl p-6 space-y-8 border border-gray-100">
-
-            {{-- Header --}}
-            <div class="border-b pb-4">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <i data-lucide="plus-circle" class="w-6 h-6 text-indigo-500"></i>
-                    Tambah Produk
-                </h2>
-                <p class="text-sm text-gray-500">Pilih varian produk dan jumlah yang ingin ditambahkan ke checkout.</p>
-            </div>
-
-            {{-- Form Tambah Produk --}}
-            <form action="{{ route('user.checkout.start') }}" method="POST" class="grid md:grid-cols-3 gap-6 gap-y-8">
-                @csrf
-                <input type="hidden" name="produk_id" id="input-produk-id">
-
-                {{-- Pilih Varian --}}
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Varian</label>
-                    <div class="relative">
-                        <select id="select-varian" name="varian_id" required
-                            class="tom-select w-full rounded-xl border border-gray-300 bg-white shadow-inner focus:ring-2 focus:ring-indigo-400 pr-10 transition duration-200">
-                            @foreach ($checkout->toko->produk as $produk)
-                                @foreach ($produk->varian as $varian)
-                                    <option value="{{ $varian->id }}" data-produk-id="{{ $produk->id }}">
-                                        {{ $produk->nama }} - {{ $varian->nama }}
-                                    </option>
-                                @endforeach
-                            @endforeach
-                        </select>
-                        <i id="dropdown-icon"
-                        data-lucide="chevron-down"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer z-10"></i>
-                    </div>
-                </div>
-
-                {{-- Jumlah --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
-                    <input type="number" name="jumlah" value="1" min="1" required
-                        class="w-full rounded-xl border border-gray-300 bg-white shadow-inner focus:ring-2 focus:ring-indigo-400 transition duration-200">
-                </div>
-
-                {{-- Tombol Submit --}}
-                <div class="md:col-span-3 text-right mt-2">
-                    <button type="submit"
-                        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-                        <i data-lucide="plus" class="w-5 h-5"></i> Tambah ke Checkout
-                    </button>
-                </div>
-            </form>
-
-        </div>
-    </div>
-
     {{-- Produk Checkout --}}
     @if($checkout->item && count($checkout->item))
         <div class="space-y-6">
@@ -141,10 +84,10 @@
     @endif
 
     {{-- SECTION: Toko --}}
-    <a href="{{ route('user.toko.show', $produk->toko->id) }}" class="block">
+    <a href="{{ route('user.toko.show', $checkout->toko->id) }}" class="block">
         <div class="bg-white border rounded-2xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition">
-            @if($produk->toko->foto_toko)
-                <img src="{{ asset('storage/' . $produk->toko->foto_toko) }}" alt="Foto Toko"
+            @if($checkout->toko->foto_toko)
+                <img src="{{ asset('storage/' . $checkout->toko->foto_toko) }}" alt="Foto Toko"
                      class="w-20 h-20 object-cover rounded-full border shadow-sm">
             @else
                 <div class="w-20 h-20 flex items-center justify-center bg-gray-100 text-gray-500 rounded-full text-xs text-center">
@@ -152,8 +95,8 @@
                 </div>
             @endif
             <div class="text-sm space-y-1">
-                <h4 class="text-lg font-semibold text-gray-900">{{ $produk->toko->nama_toko }}</h4>
-                <p class="text-gray-600">{{ $produk->toko->alamat }}</p>
+                <h4 class="text-lg font-semibold text-gray-900">{{ $checkout->toko->nama_toko }}</h4>
+                <p class="text-gray-600">{{ $checkout->toko->alamat }}</p>
             </div>
         </div>
     </a>
@@ -219,59 +162,15 @@
     </div>
 </div>
 
-{{-- Lucide & Tom Select --}}
+{{-- Lucide & SweetAlert --}}
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet" />
-
-{{-- SweetAlert2 --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-{{-- Lucide & Tom Select --}}
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet" />
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // ✅ Inisialisasi ikon lucide
         lucide.createIcons();
 
-        // ✅ Inisialisasi TomSelect dan input produk
-        const selectVarian = document.getElementById('select-varian');
-        const inputProdukId = document.getElementById('input-produk-id');
-        const dropdownIcon = document.getElementById('dropdown-icon');
-
-        if (selectVarian && inputProdukId) {
-            const tomSelectInstance = new TomSelect(selectVarian, {
-                placeholder: 'Pilih produk dan varian',
-                maxItems: 1,
-                create: false,
-                controlInput: null
-            });
-
-            // ✅ Update produk_id saat varian berubah
-            selectVarian.addEventListener('change', function () {
-                const selected = this.options[this.selectedIndex];
-                const produkId = selected.getAttribute('data-produk-id');
-                inputProdukId.value = produkId;
-            });
-
-            // ✅ Isi produk_id jika sudah ada nilai awal
-            if (selectVarian.selectedIndex >= 0) {
-                const selected = selectVarian.options[selectVarian.selectedIndex];
-                inputProdukId.value = selected.getAttribute('data-produk-id');
-            }
-
-            // ✅ Buka dropdown saat ikon diklik
-            if (dropdownIcon) {
-                dropdownIcon.addEventListener('click', function () {
-                    tomSelectInstance.open();
-                });
-            }
-        }
-
-        // ✅ Konfirmasi hapus item dengan SweetAlert
+        // Konfirmasi hapus item dengan SweetAlert
         document.querySelectorAll('.form-delete-item').forEach(function (form) {
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
@@ -286,18 +185,15 @@
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // ✅ Tambahkan logika matikan loader di sini jika kamu pakai loader
                         const loader = document.getElementById('loader');
                         if (loader) loader.classList.remove('hidden');
-
                         form.requestSubmit();
                     }
                 });
             });
         });
 
-        // ✅ Sembunyikan loader jika masih tampil setelah alert
-        // (misalnya loader masih kelihatan saat kembali dari halaman sebelumnya)
+        // Sembunyikan loader jika masih tampil
         const loader = document.getElementById('loader');
         if (loader) {
             setTimeout(() => loader.classList.add('hidden'), 1000);

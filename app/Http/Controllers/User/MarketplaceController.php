@@ -75,7 +75,7 @@ class MarketplaceController extends Controller
 
         // Ambil produk yang hanya dijual oleh toko milik user dengan role 'anggota'
         $query = Produk::whereHas('toko.user', function ($q) {
-            $q->where('role', 'anggota');
+            $q->where('role', 'anggota', 'user.anggota');
         })->with('toko');
 
         // Filter produk berdasarkan kategori jika ada permintaan filter

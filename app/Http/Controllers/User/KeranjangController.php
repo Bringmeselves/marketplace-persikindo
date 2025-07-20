@@ -25,10 +25,10 @@ class KeranjangController extends Controller
         $produkIds = collect($keranjang)->pluck('produk_id')->unique();
 
         // Ambil data produk beserta relasi varian berdasarkan produk_id yang ada di keranjang
-        $produk = Produk::with('varian')->whereIn('id', $produkIds)->get()->keyBy('id');
+        $produkList = Produk::with('varian')->whereIn('id', $produkIds)->get()->keyBy('id');
 
         // Tampilkan view dengan data keranjang dan produk
-        return view('user.keranjang.index', compact('keranjang', 'produk'));
+        return view('user.keranjang.index', compact('keranjang', 'produkList'));
     }
 
     /**
@@ -220,45 +220,99 @@ class KeranjangController extends Controller
      * Membuat checkout dari item keranjang tertentu.
      */
     public function checkout(Request $request)
-    {
-        // Validasi key dari keranjang
-        $request->validate([
-            'key' => 'required', // Key dari keranjang session
-        ]);
+{
+    // Validasi input key array
+    $request->validate([
+        'keys' => 'required|array|min:1',
+        'keys.*' => 'required|string',
+    ]);
 
-        $keranjang = session()->get('keranjang', []);
-        if (!isset($keranjang[$request->key])) {
-            return back()->with('error', 'Produk tidak ditemukan di keranjang.');
+    $keranjang = session()->get('keranjang', []);
+    $selectedItems = [];
+
+    foreach ($request->keys as $key) {
+        if (!isset($keranjang[$key])) {
+            return back()->with('error', 'Beberapa produk tidak ditemukan di keranjang.');
         }
+        $selectedItems[] = $keranjang[$key];
+    }
 
-        $item = $keranjang[$request->key];
+    // Pastikan semua produk dari toko yang sama
+    $tokoIds = collect($selectedItems)->pluck('toko_id')->unique();
+    if ($tokoIds->count() > 1) {
+        return back()->with('error', 'Produk yang dipilih harus dari toko yang sama.');
+    }
 
-        // Buat data checkout utama dengan total harga sementara 0 dulu (karena total harga dihitung dari item)
+    $toko_id = $tokoIds->first();
+
+    // Cek apakah ada checkout pending untuk toko ini
+    $checkout = Checkout::where('user_id', Auth::id())
+        ->where('status', 'pending')
+        ->where('toko_id', $toko_id)
+        ->first();
+
+    if (!$checkout) {
         $checkout = Checkout::create([
-            'user_id' => auth()->id(),
-            'toko_id' => $item['toko_id'],
-            'total_harga' => 0, // nanti akan diupdate setelah buat item
-            'status' => 'draft',
+            'user_id'       => Auth::id(),
+            'toko_id'       => $toko_id,
+            'status'        => 'pending',
+            'total_harga'   => 0,
             'kode_checkout' => 'CO-' . strtoupper(Str::random(8)),
         ]);
-
-        // Buat item checkout
-        $checkoutItem = CheckoutItem::create([
-            'checkout_id' => $checkout->id,
-            'produk_id' => $item['produk_id'],
-            'toko_id' => $item['toko_id'],
-            'varian_id' => $item['varian_id'],
-            'jumlah' => $item['jumlah'],
-            'harga_satuan' => $item['harga_satuan'],
-            'total_harga' => $item['harga_satuan'] * $item['jumlah'],
-            'gambar' => $item['gambar'],
-        ]);
-
-        // Update total harga checkout berdasarkan item yang dibuat
-        $checkout->total_harga = $checkout->item()->sum('total_harga');
-        $checkout->save();
-
-        // Redirect ke halaman pembuatan checkout
-        return redirect()->route('user.checkout.create', $checkout->id)->with('success', 'Berhasil ditambahkan ke checkout');
     }
+
+    foreach ($selectedItems as $item) {
+        $produk = Produk::with('varian')->findOrFail($item['produk_id']);
+
+        // Cegah user membeli produk sendiri
+        if ($produk->user_id == Auth::id()) {
+            return back()->with('error', 'Kamu tidak bisa membeli produk milikmu sendiri.');
+        }
+
+        // Cek varian jika ada
+        $varian = null;
+        if ($item['varian_id']) {
+            $varian = $produk->varian()->where('id', $item['varian_id'])->first();
+            if (!$varian || $varian->stok < $item['jumlah']) {
+                return back()->with('error', 'Stok varian tidak mencukupi.');
+            }
+        }
+
+        // Tambahkan atau update item
+        $existingItem = $checkout->item()
+            ->where('produk_id', $produk->id)
+            ->where('varian_id', $item['varian_id'])
+            ->first();
+
+        if ($existingItem) {
+            $existingItem->jumlah += $item['jumlah'];
+            $existingItem->total_harga = $existingItem->jumlah * $existingItem->harga_satuan;
+            $existingItem->save();
+        } else {
+            $checkout->item()->create([
+                'produk_id'    => $produk->id,
+                'toko_id'      => $produk->toko_id,
+                'varian_id'    => $item['varian_id'],
+                'jumlah'       => $item['jumlah'],
+                'harga_satuan' => $item['harga_satuan'],
+                'total_harga'  => $item['harga_satuan'] * $item['jumlah'],
+                'gambar'       => $item['gambar'],
+            ]);
+        }
+
+        // Hapus dari keranjang
+        unset($keranjang[$item['produk_id'] . '-' . ($item['varian_id'] ?? 'null')]);
+    }
+
+    // Simpan kembali session keranjang
+    session()->put('keranjang', $keranjang);
+
+    // Update total harga
+    $checkout->total_harga = $checkout->item->sum('total_harga');
+    $checkout->save();
+
+    return redirect()->route('user.checkout.create', $checkout->id)
+        ->with('success', 'Produk berhasil ditambahkan ke checkout.');
+}
+
 }

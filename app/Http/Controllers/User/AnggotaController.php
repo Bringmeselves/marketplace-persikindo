@@ -23,13 +23,12 @@ class AnggotaController extends Controller
      */
     public function create()
     {
-        // Cek apakah user sudah mengajukan sebelumnya
-        $existing = Anggota::where('user_id', Auth::id())->first();
-        if ($existing) {
-            return redirect()->route('user.marketplace.index')->with('info', 'Anda sudah mengajukan permohonan sebagai anggota.');
-        }
+        $user = Auth::user();
+        $existing = Anggota::where('user_id', $user->id)->first();
 
-        return view('user.anggota.create');
+        return view('user.anggota.create', [
+            'existing' => $existing
+        ]);
     }
 
     /**
@@ -73,19 +72,19 @@ class AnggotaController extends Controller
             'bukti_pendaftaran'   => $buktiPendaftaranPath,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Pengajuan keanggotaan berhasil dikirim. Menunggu verifikasi admin.');
+        return redirect()->route('user.marketplace.index')->with('success', 'Pengajuan keanggotaan berhasil dikirim. Menunggu verifikasi admin.');
     }
 
     /**
      * Halaman dashboard anggota
      */
     public function someMethod()
-{
-    if (!Auth::user()->hasRole('anggota')) {
-        return redirect()->route('user.anggota.create')
-                         ->with('error', 'Anda belum disetujui sebagai anggota.');
-    }
+    {
+        if (!Auth::user()->hasRole('anggota')) {
+            return redirect()->route('user.anggota.create')
+                            ->with('error', 'Anda belum disetujui sebagai anggota.');
+        }
 
-    return view('dashboard');
-}
+        return view('dashboard');
+    }
 }
