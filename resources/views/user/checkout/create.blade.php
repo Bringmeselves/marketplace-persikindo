@@ -6,24 +6,6 @@
 <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10">
     <h2 class="text-3xl font-bold text-gray-900 pb-4 border-b">Checkout</h2>
 
-    {{-- Notifikasi --}}
-    @if(session('success') || session('info'))
-        <div class="space-y-2">
-            @if(session('success'))
-                <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded shadow-sm">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
-                    <span class="text-sm text-green-800 font-medium">{{ session('success') }}</span>
-                </div>
-            @endif
-            @if(session('info'))
-                <div class="flex items-center gap-3 p-4 border-l-4 border-blue-500 bg-blue-50 rounded shadow-sm">
-                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
-                    <span class="text-sm text-blue-800 font-medium">{{ session('info') }}</span>
-                </div>
-            @endif
-        </div>
-    @endif
-
     {{-- Produk Checkout --}}
     @if($checkout->item && count($checkout->item))
         <div class="space-y-6">
@@ -56,19 +38,48 @@
                         </div>
 
                         <div class="flex flex-col md:flex-row justify-end gap-2">
-                            <form action="{{ route('user.checkout.item.edit', [$checkout->id, $item->id]) }}" method="GET">
-                                <button type="submit"
-                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-100 text-yellow-800 hover:bg-yellow-200 text-sm font-semibold">
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>Edit
-                                </button>
+                            {{-- Form Update Item --}}
+                            <form action="{{ route('user.checkout.item.update', [$checkout->id, $item->id]) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="flex items-center gap-2">
+                                    {{-- Dropdown Varian Produk --}}
+                                    <select name="varian_id"
+                                        class="min-w-[200px] border rounded-md px-2 py-1 text-sm text-gray-700">
+                                        @foreach ($item->produk->varian as $varian)
+                                            <option value="{{ $varian->id }}" @selected($varian->id == $item->varian_id)>
+                                                {{ $varian->nama }} - Rp{{ number_format($varian->harga) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    {{-- Input Jumlah --}}
+                                    <input
+                                        type="number"
+                                        name="jumlah"
+                                        value="{{ $item->jumlah }}"
+                                        min="1"
+                                        class="w-20 px-2 py-1 border rounded-md text-sm text-gray-700"
+                                    />
+
+                                    {{-- Tombol Simpan --}}
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-100 text-blue-800 hover:bg-blue-200 text-sm font-semibold">
+                                        <i data-lucide="save" class="w-4 h-4"></i>
+                                        Simpan
+                                    </button>
+                                </div>
                             </form>
 
-                            <form action="{{ route('user.checkout.item.destroy', [$checkout->id, $item->id]) }}" method="POST"
-                                  class="form-delete-item">
-                                @csrf @method('DELETE')
+                            {{-- Form Hapus Item --}}
+                            <form action="{{ route('user.checkout.item.destroy', [$checkout->id, $item->id]) }}" method="POST" class="form-delete-item">
+                                @csrf
+                                @method('DELETE')
                                 <button type="submit"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 text-sm font-semibold">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>Hapus
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    Hapus
                                 </button>
                             </form>
                         </div>
@@ -200,4 +211,29 @@
         }
     });
 </script>
+{{-- SweetAlert Notification --}}
+@if (session('success') || session('error'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#6366f1',
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#ef4444',
+                });
+            @endif
+        });
+    </script>
+@endif
 @endsection

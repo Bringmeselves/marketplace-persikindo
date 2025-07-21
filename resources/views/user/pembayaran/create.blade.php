@@ -113,4 +113,28 @@
         lucide.createIcons();
     });
 </script>
+
+{{-- SweetAlert2 & Lucide Icons --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+
+        // SweetAlert2 Disclaimer Pembayaran
+        Swal.fire({
+            title: 'Perhatian Sebelum Membayar',
+            html: `
+                <p class="text-sm">
+                    Periksa kembali barang pembelian Anda sebelum melakukan pembayaran.<br><br>
+                    Pastikan jumlah, varian produk, serta ongkir sudah sesuai dengan pesanan Anda.<br><br>
+                    Pembayaran yang sudah dilakukan tidak dapat dibatalkan.
+                </p>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'Saya Sudah Memeriksa',
+            confirmButtonColor: '#f59e0b', // warna amber (Tailwind amber-500)
+        });
+    });
+</script>
 @endsection

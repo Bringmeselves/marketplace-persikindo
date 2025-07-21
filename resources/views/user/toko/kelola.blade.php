@@ -5,14 +5,6 @@
 @section('content')
 <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10">
 
-    {{-- Notifikasi --}}
-    @if(session('success'))
-        <div class="flex items-center gap-3 p-4 border-l-4 border-green-500 bg-green-50 rounded-lg shadow-sm">
-            <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
-            <span class="text-sm text-green-800 font-medium">{{ session('success') }}</span>
-        </div>
-    @endif
-
     {{-- === PROFIL TOKO === --}}
     <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 space-y-6">
 
@@ -90,6 +82,41 @@
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                     Edit Toko
                 </a>
+            </div>
+        </div>
+    </div>
+    
+    {{-- SECTION: Performa Penjualan Toko --}}
+    <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8 text-gray-800">
+        <div class="bg-white rounded-2xl shadow-xl p-6 space-y-10 border border-gray-100">
+
+            {{-- Header --}}
+            <div class="border-b pb-4">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-indigo-500"></i>
+                    Performa Penjualan Toko
+                </h2>
+                <p class="text-sm text-gray-500">Ringkasan statistik penjualan produk dari tokomu.</p>
+            </div>
+
+            {{-- Ringkasan Penjualan --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center text-sm font-medium text-gray-700">
+                <div class="bg-gray-50 rounded-xl p-4 shadow-sm border">
+                    <div class="text-indigo-600 text-2xl font-bold">{{ $totalProdukTerjual }}</div>
+                    <div>Produk Terjual</div>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 shadow-sm border">
+                    <div class="text-indigo-600 text-2xl font-bold">{{ $jumlahTransaksiSelesai }}</div>
+                    <div>Transaksi Selesai</div>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 shadow-sm border">
+                    <div class="text-indigo-600 text-2xl font-bold">Rp{{ number_format($saldo, 0, ',', '.') }}</div>
+                    <div>Total Pendapatan</div>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 shadow-sm border">
+                    <div class="text-indigo-600 text-2xl font-bold">{{ $jumlahProduk }}</div>
+                    <div>Produk Aktif</div>
+                </div>
             </div>
         </div>
     </div>
@@ -364,4 +391,30 @@
 
 {{-- Alpine.js --}}
 <script src="//unpkg.com/alpinejs" defer></script>
+
+{{-- SweetAlert Notification --}}
+@if (session('success') || session('error'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: '{{ session('success') }}',
+                    confirmButtonColor: '#6366f1',
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: '{{ session('error') }}',
+                    confirmButtonColor: '#ef4444',
+                });
+            @endif
+        });
+    </script>
+@endif
 @endsection

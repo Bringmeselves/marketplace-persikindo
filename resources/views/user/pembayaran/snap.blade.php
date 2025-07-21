@@ -49,7 +49,7 @@
 
         {{-- Metode Pembayaran --}}
         <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Pilih Metode Pembayaran</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Jenis Metode Pembayaran</h3>
             <div class="grid sm:grid-cols-2 gap-4 text-sm">
 
                 @php
@@ -118,6 +118,30 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+    });
+</script>
+
+{{-- SweetAlert2 & Lucide Icons --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+
+        // SweetAlert2 Disclaimer Pembayaran
+        Swal.fire({
+            title: 'Perhatian Sebelum Membayar',
+            html: `
+                <p class="text-sm">
+                    Periksa kembali barang pembelian Anda sebelum melakukan pembayaran.<br><br>
+                    Pastikan jumlah, varian produk, serta ongkir sudah sesuai dengan pesanan Anda.<br><br>
+                    Pembayaran yang sudah dilakukan tidak dapat dibatalkan.
+                </p>
+            `,
+            icon: 'warning',
+            confirmButtonText: 'Saya Sudah Memeriksa',
+            confirmButtonColor: '#f59e0b', // warna amber (Tailwind amber-500)
+        });
     });
 </script>
 @endsection

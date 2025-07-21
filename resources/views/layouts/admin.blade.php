@@ -37,50 +37,56 @@
         abort(403, 'Akses ditolak. Halaman ini hanya untuk Admin.');
     }
 @endphp
-
 <div class="flex min-h-screen">
     {{-- Sidebar --}}
-    <aside class="w-64 bg-white border-r flex flex-col justify-between shadow-sm">
+    <aside class="w-64 bg-white border-r shadow-sm sticky top-0 h-screen overflow-y-auto flex flex-col justify-between">
         <div>
             <div class="px-6 py-6 text-2xl font-bold border-b text-gray-900">
                 PERSIKINDO
             </div>
             <nav class="p-6">
                 <ul class="space-y-4 text-sm text-gray-700 font-medium">
+                    {{-- Menu Utama --}}
                     <li>
                         <a href="{{ route('admin.anggota.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="users" class="w-5 h-5"></i>
-                            Kelola Anggota
+                            Anggota
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.toko.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="store" class="w-5 h-5"></i>
-                            Kelola Toko
+                            Toko
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.produk.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="box" class="w-5 h-5"></i>
-                            Kelola Produk
+                            Produk
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('admin.kategori.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="tag" class="w-5 h-5"></i>
-                            Kelola Kategori
+                            Kategori
                         </a>
                     </li>
+                </ul>
+
+                <hr class="my-6 border-gray-200" />
+
+                <ul class="space-y-4 text-sm text-gray-700 font-medium">
+                    {{-- Menu Transaksi --}}
                     <li>
                         <a href="{{ route('admin.penarikan.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="wallet" class="w-5 h-5"></i>
-                            Kelola Penarikan
+                            Penarikan
                         </a>
                     </li>
-                     <li>
+                    <li>
                         <a href="{{ route('admin.transaksi.index') }}" class="flex items-center gap-3 hover:text-blue-600 transition">
                             <i data-lucide="receipt" class="w-5 h-5"></i>
-                            Kelola Transaksi
+                            Transaksi
                         </a>
                     </li>
                 </ul>
@@ -118,6 +124,7 @@
         </div>
     </main>
 </div>
+
 
 {{-- Loader --}}
 <div id="loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center;">

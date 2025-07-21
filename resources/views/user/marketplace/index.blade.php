@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-gray-800 space-y-10" id="produk">
 
     {{-- Hero Section --}}
@@ -54,7 +55,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             @foreach ($produk as $item)
             <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group">
-                {{-- Gambar --}}
+
+                 {{-- Gambar --}}
                 <div class="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                     <img
                         src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
@@ -72,14 +74,6 @@
                         <p class="text-sm text-gray-500 mt-1 line-clamp-2">
                             {{ $item->deskripsi ?? '-' }}
                         </p>
-
-                        {{-- Catatan Penolakan --}}
-                        @if ($item->user->anggota && $item->user->anggota->status === 'rejected' && $item->user->anggota->catatan)
-                            <div class="mt-4 p-3 border border-yellow-300 bg-yellow-50 text-yellow-700 text-xs rounded-lg">
-                                <strong>Catatan Penolakan Admin:</strong><br>
-                                {{ $item->user->anggota->catatan }}
-                            </div>
-                        @endif
 
                         {{-- Info Toko --}}
                         @if ($item->toko)
@@ -110,6 +104,12 @@
                 </div>
 
                 {{-- Tombol Aksi: Beli & Tambah ke Keranjang --}}
+                @if ($item->user->anggota && $item->user->anggota->status === 'rejected')
+                    <button disabled class="w-full bg-gray-300 text-gray-600 py-2 rounded-xl cursor-not-allowed">
+                        Tidak tersedia
+                    </button>
+                @else
+
                 <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
                     <div class="flex items-center gap-2">
                         {{-- Tombol Beli --}}
@@ -131,6 +131,7 @@
                             </button>
                         </form>
                     </div>
+                @endif
                 </div>
             </div>
             @endforeach
@@ -152,7 +153,7 @@
 <script>lucide.createIcons();</script>
 
 {{-- SweetAlert Notification --}}
-@if (session('success') || session('error') || session('welcome'))
+@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -180,6 +181,15 @@
                     title: 'Selamat Datang',
                     text: '{{ session('welcome') }}',
                     confirmButtonColor: '#3b82f6',
+                });
+            @endif
+
+            @if (session('catatan_penolakan'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengajuan Ditolak',
+                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
+                    confirmButtonColor: '#f59e0b', // amber-500
                 });
             @endif
         });

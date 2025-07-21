@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Chat;
 use App\Models\Toko;
 use App\Models\Transaksi;
+use App\Models\CheckoutItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -228,12 +229,44 @@ class TokoController extends Controller
             ->latest()
             ->get();
 
+        // Total seluruh produk yang berhasil terjual dari toko ini
+        $totalProdukTerjual = CheckoutItem::whereHas('checkout.transaksi', function ($query) {
+                $query->where('status', 'selesai'); // hanya ambil transaksi yang sudah selesai
+            })->whereHas('produk', function ($query) use ($toko) {
+                $query->where('toko_id', $toko->id); // filter berdasarkan toko saat ini
+            })->sum('jumlah'); // total jumlah item yang terjual
+
+        // Jumlah transaksi yang berstatus 'selesai' pada toko ini
+        $jumlahTransaksiSelesai = Transaksi::where('status', 'selesai')
+            ->whereHas('checkout.item.produk', function ($query) use ($toko) {
+                $query->where('toko_id', $toko->id); // hanya transaksi dari produk milik toko ini
+            })->count(); // hitung jumlah transaksi
+
+        // Total pendapatan (jumlah pembayaran) dari semua transaksi yang sudah selesai
+        $saldo = $toko->saldo;
+
+        // Jumlah produk aktif yang dimiliki oleh toko ini
+        $jumlahProduk = $produkList->count(); // produk sudah di-load dari relasi $toko->produk()
+
+        // Ambil 5 transaksi terakhir yang sudah selesai untuk ditampilkan di riwayat ringkas
+        $transaksiTerakhir = Transaksi::where('status', 'selesai')
+            ->whereHas('checkout.item.produk', function ($query) use ($toko) {
+                $query->where('toko_id', $toko->id);
+            })->latest() // urut dari yang terbaru
+            ->take(5) // ambil 5 transaksi terakhir
+            ->get(); // ambil datanya
+        
         return view('user.toko.kelola', compact(
             'toko',
             'produkList',
             'daftarChat',
             'transaksiMasuk',
-            'riwayatTransaksi'
+            'riwayatTransaksi',
+            'totalProdukTerjual',
+            'jumlahTransaksiSelesai',
+            'saldo',
+            'jumlahProduk',
+            'transaksiTerakhir'
         ));
     }
 

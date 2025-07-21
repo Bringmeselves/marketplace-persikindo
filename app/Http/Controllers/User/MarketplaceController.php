@@ -75,21 +75,34 @@ class MarketplaceController extends Controller
 
         // Ambil produk yang hanya dijual oleh toko milik user dengan role 'anggota'
         $query = Produk::whereHas('toko.user', function ($q) {
-            $q->where('role', 'anggota', 'user.anggota');
+            $q->where('role', 'anggota');
         })->with('toko');
 
-        // Filter produk berdasarkan kategori jika ada permintaan filter
+        // Filter produk berdasarkan kategori jika ada
         if ($request->kategori) {
             $query->where('kategori_id', $request->kategori);
         }
 
-        // Paginasi hasil produk
         $produk = $query->paginate(20);
 
         // Ambil daftar kota (origin) dari API Komerce
         $origins = $this->fetchOrigins();
 
-        // Tampilkan view marketplace dengan data produk, kategori, dan origins
-        return view('user.marketplace.index', compact('produk', 'kategori', 'origins'));
+        // Ambil anggota login (jika ada)
+        $anggota = null;
+        if (auth()->check()) {
+            $anggota = \App\Models\Anggota::where('user_id', auth()->id())
+                ->where('status', 'rejected')
+                ->whereNotNull('catatan')
+                ->latest()
+                ->first();
+
+            if ($anggota && !session()->has('catatan_penolakan')) {
+                session()->flash('catatan_penolakan', $anggota->catatan);
+            }
+        }
+
+        // Kirim ke view
+        return view('user.marketplace.index', compact('produk', 'kategori', 'origins', 'anggota'));
     }
 }

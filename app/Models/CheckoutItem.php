@@ -61,4 +61,10 @@ class CheckoutItem extends Model
     {
         return $this->belongsTo(Varian::class, 'varian_id');
     }
+
+    // Relasi ke checkout
+    public function checkout()
+    {
+        return $this->belongsTo(Checkout::class);
+    }
 }
