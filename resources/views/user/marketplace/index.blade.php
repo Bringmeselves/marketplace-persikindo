@@ -56,8 +56,16 @@
             @foreach ($produk as $item)
             <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all flex flex-col overflow-hidden group">
 
-                 {{-- Gambar --}}
+                {{-- Gambar dengan Jumlah Terjual --}}
                 <div class="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+
+                    {{-- Jumlah Terjual (badge di pojok kiri atas) --}}
+                    <div class="absolute top-2 left-2 bg-white/90 text-gray-700 text-xs px-2 py-1 rounded shadow flex items-center gap-1 z-10">
+                        <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-gray-500"></i>
+                        <span>{{ $item->jumlah_terjual ?? 0 }} terjual</span>
+                    </div>
+
+                    {{-- Gambar Produk --}}
                     <img
                         src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
                         alt="{{ $item->nama }}"

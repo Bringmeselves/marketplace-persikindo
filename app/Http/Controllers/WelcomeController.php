@@ -14,7 +14,11 @@ class WelcomeController extends Controller
 
         $query = Produk::whereHas('toko.user', function ($q) {
             $q->where('role', 'anggota');
-        })->with('toko');
+        })->with('toko')
+            ->withCount(['transaksi as jumlah_terjual' => function ($q) {
+            $q->where('status', 'selesai');
+        }]);
+
 
         $produk = $query->latest()->take(8)->get(); // ambil 8 produk terbaru
 

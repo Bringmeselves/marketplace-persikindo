@@ -58,7 +58,7 @@ class Produk extends Model
      */
     public function transaksi()
     {
-        return $this->hasMany(Transaksi::class);
+        return $this->hasMany(Transaksi::class)->where('status', 'selesai');
     }
 
     /**

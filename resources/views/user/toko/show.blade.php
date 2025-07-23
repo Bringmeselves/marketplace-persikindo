@@ -99,11 +99,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach ($produk as $item)
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition flex flex-col overflow-hidden group">
-                        {{-- Gambar --}}
+                        {{-- Gambar dengan Jumlah Terjual --}}
                         <div class="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
-                            <img src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
-                                 alt="{{ $item->nama }}"
-                                 class="w-full h-full object-cover transition group-hover:scale-105 duration-300">
+
+                            {{-- Jumlah Terjual (badge di pojok kiri atas) --}}
+                            <div class="absolute top-2 left-2 bg-white/90 text-gray-700 text-xs px-2 py-1 rounded shadow flex items-center gap-1 z-10">
+                                <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-gray-500"></i>
+                                <span>{{ $item->jumlah_terjual ?? 0 }} terjual</span>
+                            </div>
+
+                            {{-- Gambar Produk --}}
+                            <img
+                                src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('images/default-produk.png') }}"
+                                alt="{{ $item->nama }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
                         </div>
                         {{-- Detail Produk --}}
                         <div class="p-4 flex-1 flex flex-col justify-between">
@@ -175,8 +185,6 @@
     lucide.createIcons();
 </script>
 
-
-{{-- SweetAlert Notification --}}
 {{-- SweetAlert Notification --}}
 @if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -274,13 +274,55 @@ class TokoController extends Controller
     public function show($id)
     {
         $toko = Toko::with('produk')->findOrFail($id);
-        $produk = $toko->produk()->latest()->paginate(12);
+
+        $produk = $toko->produk()
+            ->withCount(['transaksi as jumlah_terjual' => function ($q) {
+                $q->where('status', 'selesai');
+            }])
+            ->latest()
+            ->paginate(12);
+
         $kategori = Kategori::all();
 
         // Tambahkan nama kota
         $toko->city_name = $this->getCityNameById($toko->origin);
 
         return view('user.toko.show', compact('toko', 'produk', 'kategori'));
+    }
+
+    /**
+     * Menampilkan semua transaksi dari produk-produk milik toko ini.
+     */
+    public function riwayatTransaksi()
+    {
+        $user = Auth::user();
+
+        // Ambil toko milik user
+        $toko = Toko::where('user_id', $user->id)->first();
+
+        if (!$toko) {
+            return redirect()->route('dashboard')->with('error', 'Toko tidak ditemukan.');
+        }
+
+        // Ambil transaksi yang produk-nya milik toko ini
+        $transaksiList = Transaksi::with([
+                'checkout',
+                'checkout.user',
+                'checkout.item',
+                'checkout.item.produk',
+                'checkout.item.varian',
+                'checkout.pengiriman',
+                'checkout.pembayaran',
+                'pengiriman',
+                'pembayaran',
+            ])
+            ->whereHas('produk', function ($query) use ($toko) {
+                $query->where('toko_id', $toko->id);
+            })
+            ->latest()
+            ->paginate(5);
+
+        return view('user.toko.riwayat', compact('transaksiList', 'toko'));
     }
 
     // Hapus toko

@@ -42,8 +42,7 @@
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left font-semibold text-gray-700">No</th>
-                        <th class="px-6 py-3 text-left font-semibold text-gray-700">Gambar</th>
+                        <th class="px-6 py-3 text-left font-semibold text-gray-700">No</th>                   
                         <th class="px-6 py-3 text-left font-semibold text-gray-700">Nama Produk</th>
                         <th class="px-6 py-3 text-left font-semibold text-gray-700">Pemilik</th>
                         <th class="px-6 py-3 text-left font-semibold text-gray-700">Toko</th>
@@ -56,13 +55,6 @@
                     @forelse ($produk as $index => $item)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($item->gambar)
-                                    <img src="{{ asset('produk/' . $item->gambar) }}" alt="{{ $item->nama }}" class="w-12 h-12 object-cover rounded-md">
-                                @else
-                                    <div class="w-12 h-12 bg-gray-100 flex items-center justify-center rounded-md text-gray-400 text-xs">No Image</div>
-                                @endif
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $item->nama }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item->user->anggota->nama_lengkap ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $item->toko->nama_toko ?? '-' }}</td>

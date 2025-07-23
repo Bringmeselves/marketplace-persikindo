@@ -65,12 +65,13 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('toko', [UserTokoController::class, 'index'])->name('toko.index'); // Daftar toko
     Route::get('toko/create', [UserTokoController::class, 'create'])->name('toko.create'); // Form buat toko
     Route::post('toko', [UserTokoController::class, 'store'])->name('toko.store'); // Simpan toko baru
+    Route::get('toko/riwayat-transaksi', [UserTokoController::class, 'riwayatTransaksi'])->name('toko.riwayat'); // Riwayat transaksi toko
     Route::get('toko/{id}/kelola', [UserTokoController::class, 'kelola'])->name('toko.kelola'); // Kelola toko
     Route::get('toko/{id}/edit', [UserTokoController::class, 'edit'])->name('toko.edit'); // Form edit toko
     Route::get('toko/{id}', [UserTokoController::class, 'show'])->name('toko.show'); // Show toko
     Route::put('toko/{id}', [UserTokoController::class, 'update'])->name('toko.update'); // Update toko
     Route::delete('toko/{id}', [UserTokoController::class, 'destroy'])->name('toko.destroy'); // Hapus toko
-
+    
     // Produk
     Route::get('/produk', [UserProdukController::class, 'index'])->name('produk.index'); // Daftar produk
     Route::get('/produk/create/{toko_id}', [UserProdukController::class, 'create'])->name('produk.create'); // Form buat produk

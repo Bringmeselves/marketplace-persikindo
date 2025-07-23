@@ -186,12 +186,21 @@
         <div class="bg-white rounded-2xl shadow-xl p-6 space-y-10 border border-gray-100">
 
             {{-- Header --}}
-            <div class="border-b pb-4">
-                <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <i data-lucide="shopping-bag" class="w-6 h-6 text-indigo-500"></i>
-                    Transaksi Masuk
-                </h2>
-                <p class="text-sm text-gray-500">Daftar transaksi dari pembeli yang masuk ke tokomu.</p>
+            <div class="border-b pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-6 h-6 text-indigo-500"></i>
+                        Transaksi Masuk
+                    </h2>
+                    <p class="text-sm text-gray-500">Daftar transaksi dari pembeli yang masuk ke tokomu.</p>
+                </div>
+                
+                {{-- Tombol Riwayat --}}
+                <a href="{{ route('user.toko.riwayat', ['id' => $toko->id]) }}"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
+                    <i data-lucide="history" class="w-4 h-4 mr-2"></i>
+                    Riwayat Transaksi
+                </a>
             </div>
 
             {{-- Daftar Transaksi --}}
@@ -393,16 +402,28 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 
 {{-- SweetAlert Notification --}}
-@if (session('success') || session('error'))
+@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
-                    text: '{{ session('success') }}',
-                    confirmButtonColor: '#6366f1',
+                    html: `<p style="margin: 0;">{{ session('success') }}</p>`,
+                    iconColor: '#10b981', // green-500
+                    background: '#ffffff',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#10b981',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
                 });
             @endif
 
@@ -410,11 +431,89 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
-                    text: '{{ session('error') }}',
+                    html: `<p style="margin: 0;">{{ session('error') }}</p>`,
+                    iconColor: '#ef4444', // red-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Coba Lagi',
                     confirmButtonColor: '#ef4444',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('welcome'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Selamat Datang',
+                    html: `<p style="margin: 0;">{{ session('welcome') }}</p>`,
+                    iconColor: '#3b82f6', // blue-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Terima Kasih',
+                    confirmButtonColor: '#3b82f6',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('catatan_penolakan'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengajuan Ditolak',
+                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
+                    iconColor: '#f59e0b', // amber-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#f59e0b',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
                 });
             @endif
         });
     </script>
+
+    <style>
+        .swal-attractive-popup {
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .swal-attractive-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .swal-attractive-button {
+            font-size: 14px !important;
+            font-weight: 600;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .swal-attractive-button:hover {
+            filter: brightness(0.95);
+        }
+    </style>
 @endif
 @endsection
