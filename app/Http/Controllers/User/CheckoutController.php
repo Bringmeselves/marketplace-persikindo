@@ -33,6 +33,11 @@ class CheckoutController extends Controller
             return back()->with('error', 'Varian tidak sesuai dengan produk.');
         }
 
+         // 🚫 Cegah toko membeli produk sendiri
+        if ($produk->toko->user_id === Auth::id()) {
+            return back()->with('error', 'Anda tidak bisa membeli produk dari toko Anda sendiri.');
+        }
+        
         // Cek ketersediaan stok
         if ($varian->stok < $request->jumlah) {
             return back()->with('error', 'Stok tidak cukup.');

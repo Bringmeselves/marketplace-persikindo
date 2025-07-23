@@ -121,27 +121,64 @@
     });
 </script>
 
-{{-- SweetAlert2 & Lucide Icons --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         lucide.createIcons();
 
-        // SweetAlert2 Disclaimer Pembayaran
         Swal.fire({
-            title: 'Perhatian Sebelum Membayar',
+            title: '⚠️ Perhatian Sebelum Membayar',
             html: `
-                <p class="text-sm">
-                    Periksa kembali barang pembelian Anda sebelum melakukan pembayaran.<br><br>
-                    Pastikan jumlah, varian produk, serta ongkir sudah sesuai dengan pesanan Anda.<br><br>
-                    Pembayaran yang sudah dilakukan tidak dapat dibatalkan.
-                </p>
+                <div style="font-size:14px; color:#4b5563; line-height:1.6; text-align: center;">
+                    <p>Periksa kembali barang pembelian Anda sebelum melakukan pembayaran.</p>
+                    <p>Pastikan jumlah, varian produk, sudah sesuai dengan pesanan Anda.</p>
+                    <p style="margin-bottom:0;">Pembayaran yang sudah dilakukan tidak dapat dibatalkan.</p>
+                </div>
             `,
             icon: 'warning',
+            iconColor: '#f59e0b',
+            background: '#ffffff',
             confirmButtonText: 'Saya Sudah Memeriksa',
-            confirmButtonColor: '#f59e0b', // warna amber (Tailwind amber-500)
+            confirmButtonColor: '#f59e0b',
+            width: '100%',
+            padding: '1.5rem 2rem',
+            showCloseButton: true,
+            customClass: {
+                popup: 'swal-wide-popup',
+                title: 'swal-attractive-title',
+                confirmButton: 'swal-attractive-button'
+            }
         });
     });
 </script>
+
+<style>
+    .swal-wide-popup {
+        max-width: 800px;
+        width: 95%;
+        border-radius: 1rem;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center; /* Pastikan isi popup seluruhnya rata tengah */
+    }
+
+    .swal-attractive-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+
+    .swal-attractive-button {
+        font-size: 14px !important;
+        font-weight: 600;
+        padding: 10px 20px !important;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    .swal-attractive-button:hover {
+        filter: brightness(0.95);
+    }
+</style>
 @endsection

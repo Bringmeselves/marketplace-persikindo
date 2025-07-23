@@ -211,17 +211,30 @@
         }
     });
 </script>
+
 {{-- SweetAlert Notification --}}
-@if (session('success') || session('error'))
+@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil',
-                    text: '{{ session('success') }}',
-                    confirmButtonColor: '#6366f1',
+                    html: `<p style="margin: 0;">{{ session('success') }}</p>`,
+                    iconColor: '#10b981', // green-500
+                    background: '#ffffff',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#10b981',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
                 });
             @endif
 
@@ -229,11 +242,89 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal',
-                    text: '{{ session('error') }}',
+                    html: `<p style="margin: 0;">{{ session('error') }}</p>`,
+                    iconColor: '#ef4444', // red-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Coba Lagi',
                     confirmButtonColor: '#ef4444',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('welcome'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Selamat Datang',
+                    html: `<p style="margin: 0;">{{ session('welcome') }}</p>`,
+                    iconColor: '#3b82f6', // blue-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Terima Kasih',
+                    confirmButtonColor: '#3b82f6',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('catatan_penolakan'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengajuan Ditolak',
+                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
+                    iconColor: '#f59e0b', // amber-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#f59e0b',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
                 });
             @endif
         });
     </script>
+
+    <style>
+        .swal-attractive-popup {
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .swal-attractive-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .swal-attractive-button {
+            font-size: 14px !important;
+            font-weight: 600;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .swal-attractive-button:hover {
+            filter: brightness(0.95);
+        }
+    </style>
 @endif
 @endsection

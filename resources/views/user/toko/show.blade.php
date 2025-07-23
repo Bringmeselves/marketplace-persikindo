@@ -119,14 +119,35 @@
                                 Rp{{ number_format($item->harga, 0, ',', '.') }}
                             </p>
                         </div>
-                        {{-- Tombol Beli --}}
+                        {{-- Tombol Aksi: Beli & Tambah ke Keranjang --}}
+                        @if ($item->user->anggota && $item->user->anggota->status === 'rejected')
+                            <button disabled class="w-full bg-gray-300 text-gray-600 py-2 rounded-xl cursor-not-allowed">
+                                Tidak tersedia
+                            </button>
+                        @else
+
                         <div class="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                            <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET">
-                                @csrf
-                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition flex justify-center items-center gap-2">
-                                    <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
-                                </button>
-                            </form>
+                            <div class="flex items-center gap-2">
+                                {{-- Tombol Beli --}}
+                                <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET" class="flex-1">
+                                    @csrf
+                                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
+                                    </button>
+                                </form>
+
+                                {{-- Tombol Tambah ke Keranjang --}}
+                                <form action="{{ route('user.keranjang.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="produk_id" value="{{ $item->id }}">
+                                    <input type="hidden" name="varian_id" value="{{ $item->varian->first()->id ?? '' }}">
+
+                                    <button type="submit" class="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 transition">
+                                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                         </div>
                     </div>
                 @endforeach
@@ -153,4 +174,122 @@
 <script>
     lucide.createIcons();
 </script>
+
+
+{{-- SweetAlert Notification --}}
+{{-- SweetAlert Notification --}}
+@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    html: `<p style="margin: 0;">{{ session('success') }}</p>`,
+                    iconColor: '#10b981', // green-500
+                    background: '#ffffff',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#10b981',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    html: `<p style="margin: 0;">{{ session('error') }}</p>`,
+                    iconColor: '#ef4444', // red-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Coba Lagi',
+                    confirmButtonColor: '#ef4444',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('welcome'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Selamat Datang',
+                    html: `<p style="margin: 0;">{{ session('welcome') }}</p>`,
+                    iconColor: '#3b82f6', // blue-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Terima Kasih',
+                    confirmButtonColor: '#3b82f6',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+
+            @if (session('catatan_penolakan'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pengajuan Ditolak',
+                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
+                    iconColor: '#f59e0b', // amber-500
+                    background: '#ffffff',
+                    confirmButtonText: 'Mengerti',
+                    confirmButtonColor: '#f59e0b',
+                    width: '360px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button'
+                    }
+                });
+            @endif
+        });
+    </script>
+
+    <style>
+        .swal-attractive-popup {
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .swal-attractive-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .swal-attractive-button {
+            font-size: 14px !important;
+            font-weight: 600;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .swal-attractive-button:hover {
+            filter: brightness(0.95);
+        }
+    </style>
+@endif
 @endsection

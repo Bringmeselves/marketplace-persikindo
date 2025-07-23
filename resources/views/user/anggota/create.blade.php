@@ -112,4 +112,63 @@
 <script>
     lucide.createIcons();
 </script>
+
+<!-- CDN SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = @json(Auth::user()->name);
+
+        Swal.fire({
+            title: `👋 Hai, ${username}`,
+            html: `
+                <p style="margin-bottom: 0.5rem;">Selamat datang di <strong style="color:#3b82f6;">PERSIKINDO</strong>!</p>
+                <p style="font-size:14px; color:#4b5563;">
+                    Kami senang kamu bergabung. Yuk lengkapi data agar permohonanmu bisa segera kami proses.
+                </p>
+            `,
+            icon: 'info',
+            iconColor: '#3b82f6',
+            background: '#ffffff',
+            showCloseButton: true,
+            confirmButtonText: 'Lengkapi Sekarang',
+            confirmButtonColor: '#3b82f6',
+            width: '360px',
+            padding: '1.75rem',
+            customClass: {
+                popup: 'swal-attractive-popup',
+                title: 'swal-attractive-title',
+                confirmButton: 'swal-attractive-button'
+            }
+        });
+    });
+</script>
+
+<style>
+    .swal-attractive-popup {
+        border-radius: 1rem;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .swal-attractive-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .swal-attractive-button {
+        font-size: 14px !important;
+        font-weight: 600;
+        padding: 10px 20px !important;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    .swal-attractive-button:hover {
+        background-color: #2563eb !important;
+    }
+</style>
 @endsection
