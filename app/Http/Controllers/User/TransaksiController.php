@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaksi;
 use App\Models\Checkout;
 use App\Models\Toko;
+use App\Services\ZenzivaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +15,10 @@ class TransaksiController extends Controller
     /**
      * Menampilkan semua transaksi milik user yang login.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $status = $request->query('status');
+
         $transaksiList = Transaksi::with([
                 'checkout',
                 'checkout.item',
@@ -28,13 +31,11 @@ class TransaksiController extends Controller
                 'pembayaran',
             ])
             ->where('user_id', Auth::id())
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
             ->latest()
             ->paginate(3);
-
-        if ($transaksiList->isEmpty()) {
-            return view('user.transaksi.index', ['transaksiList' => $transaksiList])
-                ->with('info', 'Belum ada transaksi.');
-        }
 
         return view('user.transaksi.index', compact('transaksiList'));
     }
@@ -111,6 +112,19 @@ class TransaksiController extends Controller
             'produk_id' => $checkout->item->first()->produk_id,
             'status'        => 'diproses',
         ]);
+
+        // ✅ Kirim Notifikasi WhatsApp ke Pemilik Toko
+        $produk = $checkout->item->first()->produk ?? null;
+        $toko   = $produk?->toko;
+        $noWa = $toko?->nomer_wa;
+
+        if ($noWa && preg_match('/^62\d{9,13}$/', $noWa)) {
+            $zenziva = new ZenzivaService();
+            $message = "Halo {$pemilik->name}, ada pesanan baru dari {$user->name}.\n"
+                     . "ID Transaksi: #{$transaksi->id}\n"
+                     . "Silakan segera proses pesanan melalui dashboard toko Anda.";
+            $zenziva->send($noWa, $message);
+        }
 
         return redirect()->route('user.transaksi.index')
             ->with('success', 'Transaksi berhasil dibuat.');

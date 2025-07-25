@@ -7,12 +7,22 @@
 
     {{-- Judul Halaman --}}
     <div class="flex items-center justify-between pb-4 border-b">
-        <h2 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <i data-lucide="message-circle" class="w-6 h-6 text-green-600"></i>
-            Chat dengan: {{ $chat->toko->nama_toko }}
-        </h2>
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-green-500">
+                <img src="{{ optional($chat->toko)->foto_toko ? asset('storage/' . $chat->toko->foto_toko) : 'https://via.placeholder.com/150' }}" alt="Foto Toko">
+                    alt="Foto Toko"
+                    class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    {{ optional($chat->toko)->nama_toko ?? 'Toko tidak ditemukan' }}
+                </h2>
+                {{-- Jika ingin tambahan status atau info lain, bisa ditambahkan di sini --}}
+            </div>
+        </div>
+
         <a href="{{ route('user.chat.index') }}"
-           class="inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:underline">
+        class="inline-flex items-center gap-2 text-sm font-semibold text-green-600 hover:underline">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             Kembali
         </a>
@@ -31,7 +41,33 @@
                         <i data-lucide="user" class="w-3 h-3"></i>
                         {{ $pesan->user->name }}
                     </div>
-                    <div>{{ $pesan->isi_pesan }}</div>
+
+                    {{-- Isi pesan teks --}}
+                    @if ($pesan->isi_pesan)
+                        <div>{{ $pesan->isi_pesan }}</div>
+                    @endif
+
+                    {{-- Tampilkan file jika ada --}}
+                    @if ($pesan->file_path)
+                        <div class="mt-2">
+                            <p class="text-xs font-medium mb-1">
+                                📎 <a href="{{ asset('storage/' . $pesan->file_path) }}"
+                                     target="_blank"
+                                     class="{{ $isMe ? 'text-white underline' : 'text-green-600 underline' }}">
+                                     {{ $pesan->file_name }}
+                                </a>
+                            </p>
+
+                            {{-- Preview gambar jika tipe image --}}
+                            @if (str_starts_with($pesan->file_type, 'image/'))
+                                <img src="{{ asset('storage/' . $pesan->file_path) }}"
+                                     alt="Preview"
+                                     class="max-h-48 rounded mt-1 border">
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Timestamp --}}
                     <div class="mt-2 text-[11px] text-right {{ $isMe ? 'text-white/70' : 'text-gray-500' }}">
                         {{ $pesan->created_at->format('d M Y, H:i') }}
                     </div>
@@ -43,21 +79,36 @@
     </div>
 
     {{-- Form Kirim Pesan --}}
-    <form action="{{ route('user.kirimPesan', $chat->id) }}" method="POST"
-          class="bg-white border rounded-2xl shadow p-4 flex items-center gap-2">
+    <form action="{{ route('user.kirimPesan', $chat->id) }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="bg-white border rounded-2xl shadow p-4 space-y-2">
         @csrf
-        <div class="relative flex-1">
+
+        {{-- Teks Pesan --}}
+        <div class="relative">
             <textarea name="isi_pesan"
                       class="w-full border border-gray-300 rounded-full py-2 pl-4 pr-10 resize-none focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-                      rows="1" required placeholder="Tulis pesan..."></textarea>
+                      rows="1"
+                      placeholder="Tulis pesan..."></textarea>
             <div class="absolute right-3 top-2.5 text-gray-400">
                 <i data-lucide="pen-line" class="w-4 h-4"></i>
             </div>
         </div>
-        <button type="submit"
-                class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500 text-white hover:bg-green-600 shadow">
-            <i data-lucide="send" class="w-4 h-4"></i>
-        </button>
+
+        {{-- Upload File --}}
+        <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 text-sm cursor-pointer text-gray-600">
+                <i data-lucide="paperclip" class="w-4 h-4"></i>
+                <span>Upload File</span>
+                <input type="file" name="file" class="hidden">
+            </label>
+
+            <button type="submit"
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-500 text-white hover:bg-green-600 shadow">
+                <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+        </div>
     </form>
 </div>
 

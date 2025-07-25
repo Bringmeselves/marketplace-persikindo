@@ -16,19 +16,21 @@ class ChatController extends Controller
         $userId = auth()->id();
         $toko = Toko::where('user_id', $userId)->first();
 
-        if ($toko) {
-            // Jika user punya toko → tampilkan daftar chat masuk dari pembeli
-            $daftarChat = Chat::with('user', 'pesan')
-                ->where('toko_id', $toko->id)
-                ->latest()
-                ->get();
-        } else {
-            // Jika user tidak punya toko → tampilkan chat yang ia buat ke toko
-            $daftarChat = Chat::with('toko', 'pesan')
-                ->where('user_id', $userId)
-                ->latest()
-                ->get();
-        }
+        $daftarChat = Chat::with([
+        'user',
+        'toko',
+        'pesan' => fn($q) => $q->latest(),
+        'pesanBelumDibaca' => fn($q) => $q->where('user_id', '!=', $userId) // pesan dari lawan bicara
+        ])
+        ->where(function ($query) use ($userId, $toko) {
+            $query->where('user_id', $userId); // Sebagai pembeli
+            if ($toko) {
+                $query->orWhere('toko_id', $toko->id); // Sebagai penjual
+            }
+        })
+        ->whereHas('pesan') // hanya chat yang punya isi pesan
+        ->orderBy('updated_at', 'desc')
+        ->get();
 
         return view('user.chat.index', compact('daftarChat', 'toko'));
     }
@@ -36,11 +38,13 @@ class ChatController extends Controller
     // Menampilkan isi chat tertentu
     public function tampil($id)
     {
-        $chat = Chat::with('pesan.user', 'toko')->findOrFail($id);
-        $userId = auth()->id();
+        $chat = Chat::with(['user', 'toko', 'pesan'])->findOrFail($id);
 
-        if ($chat->user_id !== $userId && $chat->toko->user_id !== $userId) {
-            abort(403); // Akses ditolak jika bukan pemilik chat atau toko
+        // contoh: menandai pesan lawan bicara sebagai sudah dibaca
+        foreach ($chat->pesan as $pesan) {
+            if ($pesan->user_id !== auth()->id() && !$pesan->sudah_dibaca) {
+                $pesan->update(['sudah_dibaca' => true]);
+            }
         }
 
         return view('user.chat.tampil', compact('chat'));
@@ -50,7 +54,8 @@ class ChatController extends Controller
     public function kirimPesan(Request $request, $id)
     {
         $request->validate([
-            'isi_pesan' => 'required|string',
+            'isi_pesan' => 'nullable|string',
+            'file' => 'nullable|file|max:5120', // max 5MB
         ]);
 
         $chat = Chat::with('toko')->findOrFail($id);
@@ -60,11 +65,26 @@ class ChatController extends Controller
             abort(403);
         }
 
-        $chat->pesan()->create([
+        $pesanData = [
             'user_id' => $userId,
             'isi_pesan' => $request->isi_pesan,
             'sudah_dibaca' => false,
-        ]);
+        ];
+
+        // Jika ada file diinput
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $path = $file->store('pesan_files', 'public');
+            $pesanData['file_path'] = $path;
+            $pesanData['file_type'] = $file->getClientMimeType();
+            $pesanData['file_name'] = $file->getClientOriginalName();
+        }
+
+        // Simpan pesan
+        $chat->pesan()->create($pesanData);
+
+        // Update timestamp chat agar index terurut ulang
+        $chat->touch();
 
         return back()->with('success', 'Pesan berhasil dikirim.');
     }

@@ -86,7 +86,20 @@ class MarketplaceController extends Controller
             $query->where('kategori_id', $request->kategori);
         }
 
-        $produk = $query->paginate(20);
+        // Filter berdasarkan pencarian nama produk atau nama toko
+        if ($request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                ->orWhereHas('toko', function ($tokoQuery) use ($search) {
+                    $tokoQuery->where('nama_toko', 'like', '%' . $search . '%');
+                });
+            });
+        }
+            
+        // Ambil data produk
+        $produk = $query->paginate(20)->withQueryString();
 
         // Ambil daftar kota (origin) dari API Komerce
         $origins = $this->fetchOrigins();

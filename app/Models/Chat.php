@@ -30,4 +30,9 @@ class Chat extends Model
     {
         return $this->hasMany(Pesan::class);
     }
+
+    public function pesanBelumDibaca()
+    {
+        return $this->hasMany(Pesan::class)->where('sudah_dibaca', false);
+    }
 }

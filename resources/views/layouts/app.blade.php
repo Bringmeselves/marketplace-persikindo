@@ -41,28 +41,56 @@
         <div class="logo text-2xl font-bold">PERSIKINDO</div>
 
         {{-- Navigasi --}}
-<nav>
-    <ul class="flex gap-6 list-none">
-        @if(auth()->check())
-            @php $user = auth()->user()->fresh(); @endphp
+        <nav>
+            <ul class="flex gap-6 list-none items-center">
+                @if(auth()->check())
+                    @php $user = auth()->user()->fresh(); @endphp
 
-            @if($user->role === 'user')
-                <li><a href="{{ route('user.anggota.create') }}" class="text-black font-semibold hover:text-blue-500">Daftar Anggota</a></li>
-                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
-                <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
+                    @if($user->role === 'user')
+                        <li>
+                            <a href="{{ route('user.anggota.create') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                <i data-lucide="user-plus" class="w-5 h-5"></i> Daftar Anggota
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('user.marketplace.index') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                <i data-lucide="home" class="w-5 h-5"></i> Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('user.transaksi.index') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i> Pesananmu
+                            </a>
+                        </li>
 
-            @elseif($user->role === 'anggota')
-                <li><a href="{{ route('user.marketplace.index') }}" class="text-black font-semibold hover:text-blue-500">Home</a></li>
-                <li><a href="{{ route('user.transaksi.index') }}" class="text-black font-semibold hover:text-blue-500">Pesananmu</a></li>
-                @if($user->toko)
-                    <li><a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="text-black font-semibold hover:text-blue-500">Toko Saya</a></li>
-                @else
-                    <li><a href="{{ route('user.toko.create') }}" class="text-black font-semibold hover:text-blue-500">Buat Toko</a></li>
+                    @elseif($user->role === 'anggota')
+                        <li>
+                            <a href="{{ route('user.marketplace.index') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                <i data-lucide="home" class="w-5 h-5"></i> Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('user.transaksi.index') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i> Pesananmu
+                            </a>
+                        </li>
+                        @if($user->toko)
+                            <li>
+                                <a href="{{ route('user.toko.kelola', ['id' => $user->toko->id]) }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                    <i data-lucide="store" class="w-5 h-5"></i> Toko Saya
+                                </a>
+                            </li>
+                        @else
+                            <li>
+                                <a href="{{ route('user.toko.create') }}" class="flex items-center gap-1 text-black font-semibold hover:text-blue-500">
+                                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Buat Toko
+                                </a>
+                            </li>
+                        @endif
+                    @endif
                 @endif
-            @endif
-        @endif
-    </ul>
-</nav>
+            </ul>
+        </nav>
 
     {{-- Wrapper Chat dan Dropdown User --}}
     @auth
@@ -72,14 +100,37 @@
             <a href="{{ route('user.keranjang.index') }}"
                 class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
                 aria-label="Keranjang">
-                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
             </a>
 
-            {{-- Tombol Chat --}}
+            {{-- Tombol Chat dengan Notifikasi --}}
             <a href="{{ route('user.chat.index') }}"
-                class="inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
-                aria-label="Chat">
+            class="relative inline-flex items-center justify-center text-black hover:text-gray-700 p-2 rounded transition"
+            aria-label="Chat">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
+
+                {{-- Indikator Notifikasi --}}
+                @php
+                    $userId = auth()->id();
+                    $toko = \App\Models\Toko::where('user_id', $userId)->first();
+
+                    $unreadCount = \App\Models\Chat::where(function ($q) use ($userId, $toko) {
+                            $q->where('user_id', $userId);
+                            if ($toko) {
+                                $q->orWhere('toko_id', $toko->id);
+                            }
+                        })
+                        ->whereHas('pesan', function ($q) use ($userId) {
+                            $q->where('sudah_dibaca', false)
+                            ->where('user_id', '!=', $userId);
+                        })
+                        ->count();
+                @endphp
+
+                @if($unreadCount > 0)
+                    <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-ping"></span>
+                    <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+                @endif
             </a>
 
             {{-- Dropdown Pengguna --}}

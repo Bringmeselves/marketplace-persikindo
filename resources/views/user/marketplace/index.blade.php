@@ -23,27 +23,36 @@
         </div>
     </div>
 
-    {{-- Search & Filter --}}
-    <div class="flex flex-col sm:flex-row gap-4">
-        <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex-grow">
+    {{-- Search Bar --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 gap-4">
+        {{-- Form Search --}}
+        <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex w-full sm:max-w-lg">
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Cari produk atau toko..."
-                class="w-full rounded-xl border-gray-300 px-4 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            />
-        </form>
-        <form action="{{ route('user.marketplace.index') }}" method="GET" class="w-full sm:w-60">
-            <select
-                name="kategori"
-                onchange="this.form.submit()"
-                class="w-full rounded-xl border-gray-300 px-3 py-2 text-sm shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                class="w-full rounded-l-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-                <option value="">Pilih Kategori</option>
-                @foreach ($kategori as $item)
-                    <option value="{{ $item->id }}" {{ request('kategori') == $item->id ? 'selected' : '' }}>
-                        {{ $item->name }}
+            @if (request('kategori'))
+                <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+            @endif
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-xl">
+                Cari
+            </button>
+        </form>
+
+        {{-- Filter Kategori --}}
+        <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex items-center gap-2">
+            @if (request('search'))
+                <input type="hidden" name="search" value="{{ request('search') }}">
+            @endif
+            <select name="kategori" onchange="this.form.submit()"
+                class="rounded-xl border border-gray-300 px-3 py-2 text-sm text-black">
+                <option value="">Semua Kategori</option>
+                @foreach ($kategori as $kat)
+                    <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>
+                        {{ $kat->name }}
                     </option>
                 @endforeach
             </select>
@@ -124,7 +133,7 @@
                         <form action="{{ route('user.pembelian.create', $item->id) }}" method="GET" class="flex-1">
                             @csrf
                             <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 transition-all flex justify-center items-center gap-2">
-                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Beli
                             </button>
                         </form>
 
@@ -135,7 +144,7 @@
                             <input type="hidden" name="varian_id" value="{{ $item->varian->first()->id ?? '' }}">
 
                             <button type="submit" class="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 transition">
-                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                             </button>
                         </form>
                     </div>

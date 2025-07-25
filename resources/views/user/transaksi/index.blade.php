@@ -12,12 +12,49 @@
             <p class="text-sm text-gray-500">Lihat riwayat pembelian produk Anda di sini.</p>
         </div>
 
+        {{-- Tab Status --}}
+        @php
+            $statusAktif = request('status');
+            $statusList = [
+                'diproses' => ['label' => 'Diproses', 'icon' => 'Clock'],
+                'dikirim' => ['label' => 'Dikirim', 'icon' => 'Truck'],
+                'selesai' => ['label' => 'Selesai', 'icon' => 'CheckCircle'],
+            ];
+        @endphp
+
+        {{-- Tab Status Modern & Centered --}}
+        <div class="flex justify-center mb-8">
+            <div class="flex flex-wrap gap-3 justify-center items-center">
+
+                {{-- Tombol Semua Transaksi --}}
+                <a href="{{ route('user.transaksi.index') }}"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-gray-500 border border-gray-200 bg-white shadow-sm
+                hover:text-blue-600 hover:bg-gray-50 transition">
+                    <i data-lucide="List" class="w-4 h-4"></i>
+                    Semua
+                </a>
+                
+                {{-- Tab per Status --}}
+                @foreach ($statusList as $key => $status)
+                    <a href="{{ route('user.transaksi.index', ['status' => $key]) }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold transition-all duration-200 shadow-sm
+                    {{ $statusAktif === $key 
+                        ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                        : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:text-blue-600' }}">
+                        <i data-lucide="{{ $status['icon'] }}" class="w-4 h-4"></i>
+                        {{ $status['label'] }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         {{-- Jika tidak ada transaksi --}}
         @if ($transaksiList->isEmpty())
             <div class="text-center text-gray-500 py-6">
                 Belum ada transaksi yang tercatat.
             </div>
         @else
+
             {{-- Daftar Transaksi --}}
             <div class="space-y-10">
                 @foreach ($transaksiList as $transaksi)
@@ -112,7 +149,6 @@
                 {{ $transaksiList->links('pagination::tailwind') }}
             </div>
         @endif
-
     </div>
 </div>
 

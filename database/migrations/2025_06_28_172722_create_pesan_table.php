@@ -15,13 +15,14 @@ return new class extends Migration
         $table->id();
         $table->foreignId('chat_id')->constrained('chat')->onDelete('cascade');
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-        $table->text('isi_pesan');
+        $table->text('isi_pesan')->nullable(); // Boleh kosong jika hanya file
+        $table->string('file_path')->nullable(); // Menyimpan path file
+        $table->string('file_type')->nullable(); // Seperti 'image/png', 'application/pdf'
+        $table->string('file_name')->nullable(); // Nama asli file (jika ingin disimpan)
         $table->boolean('sudah_dibaca')->default(false);
         $table->timestamps();
         $table->softDeletes();
-        
-});
-
+    });
     }
 
     /**
