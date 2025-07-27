@@ -47,22 +47,22 @@
                 <div>
                     <label for="nama_lengkap" class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" id="nama_lengkap" value="{{ old('nama_lengkap') }}" required
-                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                 </div>
                 <div>
                     <label for="nik" class="block text-sm font-semibold text-gray-700 mb-1">NIK</label>
                     <input type="text" name="nik" id="nik" value="{{ old('nik') }}" required
-                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                 </div>
                 <div>
                     <label for="nama_perusahaan" class="block text-sm font-semibold text-gray-700 mb-1">Nama Perusahaan</label>
                     <input type="text" name="nama_perusahaan" id="nama_perusahaan" value="{{ old('nama_perusahaan') }}" required
-                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                 </div>
                 <div>
                     <label for="legalitas" class="block text-sm font-semibold text-gray-700 mb-1">Legalitas</label>
                     <select name="legalitas" id="legalitas" required
-                            class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                            class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                         <option value="" disabled {{ old('legalitas') ? '' : 'selected' }}>Pilih Legalitas</option>
                         <option value="CV" {{ old('legalitas') == 'CV' ? 'selected' : '' }}>CV</option>
                         <option value="PT" {{ old('legalitas') == 'PT' ? 'selected' : '' }}>PT</option>
@@ -71,30 +71,37 @@
                 <div>
                     <label for="nib" class="block text-sm font-semibold text-gray-700 mb-1">NIB</label>
                     <input type="text" name="nib" id="nib" value="{{ old('nib') }}" required
-                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                 </div>
                 <div>
                     <label for="npwp" class="block text-sm font-semibold text-gray-700 mb-1">NPWP</label>
                     <input type="text" name="npwp" id="npwp" value="{{ old('npwp') }}" required
-                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
+                           class="w-full rounded-xl border border-gray-300 px-5 py-3 shadow-sm focus:ring focus:ring-indigo-200/50 focus:border-indigo-500 text-gray-900">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                    <label for="bukti_pendaftaran" class="block text-sm font-semibold text-gray-700 mb-1">Bukti Pendaftaran (KTP atau Kartu Tanda Anggota)</label>
-                    <input type="file" name="bukti_pendaftaran" id="bukti_pendaftaran" required
+                    <label for="bukti_pendaftaran" class="block text-sm font-semibold text-gray-700 mb-1">
+                        Bukti Pendaftaran (KTP atau Kartu Anggota)
+                    </label>
+                    <input type="file" name="bukti_pendaftaran" id="bukti_pendaftaran" required accept=".jpg,.jpeg,.png,.pdf"
                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <p class="mt-1 text-xs text-gray-500">Jenis file: JPG, JPEG, PNG, atau PDF</p>
                 </div>
+
                 <div>
-                    <label for="sertifikat_halal" class="block text-sm font-semibold text-gray-700 mb-1">Sertifikat Halal</label>
-                    <input type="file" name="sertifikat_halal" id="sertifikat_halal"
+                    <label for="sertifikat_halal" class="block text-sm font-semibold text-gray-700 mb-1">Sertifikat Halal (opsional)</label>
+                    <input type="file" name="sertifikat_halal" id="sertifikat_halal" accept=".jpg,.jpeg,.png,.pdf"
                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <p class="mt-1 text-xs text-gray-500">Jenis file: JPG, JPEG, PNG, atau PDF</p>
                 </div>
+
                 <div>
                     <label for="pirt" class="block text-sm font-semibold text-gray-700 mb-1">PIRT</label>
-                    <input type="file" name="pirt" id="pirt"
+                    <input type="file" name="pirt" id="pirt" accept=".jpg,.jpeg,.png,.pdf"
                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <p class="mt-1 text-xs text-gray-500">Jenis file: JPG, JPEG, PNG, atau PDF</p>
                 </div>
             </div>
 
@@ -113,9 +120,8 @@
     lucide.createIcons();
 </script>
 
-<!-- CDN SweetAlert2 -->
+{{-- SweetAlert2 --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const username = @json(Auth::user()->name);

@@ -26,5 +26,10 @@ class Pesan extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function transaksi()
+    {
+        return $this->belongsTo(Transaksi::class);
+    }
 }
 

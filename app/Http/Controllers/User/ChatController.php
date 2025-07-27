@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Chat;
 use App\Models\Pesan;
+use App\Models\Transaksi;
 use App\Models\Toko;
 
 class ChatController extends Controller
@@ -38,16 +39,35 @@ class ChatController extends Controller
     // Menampilkan isi chat tertentu
     public function tampil($id)
     {
-        $chat = Chat::with(['user', 'toko', 'pesan'])->findOrFail($id);
+       $chat = Chat::with([
+            'user',
+            'toko',
+            'pesan.transaksi.checkout.item.produk',
+            'pesan.transaksi.checkout.item.varian'
+        ])->findOrFail($id);
 
-        // contoh: menandai pesan lawan bicara sebagai sudah dibaca
+        // Tandai pesan lawan bicara sebagai sudah dibaca
         foreach ($chat->pesan as $pesan) {
             if ($pesan->user_id !== auth()->id() && !$pesan->sudah_dibaca) {
                 $pesan->update(['sudah_dibaca' => true]);
             }
         }
 
-        return view('user.chat.tampil', compact('chat'));
+        // Ambil default_message dari session (jika pesan auto)
+        $defaultMessage = session('default_message');
+        $transaksi = null;
+
+        // Coba ambil ID transaksi dari isi pesan
+        if ($defaultMessage && preg_match('/#(\d+)/', $defaultMessage, $matches)) {
+            $transaksiId = $matches[1];
+
+            $transaksi = Transaksi::with('checkout.item.produk', 'checkout.item.varian')
+                            ->where('id', $transaksiId)
+                            ->where('user_id', auth()->id())
+                            ->first();
+        }
+
+        return view('user.chat.tampil', compact('chat', 'transaksi'));
     }
 
     // Mengirim pesan baru
@@ -106,5 +126,51 @@ class ChatController extends Controller
         ]);
 
         return redirect()->route('user.chat.tampil', $chat->id);
+    }
+
+    public function ajukanKeluhan($transaksiId)
+    {
+        $user = auth()->user();
+
+        $transaksi = Transaksi::with('produk.toko')->where('id', $transaksiId)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        if ($transaksi->status !== 'dikirim') {
+            return redirect()->back()->with('error', 'Keluhan hanya bisa diajukan untuk transaksi yang sudah dikirim.');
+        }
+
+        $toko = $transaksi->produk->toko;
+
+        if (!$toko || $toko->user_id === $user->id) {
+            return redirect()->back()->with('error', 'Tidak bisa menghubungi toko milik sendiri.');
+        }
+
+        // Ambil atau buat chat
+        $chat = Chat::firstOrCreate([
+            'user_id' => $user->id,
+            'toko_id' => $toko->id,
+        ]);
+
+        // Ambil atau buat chat
+        $chat = Chat::firstOrCreate([
+            'user_id' => $user->id,
+            'toko_id' => $toko->id,
+        ]);
+
+        // Kirim otomatis pesan ringkasan transaksi
+        Pesan::create([
+            'chat_id' => $chat->id,
+            'user_id' => $user->id,
+            'isi_pesan' => '-',
+            'is_ringkasan_transaksi' => true,
+            'transaksi_id' => $transaksi->id,
+        ]);
+
+        // Buat auto-isi pesan (tanpa dikirim)
+        $defaultText = "Halo *{$toko->nama_toko}*, saya ingin mengajukan keluhan terkait pesanan saya dengan nomor transaksi *#{$transaksi->id}*. Mohon bantuannya. 🙏";
+
+        return redirect()->route('user.chat.tampil', $chat->id)
+            ->with('default_message', $defaultText);
     }
 }

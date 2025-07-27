@@ -29,11 +29,58 @@
     </div>
 
     {{-- Daftar Pesan --}}
-    <div class="bg-white border rounded-2xl shadow p-4 space-y-2 max-h-[400px] overflow-y-auto">
-        @forelse($chat->pesan as $pesan)
-            @php
-                $isMe = auth()->id() === $pesan->user_id;
-            @endphp
+<div class="bg-white border rounded-2xl shadow p-4 space-y-2 max-h-[400px] overflow-y-auto">
+    @forelse($chat->pesan as $pesan)
+        @php
+            $isMe = auth()->id() === $pesan->user_id;
+        @endphp
+
+        {{-- Jika pesan adalah ringkasan transaksi --}}
+        @if ($pesan->is_ringkasan_transaksi && $pesan->transaksi)
+            <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}">
+                <div class="max-w-[75%] p-3 rounded-xl text-sm shadow
+                            {{ $isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none' }}">
+                    <div class="mb-1 font-semibold text-xs opacity-80 flex items-center gap-1">
+                        <i data-lucide="shopping-bag" class="w-3 h-3"></i>
+                        Transaksi #{{ $pesan->transaksi->id }}
+                    </div>
+
+                    {{-- Ringkasan Produk --}}
+                    <div class="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm mt-2">
+                        @foreach ($pesan->transaksi->checkout->item as $item)
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-14 h-14 rounded-lg overflow-hidden bg-white border">
+                                    <img src="{{ asset('storage/' . ($item->varian->gambar ?? $item->gambar ?? 'placeholder.png')) }}"
+                                         class="w-full h-full object-cover" alt="Produk">
+                                </div>
+                                <div class="flex-1 text-sm">
+                                    <div class="font-medium {{ $isMe ? 'text-white' : 'text-gray-800' }}">
+                                        {{ $item->produk->nama }}
+                                        @if ($item->varian)
+                                            <span class="{{ $isMe ? 'text-white/80' : 'text-gray-500' }}">
+                                                ({{ $item->varian->nama }})
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="{{ $isMe ? 'text-white/70' : 'text-gray-500' }}">
+                                        Jumlah: {{ $item->jumlah }}
+                                    </div>
+                                    <div class="{{ $isMe ? 'text-white/70' : 'text-gray-500' }}">
+                                        Harga: Rp{{ number_format($item->total_harga, 0, ',', '.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Timestamp --}}
+                    <div class="mt-2 text-[11px] text-right {{ $isMe ? 'text-white/70' : 'text-gray-300' }}">
+                        {{ $pesan->created_at->format('d M Y, H:i') }}
+                    </div>
+                </div>
+            </div>
+        @else
+            {{-- Pesan biasa --}}
             <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-[75%] p-3 rounded-xl text-sm shadow
                             {{ $isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none' }}">
@@ -73,10 +120,37 @@
                     </div>
                 </div>
             </div>
-        @empty
-            <p class="text-sm text-center text-gray-500">Belum ada pesan dalam percakapan ini.</p>
-        @endforelse
-    </div>
+        @endif
+
+    @empty
+        <p class="text-sm text-center text-gray-500">Belum ada pesan dalam percakapan ini.</p>
+    @endforelse
+</div>
+
+    {{-- Ringkasan Produk dalam Transaksi --}}
+    @if ($transaksi)
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 mb-4 shadow-sm">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Terkait Transaksi #{{ $transaksi->id }}</h3>
+            @foreach ($transaksi->checkout->item as $item)
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-white border">
+                        <img src="{{ asset('storage/' . ($item->varian->gambar ?? $item->gambar ?? 'placeholder.png')) }}"
+                            class="w-full h-full object-cover" alt="Produk">
+                    </div>
+                    <div class="flex-1 text-sm">
+                        <div class="font-medium text-gray-800">
+                            {{ $item->produk->nama }}
+                            @if ($item->varian)
+                                <span class="text-gray-500">({{ $item->varian->nama }})</span>
+                            @endif
+                        </div>
+                        <div class="text-gray-500">Jumlah: {{ $item->jumlah }}</div>
+                        <div class="text-gray-500">Harga: Rp{{ number_format($item->total_harga, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
     {{-- Form Kirim Pesan --}}
     <form action="{{ route('user.kirimPesan', $chat->id) }}"
@@ -87,10 +161,14 @@
 
         {{-- Teks Pesan --}}
         <div class="relative">
+            @php
+                $defaultMessage = session('default_message');
+            @endphp
+
             <textarea name="isi_pesan"
-                      class="w-full border border-gray-300 rounded-full py-2 pl-4 pr-10 resize-none focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
-                      rows="1"
-                      placeholder="Tulis pesan..."></textarea>
+                    class="w-full border border-gray-300 rounded-full py-2 pl-4 pr-10 resize-none focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                    rows="1"
+                    placeholder="Tulis pesan...">{{ old('isi_pesan', $defaultMessage) }}</textarea>
             <div class="absolute right-3 top-2.5 text-gray-400">
                 <i data-lucide="pen-line" class="w-4 h-4"></i>
             </div>

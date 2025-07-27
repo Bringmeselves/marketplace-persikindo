@@ -7,6 +7,7 @@ use App\Models\Transaksi;
 use App\Models\Checkout;
 use App\Models\Toko;
 use App\Services\ZenzivaService;
+use App\Services\WahaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -113,17 +114,14 @@ class TransaksiController extends Controller
             'status'        => 'diproses',
         ]);
 
-        // ✅ Kirim Notifikasi WhatsApp ke Pemilik Toko
-        $produk = $checkout->item->first()->produk ?? null;
-        $toko   = $produk?->toko;
-        $noWa = $toko?->nomer_wa;
+        // Kirim notifikasi ke pemilik toko
+        $toko = $checkout->item->first()->produk->toko ?? null;
 
-        if ($noWa && preg_match('/^62\d{9,13}$/', $noWa)) {
-            $zenziva = new ZenzivaService();
-            $message = "Halo {$pemilik->name}, ada pesanan baru dari {$user->name}.\n"
-                     . "ID Transaksi: #{$transaksi->id}\n"
-                     . "Silakan segera proses pesanan melalui dashboard toko Anda.";
-            $zenziva->send($noWa, $message);
+        if ($toko && $toko->nomer_wa) {
+            app(\App\Services\FonnteService::class)->kirim(
+               $toko->nomer_wa,
+                "📦 Halo {$toko->nama_toko}, Anda menerima pesanan baru!\nSilakan cek dashboard untuk memproses pesanan dari pelanggan.\n\n🚚 *Pesanan harus dikirim paling lambat 2x24 jam* setelah diterima, sesuai kebijakan platform."
+            );
         }
 
         return redirect()->route('user.transaksi.index')
@@ -179,6 +177,17 @@ class TransaksiController extends Controller
         // Ubah status transaksi jadi selesai
         $transaksi->status = 'selesai';
         $transaksi->save();
+
+            if ($toko && $toko->nomer_wa && $total) {
+            $toko->saldo += $total;
+            $toko->save();
+
+            // Kirim notifikasi WA ke toko
+            app(\App\Services\FonnteService::class)->kirim(
+                $toko->nomer_wa,
+                "✅ Transaksi #{$transaksi->id} telah selesai.\nSaldo sebesar *Rp " . number_format($total, 0, ',', '.') . "* telah ditambahkan ke akun toko *{$toko->nama_toko}*."
+            );
+        }
 
         return redirect()->route('user.transaksi.show', $transaksi->id)
             ->with('success', 'Transaksi berhasil diselesaikan dan saldo telah ditransfer ke toko.');

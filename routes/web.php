@@ -137,7 +137,8 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('/chat/mulai/{tokoId}', [UserChatController::class, 'mulaiChat'])->name('chat.mulai');
     Route::get('/chat/{id}', [UserChatController::class, 'tampil'])->name('chat.tampil');
     Route::post('/chat/{id}/kirim', [UserChatController::class, 'kirimPesan'])->name('kirimPesan');
-    
+    Route::post('/chat/keluhan/{transaksi}', [UserChatController::class, 'ajukanKeluhan'])->name('chat.ajukanKeluhan');
+
     // Pembayaran
     Route::get('/{checkoutId}', [UserPembayaranController::class, 'create'])->name('pembayaran.create');
     Route::get('/midtrans/{checkoutId}', [UserPembayaranController::class, 'midtransPay'])->name('pembayaran.midtrans');

@@ -51,4 +51,15 @@ return [
     'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'waha' => [
+    'base_url' => env('WHATSAPP_WAHA_BASE_URL', 'http://rahmath.works:3000'),
+    'api_key' => env('WHATSAPP_WAHA_API_KEY'),
+    'session' => env('WHATSAPP_WAHA_SESSION', 'default'),
+],
+
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN', 'V721djVecD4qgEVS4nJd'), // Ganti dengan token Fonnte kamu
+        'base_url' => env('FONNTE_BASE_URL', 'https://api.fonnte.com/send'), // URL endpoint Fonnte
+    ],  
+
 ];

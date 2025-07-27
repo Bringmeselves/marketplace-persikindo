@@ -30,6 +30,17 @@
                     </button>
                 </form>
             @endif
+
+            @if ($transaksi->status === 'dikirim')
+                <form action="{{ route('user.chat.ajukanKeluhan', $transaksi->id) }}" method="POST" class="mt-2">
+                    @csrf
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-800 hover:bg-red-200 text-sm font-semibold">
+                        <i data-lucide="message-circle-warning" class="w-4 h-4"></i> Ajukan Keluhan ke Toko
+                    </button>
+                </form>
+            @endif
+
         </div>
 
         {{-- Rincian Produk --}}

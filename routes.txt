@@ -1,0 +1,116 @@
+
+  GET|HEAD        / ................................................................ welcome › WelcomeController@index
+  GET|HEAD        admin/anggota .................................. admin.anggota.index › Admin\AnggotaController@index
+  GET|HEAD        admin/anggota/{id} ............................... admin.anggota.show › Admin\AnggotaController@show
+  DELETE          admin/anggota/{id} ......................... admin.anggota.destroy › Admin\AnggotaController@destroy
+  POST            admin/anggota/{id}/reject .................... admin.anggota.reject › Admin\AnggotaController@reject
+  POST            admin/anggota/{id}/verify .................... admin.anggota.verify › Admin\AnggotaController@verify
+  GET|HEAD        admin/kategori ............................... admin.kategori.index › Admin\KategoriController@index
+  POST            admin/kategori ............................... admin.kategori.store › Admin\KategoriController@store
+  GET|HEAD        admin/kategori/create ...................... admin.kategori.create › Admin\KategoriController@create
+  PUT             admin/kategori/{kategori} .................. admin.kategori.update › Admin\KategoriController@update
+  DELETE          admin/kategori/{kategori} ................ admin.kategori.destroy › Admin\KategoriController@destroy
+  GET|HEAD        admin/kategori/{kategori}/edit ................. admin.kategori.edit › Admin\KategoriController@edit
+  GET|HEAD        admin/penarikan ............................ admin.penarikan.index › Admin\PenarikanController@index
+  GET|HEAD        admin/penarikan/{id} ......................... admin.penarikan.show › Admin\PenarikanController@show
+  PUT             admin/penarikan/{id} ..................... admin.penarikan.update › Admin\PenarikanController@update
+  POST            admin/penarikan/{id}/reject .............. admin.penarikan.reject › Admin\PenarikanController@reject
+  GET|HEAD        admin/produk ..................................... admin.produk.index › Admin\ProdukController@index
+  DELETE          admin/produk/{id} ............................ admin.produk.destroy › Admin\ProdukController@destroy
+  GET|HEAD        admin/toko ........................................... admin.toko.index › Admin\TokoController@index
+  DELETE          admin/toko/{id} .................................. admin.toko.destroy › Admin\TokoController@destroy
+  GET|HEAD        admin/transaksi ............................ admin.transaksi.index › Admin\TransaksiController@index
+  GET|HEAD        auth/google .................................. google.login › Auth\GoogleController@redirectToGoogle
+  GET|HEAD        auth/google/callback .................. google.callback › Auth\GoogleController@handleGoogleCallback
+  GET|HEAD        confirm-password ........................ password.confirm › Auth\ConfirmablePasswordController@show
+  POST            confirm-password .......................................... Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ................................................................................ dashboard
+  POST            email/verification-notification verification.send › Auth\EmailVerificationNotificationController@st…
+  GET|HEAD        filament/exports/{export}/download ... filament.exports.download › Filament\Actions › DownloadExport
+  GET|HEAD        filament/imports/{import}/failed-rows/download filament.imports.failed-rows.download › Filament\Act…
+  GET|HEAD        forgot-password ......................... password.request › Auth\PasswordResetLinkController@create
+  POST            forgot-password ............................ password.email › Auth\PasswordResetLinkController@store
+  GET|HEAD        livewire/livewire.js ................... Livewire\Mechanisms › FrontendAssets@returnJavaScriptAsFile
+  GET|HEAD        livewire/livewire.min.js.map ............................. Livewire\Mechanisms › FrontendAssets@maps
+  GET|HEAD        livewire/preview-file/{filename} livewire.preview-file › Livewire\Features › FilePreviewController@…
+  POST            livewire/update ................ livewire.update › Livewire\Mechanisms › HandleRequests@handleUpdate
+  POST            livewire/upload-file ........ livewire.upload-file › Livewire\Features › FileUploadController@handle
+  GET|HEAD        login ........................................... login › Auth\AuthenticatedSessionController@create
+  POST            login .................................................... Auth\AuthenticatedSessionController@store
+  POST            logout ........................................ logout › Auth\AuthenticatedSessionController@destroy
+  PUT             password .......................................... password.update › Auth\PasswordController@update
+  GET|HEAD        profile ...................................................... profile.edit › ProfileController@edit
+  PUT|PATCH       profile .................................................. profile.update › ProfileController@update
+  DELETE          profile ................................................ profile.destroy › ProfileController@destroy
+  GET|HEAD        register ........................................... register › Auth\RegisteredUserController@create
+  POST            register ....................................................... Auth\RegisteredUserController@store
+  POST            reset-password ................................... password.store › Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} .......................... password.reset › Auth\NewPasswordController@create
+  GET|HEAD        sanctum/csrf-cookie .............. sanctum.csrf-cookie › Laravel\Sanctum › CsrfCookieController@show
+  GET|HEAD        storage/{path} ....................................................................... storage.local
+  GET|HEAD        up ................................................................................................. 
+  POST            user/anggota ..................................... user.anggota.store › User\AnggotaController@store
+  GET|HEAD        user/anggota/create ............................ user.anggota.create › User\AnggotaController@create
+  GET|HEAD        user/anggota/dashboard ................... user.anggota.dashboard › User\AnggotaController@dashboard
+  GET|HEAD        user/chat .............................................. user.chat.index › User\ChatController@index
+  GET|HEAD        user/chat/mulai/{tokoId} ........................... user.chat.mulai › User\ChatController@mulaiChat
+  GET|HEAD        user/chat/{id} ....................................... user.chat.tampil › User\ChatController@tampil
+  POST            user/chat/{id}/kirim .............................. user.kirimPesan › User\ChatController@kirimPesan
+  POST            user/checkout/start ............................ user.checkout.start › User\CheckoutController@start
+  GET|HEAD        user/checkout/{id} ........................... user.checkout.create › User\CheckoutController@create
+  POST            user/checkout/{id} ............................. user.checkout.store › User\CheckoutController@store
+  GET|HEAD        user/keranjang ............................... user.keranjang.index › User\KeranjangController@index
+  POST            user/keranjang ............................... user.keranjang.store › User\KeranjangController@store
+  POST            user/keranjang/checkout ................ user.keranjang.checkout › User\KeranjangController@checkout
+  PUT             user/keranjang/{key} ....................... user.keranjang.update › User\KeranjangController@update
+  DELETE          user/keranjang/{key} ..................... user.keranjang.destroy › User\KeranjangController@destroy
+  GET|HEAD        user/marketplace ......................... user.marketplace.index › User\MarketplaceController@index
+  GET|HEAD        user/midtrans/{checkoutId} ........ user.pembayaran.midtrans › User\PembayaranController@midtransPay
+  POST            user/penarikan ............................... user.penarikan.store › User\PenarikanController@store
+  GET|HEAD        user/penarikan/create ...................... user.penarikan.create › User\PenarikanController@create
+  GET|HEAD        user/penarikan/index ......................... user.penarikan.index › User\PenarikanController@index
+  GET|HEAD        user/pending/{checkoutId} .............. user.pembayaran.pending › User\PembayaranController@pending
+  POST            user/pengiriman/cek-ongkir ......... user.pengiriman.cekOngkir › User\PengirimanController@cekOngkir
+  GET|HEAD        user/pengiriman/cities .................. user.pengiriman.kota › User\PengirimanController@getCities
+  GET|HEAD        user/pengiriman/{checkout}/alamat user.pengiriman.alamat.create › User\PengirimanController@alamatC…
+  POST            user/pengiriman/{checkout}/alamat user.pengiriman.alamat.store › User\PengirimanController@alamatSt…
+  PUT             user/pengiriman/{checkout}/alamat user.pengiriman.alamat.update › User\PengirimanController@alamatS…
+  GET|HEAD        user/pengiriman/{checkout}/alamat/edit user.pengiriman.alamat.edit › User\PengirimanController@alam…
+  PUT             user/pengiriman/{checkout}/kurir user.pengiriman.kurir.update › User\PengirimanController@kurirUpda…
+  GET|HEAD        user/pengiriman/{checkout}/kurir/edit user.pengiriman.kurir.edit › User\PengirimanController@kurirE…
+  POST            user/penilaian ............................... user.penilaian.store › User\PenilaianController@store
+  GET|HEAD        user/penilaian/produk/{produk} ......... user.penilaian.show › User\PenilaianController@showByProduk
+  DELETE          user/penilaian/{id} ...................... user.penilaian.destroy › User\PenilaianController@destroy
+  GET|HEAD        user/penilaian/{produk}/create ............. user.penilaian.create › User\PenilaianController@create
+  GET|HEAD        user/produk ........................................ user.produk.index › User\ProdukController@index
+  POST            user/produk ........................................ user.produk.store › User\ProdukController@store
+  POST            user/produk/beli ............................. user.pembelian.store › User\PembelianController@store
+  GET|HEAD        user/produk/create/{toko_id} ..................... user.produk.create › User\ProdukController@create
+  PUT             user/produk/{id} ................................. user.produk.update › User\ProdukController@update
+  DELETE          user/produk/{id} ............................... user.produk.destroy › User\ProdukController@destroy
+  GET|HEAD        user/produk/{id}/edit ................................ user.produk.edit › User\ProdukController@edit
+  GET|HEAD        user/produk/{produk_id}/beli ............... user.pembelian.create › User\PembelianController@create
+  GET|HEAD        user/success/{checkoutId} .............. user.pembayaran.success › User\PembayaranController@success
+  GET|HEAD        user/toko .............................................. user.toko.index › User\TokoController@index
+  POST            user/toko .............................................. user.toko.store › User\TokoController@store
+  GET|HEAD        user/toko/create ..................................... user.toko.create › User\TokoController@create
+  GET|HEAD        user/toko/riwayat-transaksi ............... user.toko.riwayat › User\TokoController@riwayatTransaksi
+  GET|HEAD        user/toko/{id} ........................................... user.toko.show › User\TokoController@show
+  PUT             user/toko/{id} ....................................... user.toko.update › User\TokoController@update
+  DELETE          user/toko/{id} ..................................... user.toko.destroy › User\TokoController@destroy
+  GET|HEAD        user/toko/{id}/edit ...................................... user.toko.edit › User\TokoController@edit
+  GET|HEAD        user/toko/{id}/kelola ................................ user.toko.kelola › User\TokoController@kelola
+  GET|HEAD        user/transaksi ............................... user.transaksi.index › User\TransaksiController@index
+  POST            user/transaksi/store/{checkoutId} ............ user.transaksi.store › User\TransaksiController@store
+  GET|HEAD        user/transaksi/{id} ............................ user.transaksi.show › User\TransaksiController@show
+  POST            user/transaksi/{id}/input-resi ....... user.transaksi.inputResi › User\TransaksiController@inputResi
+  PATCH           user/transaksi/{transaksi}/selesai ....... user.transaksi.selesai › User\TransaksiController@selesai
+  GET|HEAD        user/{checkoutId} ........................ user.pembayaran.create › User\PembayaranController@create
+  PUT             user/{checkout}/item/{item} ......... user.checkout.item.update › User\CheckoutController@updateItem
+  DELETE          user/{checkout}/item/{item} ....... user.checkout.item.destroy › User\CheckoutController@destroyItem
+  GET|HEAD        user/{checkout}/item/{item}/edit ........ user.checkout.item.edit › User\CheckoutController@editItem
+  GET|HEAD        verify-email .......................... verification.notice › Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} .......................... verification.verify › Auth\VerifyEmailController
+
+                                                                                                  Showing [112] routes
+

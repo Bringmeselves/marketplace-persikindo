@@ -242,31 +242,6 @@
                                 </span>
                             </div>
 
-                            {{-- Riwayat Transaksi --}}
-                            <section class="bg-white p-6 rounded-lg shadow mt-6">
-                                <h2 class="text-2xl font-bold text-gray-900 mb-4">Riwayat Transaksi</h2>
-
-                                @forelse ($riwayatTransaksi as $transaksi)
-                                    <div class="flex justify-between items-start border-b pb-4 mb-4">
-                                        <div>
-                                            <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->id }}</h3>
-                                            <p class="text-sm text-gray-500">Tanggal: {{ $transaksi->created_at->format('d M Y H:i') }}</p>
-                                            <p class="text-sm text-gray-500">Total: Rp{{ number_format($transaksi->total, 0, ',', '.') }}</p>
-                                        </div>
-                                        <span class="inline-block text-sm font-medium px-3 py-1 rounded-full capitalize
-                                            {{
-                                                $transaksi->status === 'dikirim' ? 'bg-blue-100 text-blue-800' :
-                                                ($transaksi->status === 'selesai' ? 'bg-green-100 text-green-800' :
-                                                'bg-red-100 text-red-800')
-                                            }}">
-                                            {{ $transaksi->status }}
-                                        </span>
-                                    </div>
-                                @empty
-                                    <p class="text-gray-500 text-sm">Belum ada riwayat transaksi.</p>
-                                @endforelse
-                            </section>
-
                             {{-- Produk --}}
                             <div class="flex flex-col md:flex-row gap-6">
                                 <div class="w-full md:w-32 h-32 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
