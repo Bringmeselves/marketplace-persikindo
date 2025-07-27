@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\Toko;
 use App\Models\Transaksi;
 use App\Models\CheckoutItem;
+use App\Models\PenilaianToko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -286,6 +287,10 @@ class TokoController extends Controller
 
         // Tambahkan nama kota
         $toko->city_name = $this->getCityNameById($toko->origin);
+
+        $sudahNilaiToko = PenilaianToko::where('toko_id', $toko->id)
+        ->where('user_id', auth()->id())
+        ->exists();
 
         return view('user.toko.show', compact('toko', 'produk', 'kategori'));
     }

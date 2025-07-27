@@ -171,8 +171,92 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="bg-white text-black text-center py-4 border-t">
-        <p>&copy; 2025 Persikindo. All rights reserved.</p>
+    <footer x-data="{ open: true }" class="bg-white border-t text-gray-700 text-sm relative">
+
+        {{-- Tombol Segitiga Toggle di Kanan Atas --}}
+        <div class="absolute right-4 top-2">
+            <button @click="open = !open"
+                class="transition-transform duration-300 text-gray-500 hover:text-gray-700 focus:outline-none"
+                :class="{ 'rotate-180': !open }">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        {{-- Konten Footer --}}
+        <div x-show="open" x-transition class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- Kolom 1: Tentang --}}
+            <div>
+                <h3 class="text-base font-semibold mb-2">Tentang PERSIKINDO</h3>
+                <p class="leading-relaxed">
+                    PERSIKINDO adalah wadah kolaborasi pelaku UMKM Indonesia untuk memasarkan produk dan jasa secara digital. 
+                    Kami mendukung pertumbuhan ekonomi lokal melalui teknologi.
+                </p>
+            </div>
+
+            {{-- Kolom 2: Customer Service --}}
+            <div>
+                <h3 class="text-base font-semibold mb-2">Customer Service</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center gap-2">
+                        {{-- WhatsApp --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M21 11.5a8.38 8.38 0 01-.9 3.8A8.5 8.5 0 0112.5 21a8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.5 8.5 0 018 8v.5z" />
+                        </svg>
+                        <a href="https://wa.me/6281234567890" target="_blank" class="hover:underline">+62 812-3456-7890</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        {{-- Email --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16v16H4V4z" />
+                            <path d="M4 4l8 8 8-8" />
+                        </svg>
+                        <a href="mailto:support@persikindo.or.id" class="hover:underline">support@persikindo.or.id</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        {{-- Telepon --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-700" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2A19.73 19.73 0 012 4.18 2 2 0 014 2h3a2 2 0 012 1.72 12.05 12.05 0 001.11 3.62 2 2 0 01-.45 2.11l-1.27 1.27a16 16 0 006.11 6.11l1.27-1.27a2 2 0 012.11-.45 12.05 12.05 0 003.62 1.11A2 2 0 0122 16.92z" />
+                        </svg>
+                        <span>(021) 1234-5678</span>
+                    </li>
+                </ul>
+            </div>
+
+            {{-- Kolom 3: Sosial Media --}}
+            <div>
+                <h3 class="text-base font-semibold mb-2">Ikuti Kami</h3>
+                <div class="flex items-center space-x-4">
+                    {{-- Instagram --}}
+                    <a href="https://instagram.com/persikindo" target="_blank" class="text-gray-600 hover:text-pink-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                            <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                        </svg>
+                    </a>
+                    {{-- Facebook --}}
+                    <a href="https://facebook.com/persikindo" target="_blank" class="text-gray-600 hover:text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M22 12a10 10 0 10-11.5 9.87v-6.99h-2.5v-2.88h2.5V9.5c0-2.47 1.48-3.84 3.74-3.84 1.08 0 2.2.2 2.2.2v2.42h-1.24c-1.22 0-1.6.76-1.6 1.54v1.85h2.72l-.43 2.88h-2.29v6.99A10 10 0 0022 12z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- Copyright --}}
+        <div class="border-t mt-6 py-4 text-center text-gray-500 text-xs">
+            &copy; 2025 PERSIKINDO. All rights reserved.
+        </div>
     </footer>
 </div>
 

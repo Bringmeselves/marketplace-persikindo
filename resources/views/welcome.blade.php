@@ -112,6 +112,26 @@
                             {{ $item->deskripsi ?? '-' }}
                         </p>
 
+                        {{-- Rating dan Jumlah Ulasan --}}
+                        @php
+                            $jumlahUlasan = $item->penilaian->count();
+                            $rataRating = $jumlahUlasan ? round($item->penilaian->avg('rating'), 1) : null;
+                        @endphp
+
+                        @if ($jumlahUlasan > 0)
+                            <div class="flex items-center mt-2 gap-1 text-sm">
+                                {{-- Satu ikon bintang --}}
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
+
+                                {{-- Nilai rata-rata dan jumlah ulasan --}}
+                                <span class="text-gray-700">
+                                    {{ $rataRating }} ({{ $jumlahUlasan }} ulasan)
+                                </span>
+                            </div>
+                        @else
+                            <div class="text-sm text-gray-400 mt-2">Belum ada ulasan</div>
+                        @endif
+
                         @if ($item->toko)
                         <div class="mt-3 text-xs text-gray-600 flex items-center gap-1">
                             <span class="font-medium text-indigo-500">{{ $item->toko->nama_toko }}</span>

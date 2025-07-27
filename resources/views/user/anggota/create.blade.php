@@ -121,7 +121,6 @@
 </script>
 
 {{-- SweetAlert2 --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const username = @json(Auth::user()->name);
@@ -129,43 +128,70 @@
         Swal.fire({
             title: `👋 Hai, ${username}`,
             html: `
-                <p style="margin-bottom: 0.5rem;">Selamat datang di <strong style="color:#3b82f6;">PERSIKINDO</strong>!</p>
-                <p style="font-size:14px; color:#4b5563;">
-                    Kami senang kamu bergabung. Yuk lengkapi data agar permohonanmu bisa segera kami proses.
-                </p>
+                <div style="text-align:left; font-size:14px; color:#374151">
+                    <p style="margin-bottom: 0.5rem;">
+                        Selamat datang di <strong style="color:#3b82f6;">PERSIKINDO</strong>!
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        Kami senang kamu bergabung. Sebelum melanjutkan, pastikan kamu memenuhi syarat sebagai anggota dan menyiapkan data yang dibutuhkan berikut ini.
+                    </p>
+
+                    <hr style="margin:1rem 0; border-top:1px solid #e5e7eb;">
+
+                    <p><strong>🧾 Syarat Menjadi Anggota Persikindo:</strong></p>
+                    <ul style="padding-left:1rem; margin:0 0 1rem 0; list-style:disc;">
+                        <li>Warga Negara Indonesia <strong>perempuan</strong>.</li>
+                        <li>Pelaku usaha UMKM/UKM di bidang <strong>ekonomi kreatif</strong>.</li>
+                        <li>Memiliki usaha aktif secara mandiri maupun kelompok.</li>
+                        <li>Bersedia berpartisipasi dalam kegiatan organisasi Persikindo.</li>
+                    </ul>
+
+                    <p><strong>📎 Dokumen yang Dibutuhkan:</strong></p>
+                    <ul style="padding-left:1rem; margin:0; list-style:disc;">
+                        <li>Nama lengkap & NIK</li>
+                        <li>Nama usaha/perusahaan</li>
+                        <li>Jenis legalitas usaha (CV/PT)</li>
+                        <li>Nomor Induk Berusaha (NIB)</li>
+                        <li>NPWP</li>
+                        <li>Upload bukti pendaftaran (KTP atau Kartu Anggota)</li>
+                        <li><em>(Opsional)</em> Sertifikat Halal & PIRT</li>
+                    </ul>
+
+                    <p style="margin-top:10px;">Format dokumen: JPG, JPEG, PNG, atau PDF.</p>
+                </div>
             `,
             icon: 'info',
             iconColor: '#3b82f6',
             background: '#ffffff',
             showCloseButton: true,
-            confirmButtonText: 'Lengkapi Sekarang',
+            confirmButtonText: 'Saya Siap Daftar',
             confirmButtonColor: '#3b82f6',
-            width: '360px',
+            width: '480px',
             padding: '1.75rem',
             customClass: {
-                popup: 'swal-attractive-popup',
-                title: 'swal-attractive-title',
-                confirmButton: 'swal-attractive-button'
+                popup: 'swal-combined-popup',
+                title: 'swal-combined-title',
+                confirmButton: 'swal-combined-button'
             }
         });
     });
 </script>
 
 <style>
-    .swal-attractive-popup {
+    .swal-combined-popup {
         border-radius: 1rem;
         box-shadow: 0 15px 30px rgba(0,0,0,0.05);
         font-family: 'Segoe UI', sans-serif;
     }
 
-    .swal-attractive-title {
+    .swal-combined-title {
         font-size: 18px;
         font-weight: 700;
         color: #1f2937;
         margin-bottom: 0.25rem;
     }
 
-    .swal-attractive-button {
+    .swal-combined-button {
         font-size: 14px !important;
         font-weight: 600;
         padding: 10px 20px !important;
@@ -173,7 +199,7 @@
         transition: background 0.3s ease;
     }
 
-    .swal-attractive-button:hover {
+    .swal-combined-button:hover {
         background-color: #2563eb !important;
     }
 </style>

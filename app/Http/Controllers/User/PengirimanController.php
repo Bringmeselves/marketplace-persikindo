@@ -94,7 +94,7 @@ class PengirimanController extends Controller
     // Panggil API Komerce untuk mendapatkan daftar kurir (shipping_name)
     $response = Http::withHeaders([
         'x-api-key' => env('KOMERCE_API_KEY'),
-    ])->timeout(60)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
+    ])->timeout(200)->get('https://api-sandbox.collaborator.komerce.id/tariff/api/v1/calculate', [
         'shipper_destination_id'   => $origin,
         'receiver_destination_id'  => $destination,
         'weight'                   => $weight,

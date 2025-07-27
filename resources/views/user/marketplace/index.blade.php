@@ -23,39 +23,61 @@
         </div>
     </div>
 
-    {{-- Search Bar --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 gap-4">
-        {{-- Form Search --}}
-        <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex w-full sm:max-w-lg">
-            <input
-                type="text"
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Cari produk atau toko..."
-                class="w-full rounded-l-xl border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-            @if (request('kategori'))
-                <input type="hidden" name="kategori" value="{{ request('kategori') }}">
-            @endif
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-xl">
-                Cari
-            </button>
-        </form>
+   {{-- Search Bar --}}
+    <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-10">
+        <form action="{{ route('user.marketplace.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            
+            {{-- Input Search --}}
+            <div class="col-span-1 sm:col-span-2">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari produk atau toko..."
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+            </div>
 
-        {{-- Filter Kategori --}}
-        <form action="{{ route('user.marketplace.index') }}" method="GET" class="flex items-center gap-2">
-            @if (request('search'))
-                <input type="hidden" name="search" value="{{ request('search') }}">
-            @endif
-            <select name="kategori" onchange="this.form.submit()"
-                class="rounded-xl border border-gray-300 px-3 py-2 text-sm text-black">
-                <option value="">Semua Kategori</option>
-                @foreach ($kategori as $kat)
-                    <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>
-                        {{ $kat->name }}
-                    </option>
-                @endforeach
-            </select>
+            {{-- Dropdown Kategori --}}
+            <div>
+                <select name="kategori" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Semua Kategori</option>
+                    @foreach ($kategori as $kat)
+                        <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Dropdown Origin --}}
+            <div>
+                <select name="origin" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Semua Kota Asal</option>
+                    @foreach ($origins as $origin)
+                        <option value="{{ $origin['id'] }}" {{ request('origin') == $origin['id'] ? 'selected' : '' }}>
+                            {{ $origin['label'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Dropdown Sort --}}
+            <div>
+                <select name="sort" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Urutkan</option>
+                    <option value="harga_asc" {{ request('sort') == 'harga_asc' ? 'selected' : '' }}>Harga Termurah</option>
+                    <option value="harga_desc" {{ request('sort') == 'harga_desc' ? 'selected' : '' }}>Harga Tertinggi</option>
+                    <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                </select>
+            </div>
+
+            {{-- Tombol Cari --}}
+            <div class="sm:col-span-2 lg:col-span-5 text-right">
+                <button type="submit" class="mt-2 sm:mt-0 inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition">
+                    Cari
+                </button>
+            </div>
         </form>
     </div>
 
@@ -91,6 +113,26 @@
                         <p class="text-sm text-gray-500 mt-1 line-clamp-2">
                             {{ $item->deskripsi ?? '-' }}
                         </p>
+
+                        {{-- Rating dan Jumlah Ulasan --}}
+                        @php
+                            $jumlahUlasan = $item->penilaian->count();
+                            $rataRating = $jumlahUlasan ? round($item->penilaian->avg('rating'), 1) : null;
+                        @endphp
+
+                        @if ($jumlahUlasan > 0)
+                            <div class="flex items-center mt-2 gap-1 text-sm">
+                                {{-- Satu ikon bintang --}}
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
+
+                                {{-- Nilai rata-rata dan jumlah ulasan --}}
+                                <span class="text-gray-700">
+                                    {{ $rataRating }} ({{ $jumlahUlasan }} ulasan)
+                                </span>
+                            </div>
+                        @else
+                            <div class="text-sm text-gray-400 mt-2">Belum ada ulasan</div>
+                        @endif
 
                         {{-- Info Toko --}}
                         @if ($item->toko)

@@ -81,6 +81,45 @@
                         Chat Penjual
                     </button>
                 </form>
+
+                {{-- Form Penilaian Toko --}}
+                <div class="mt-8 bg-white rounded-xl p-6 border border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Penilaian Toko</h2>
+
+                    @auth
+                        @if (!$sudahNilaiToko)
+                            <form action="{{ route('user.penilaian-toko.store') }}" method="POST" class="space-y-4">
+                                @csrf
+                                <input type="hidden" name="toko_id" value="{{ $toko->id }}">
+
+                                {{-- Rating --}}
+                                <div>
+                                    <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
+                                    <select name="rating" id="rating" required class="mt-1 w-full border-gray-300 rounded-lg shadow-sm">
+                                        <option value="">Pilih rating</option>
+                                        @for ($i = 5; $i >= 1; $i--)
+                                            <option value="{{ $i }}">{{ $i }} bintang</option>
+                                        @endfor
+                                    </select>
+                                </div>
+
+                                {{-- Ulasan --}}
+                                <div>
+                                    <label for="ulasan" class="block text-sm font-medium text-gray-700">Ulasan (opsional)</label>
+                                    <textarea name="ulasan" id="ulasan" rows="3" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm"></textarea>
+                                </div>
+
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                    Kirim Penilaian
+                                </button>
+                            </form>
+                        @else
+                            <div class="text-sm text-gray-600">Anda sudah memberikan penilaian untuk toko ini.</div>
+                        @endif
+                    @else
+                        <div class="text-sm text-gray-600">Silakan login untuk memberi penilaian.</div>
+                    @endauth
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +163,27 @@
                                 <p class="text-xs text-gray-500 mt-1 line-clamp-2">
                                     {{ $item->deskripsi ?? '-' }}
                                 </p>
+
+                                 {{-- Rating dan Jumlah Ulasan --}}
+                                @php
+                                    $jumlahUlasan = $item->penilaian->count();
+                                    $rataRating = $jumlahUlasan ? round($item->penilaian->avg('rating'), 1) : null;
+                                @endphp
+
+                                @if ($jumlahUlasan > 0)
+                                    <div class="flex items-center mt-2 gap-1 text-sm">
+                                        {{-- Satu ikon bintang --}}
+                                        <i data-lucide="star" class="w-4 h-4 text-yellow-400"></i>
+
+                                        {{-- Nilai rata-rata dan jumlah ulasan --}}
+                                        <span class="text-gray-700">
+                                            {{ $rataRating }} ({{ $jumlahUlasan }} ulasan)
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="text-sm text-gray-400 mt-2">Belum ada ulasan</div>
+                                @endif
+                                
                             </div>
                             <p class="text-lg font-bold text-gray-900 mt-2">
                                 Rp{{ number_format($item->harga, 0, ',', '.') }}

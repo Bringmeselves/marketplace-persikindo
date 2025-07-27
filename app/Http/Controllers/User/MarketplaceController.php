@@ -97,7 +97,30 @@ class MarketplaceController extends Controller
                 });
             });
         }
-            
+
+        // Filter berdasarkan origin (kota asal toko)
+        if ($request->origin) {
+            $query->whereHas('toko', function ($q) use ($request) {
+                $q->where('origin', $request->origin);
+            });
+        }
+
+        // Urutkan berdasarkan harga atau terbaru
+        switch ($request->sort) {
+            case 'harga_asc':
+                $query->orderBy('harga');
+                break;
+            case 'harga_desc':
+                $query->orderByDesc('harga');
+                break;
+            case 'terbaru':
+                $query->orderByDesc('created_at');
+                break;
+            default:
+                $query->orderByDesc('created_at'); // Default: terbaru
+                break;
+        }
+
         // Ambil data produk
         $produk = $query->paginate(20)->withQueryString();
 

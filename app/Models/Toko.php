@@ -56,6 +56,11 @@ class Toko extends Model
         });
     }
 
+    public function penilaianToko()
+    {
+        return $this->hasMany(\App\Models\PenilaianToko::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

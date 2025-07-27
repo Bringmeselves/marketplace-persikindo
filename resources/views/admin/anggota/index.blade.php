@@ -119,11 +119,12 @@
 {{-- SweetAlert & Lucide --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         lucide.createIcons();
 
-        // Konfirmasi untuk hapus anggota
+        // Konfirmasi hapus anggota
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function () {
                 const form = this.closest('form');
@@ -133,18 +134,27 @@
                     title: 'Yakin hapus anggota?',
                     text: `Akun "${nama}" akan dihapus permanen.`,
                     icon: 'warning',
+                    iconColor: '#e3342f',
+                    background: '#ffffff',
                     showCancelButton: true,
                     confirmButtonColor: '#e3342f',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
+                    cancelButtonText: 'Batal',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button',
+                        cancelButton: 'swal-attractive-button'
+                    }
                 }).then(result => {
                     if (result.isConfirmed) form.submit();
                 });
             });
         });
 
-        // Konfirmasi untuk verifikasi anggota
+        // Konfirmasi verifikasi anggota
         document.querySelectorAll('.btn-verifikasi').forEach(button => {
             button.addEventListener('click', function () {
                 const form = this.closest('form');
@@ -154,53 +164,96 @@
                     title: 'Verifikasi Anggota?',
                     text: `Anggota "${nama}" akan disetujui sebagai penjual.`,
                     icon: 'question',
+                    iconColor: '#38a169',
+                    background: '#ffffff',
                     showCancelButton: true,
                     confirmButtonColor: '#38a169',
                     cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Ya, verifikasi',
-                    cancelButtonText: 'Batal'
+                    cancelButtonText: 'Batal',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button',
+                        cancelButton: 'swal-attractive-button'
+                    }
                 }).then(result => {
                     if (result.isConfirmed) form.submit();
                 });
             });
         });
 
-        // Konfirmasi untuk tolak anggota dengan input catatan
+        // Konfirmasi penolakan anggota dengan alasan
         document.querySelectorAll('.btn-tolak').forEach(button => {
             button.addEventListener('click', function () {
                 const form = this.closest('form');
                 const nama = this.dataset.name;
 
                 Swal.fire({
-                    title: 'Tolak Pendaftaran?',
                     html: `
-                        <p>Pendaftaran atas nama "<strong>${nama}</strong>" akan ditolak.</p>
-                        <textarea id="catatan" class="swal2-textarea" placeholder="Catatan penolakan (opsional)" style="margin-top:1rem;"></textarea>
+                        <p class="mb-2 text-sm text-gray-700">
+                            Silakan pilih alasan yang relevan untuk menolak pendaftaran 
+                            <strong>${nama}</strong>:
+                        </p>
+                        <select id="alasan" class="swal2-select"
+                            style="
+                                width: 100%;
+                                padding: 0.4rem 0.6rem;
+                                font-size: 0.875rem;
+                                border-radius: 0.375rem;
+                                border: 1px solid #d1d5db;
+                                max-width: 100%;
+                                box-sizing: border-box;
+                            ">
+                            <option value="" disabled selected>-- Pilih alasan penolakan --</option>
+                            <option value="Bukan pelaku UMKM aktif">Bukan pelaku UMKM aktif</option>
+                            <option value="Usaha yang didaftarkan belum jelas atau belum berjalan">Usaha belum jelas/berjalan</option>
+                            <option value="Data pendaftaran belum lengkap atau tidak valid">Data belum lengkap/tidak valid</option>
+                            <option value="Bukan perempuan (tidak sesuai kriteria keanggotaan)">Bukan perempuan (tidak sesuai)</option>
+                            <option value="Domisili di luar wilayah cakupan keanggotaan">Domisili di luar wilayah</option>
+                            <option value="Belum siap mengikuti kegiatan atau kontribusi komunitas">Belum siap berkontribusi</option>
+                            <option value="Pendaftaran dilakukan ganda atau duplikat">Pendaftaran duplikat</option>
+                        </select>
                     `,
+
                     icon: 'warning',
+                    iconColor: '#f97316', // orange-500
+                    background: '#ffffff',
                     showCancelButton: true,
-                    confirmButtonColor: '#f59e0b',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Ya, tolak',
+                    confirmButtonColor: '#f87171',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Tolak Sekarang',
                     cancelButtonText: 'Batal',
+                    width: '400px',
+                    padding: '1.75rem',
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'swal-attractive-popup',
+                        title: 'swal-attractive-title',
+                        confirmButton: 'swal-attractive-button',
+                        cancelButton: 'swal-attractive-button'
+                    },
                     preConfirm: () => {
-                        return document.getElementById('catatan').value;
+                        const alasan = document.getElementById('alasan').value;
+                        if (!alasan) {
+                            Swal.showValidationMessage('Silakan pilih alasan penolakan terlebih dahulu.');
+                        }
+                        return alasan;
                     }
                 }).then(result => {
                     if (result.isConfirmed) {
-                        // Buat input hidden untuk catatan lalu submit
-                        const catatanInput = document.createElement('input');
-                        catatanInput.type = 'hidden';
-                        catatanInput.name = 'catatan';
-                        catatanInput.value = result.value;
+                        const alasanInput = document.createElement('input');
+                        alasanInput.type = 'hidden';
+                        alasanInput.name = 'catatan';
+                        alasanInput.value = result.value;
 
-                        form.appendChild(catatanInput);
+                        form.appendChild(alasanInput);
                         form.submit();
                     }
                 });
             });
         });
-
     });
 </script>
 @endsection
