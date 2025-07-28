@@ -150,39 +150,72 @@
     </form>
 
     {{-- === PENILAIAN SECTION === --}}
-    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 space-y-6">
-        {{-- Header --}}
-        <div class="flex items-center gap-2 border-b pb-4">
-            <i data-lucide="star" class="w-6 h-6 text-yellow-500"></i>
-            <h2 class="text-2xl font-bold text-gray-900">Penilaian Pembeli</h2>
-        </div>
+<div class="bg-white rounded-2xl shadow-xl p-6 space-y-8 border border-gray-100">
+    {{-- Header --}}
+    <div class="border-b pb-4">
+        <h2 class="text-2xl font-bold text-gray-900">
+            Penilaian Pembeli
+        </h2>
+        <p class="text-sm text-gray-500">
+            Total Penilaian: {{ $produk->penilaian->count() }}
+        </p>
+    </div>
 
+    {{-- Daftar Penilaian --}}
+    <div class="space-y-4">
         @forelse ($produk->penilaian as $penilaian)
-            <div class="border-t pt-4 space-y-3">
-                {{-- Info User dan Rating --}}
-                <div class="flex justify-between items-center">
-                    <span class="font-medium text-gray-800">{{ $penilaian->user->name }}</span>
-                    <span class="text-yellow-500 font-semibold text-sm">⭐ {{ $penilaian->rating }} / 5</span>
+            @php
+                $userImage = 'https://ui-avatars.com/api/?name=' . urlencode($penilaian->user->name);
+            @endphp
+
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-white border hover:shadow-md transition">
+                {{-- Avatar --}}
+                <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border">
+                    <img src="{{ $userImage }}" alt="{{ $penilaian->user->name }}" class="w-full h-full object-cover">
                 </div>
 
-                {{-- Ulasan --}}
-                <p class="text-sm text-gray-700">{{ $penilaian->ulasan }}</p>
+                {{-- Review Info --}}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <p class="text-base font-semibold text-gray-900 truncate">
+                            {{ $penilaian->user->name }}
+                        </p>
+                        <span class="text-xs text-gray-400 whitespace-nowrap">
+                            {{ $penilaian->created_at->diffForHumans() }}
+                        </span>
+                    </div>
 
-                {{-- Tombol Hapus Penilaian (jika user yang memberikan) --}}
-                @if ($penilaian->user_id === auth()->id())
-                    <form action="{{ route('user.penilaian.destroy', $penilaian->id) }}" method="POST" class="flex justify-end">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition duration-300 shadow hover:shadow-lg">
-                            <i data-lucide="trash" class="w-5 h-5"></i>
-                            Hapus Penilaian
-                        </button>
-                    </form>
-                @endif
+                    {{-- Rating --}}
+                    <div class="flex items-center mt-1">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <i data-lucide="star"
+                               class="w-4 h-4 {{ $i <= $penilaian->rating ? 'text-yellow-400' : 'text-gray-300' }}"></i>
+                        @endfor
+                    </div>
+
+                    {{-- Ulasan --}}
+                    <p class="mt-2 text-gray-700">
+                        {{ $penilaian->ulasan }}
+                    </p>
+
+                    {{-- Tombol Hapus --}}
+                    @if ($penilaian->user_id === auth()->id())
+                        <form action="{{ route('user.penilaian.destroy', $penilaian->id) }}" method="POST" class="mt-3">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+                                <i data-lucide="trash" class="w-4 h-4"></i>
+                                Hapus Penilaian
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         @empty
-            <p class="text-gray-500 text-sm">Belum ada penilaian untuk produk ini.</p>
+            <div class="text-center text-gray-500 italic mt-8">
+                Belum ada penilaian untuk produk ini.
+            </div>
         @endforelse
     </div>
 </div>
@@ -243,7 +276,7 @@
 
 {{-- SweetAlert Notification --}}
 {{-- SweetAlert Notification --}}
-@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
+@if (session('success') || session('error') || session('welcome'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
@@ -297,26 +330,6 @@
                     background: '#ffffff',
                     confirmButtonText: 'Terima Kasih',
                     confirmButtonColor: '#3b82f6',
-                    width: '360px',
-                    padding: '1.75rem',
-                    showCloseButton: true,
-                    customClass: {
-                        popup: 'swal-attractive-popup',
-                        title: 'swal-attractive-title',
-                        confirmButton: 'swal-attractive-button'
-                    }
-                });
-            @endif
-
-            @if (session('catatan_penolakan'))
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pengajuan Ditolak',
-                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
-                    iconColor: '#f59e0b', // amber-500
-                    background: '#ffffff',
-                    confirmButtonText: 'Mengerti',
-                    confirmButtonColor: '#f59e0b',
                     width: '360px',
                     padding: '1.75rem',
                     showCloseButton: true,

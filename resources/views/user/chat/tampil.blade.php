@@ -42,7 +42,7 @@
                             {{ $isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none' }}">
                     <div class="mb-1 font-semibold text-xs opacity-80 flex items-center gap-1">
                         <i data-lucide="shopping-bag" class="w-3 h-3"></i>
-                        Transaksi #{{ $pesan->transaksi->id }}
+                        <p>Kode Transaksi: {{ $pesan->transaksi->kode_transaksi }}</p>
                     </div>
 
                     {{-- Ringkasan Produk --}}
@@ -130,7 +130,7 @@
     {{-- Ringkasan Produk dalam Transaksi --}}
     @if ($transaksi)
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 mb-4 shadow-sm">
-            <h3 class="text-sm font-semibold text-gray-700 mb-2">Terkait Transaksi #{{ $transaksi->id }}</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Terkait Transaksi {{ $transaksi->kode_transaksi }}</h3>
             @foreach ($transaksi->checkout->item as $item)
                 <div class="flex items-center gap-4 mb-3">
                     <div class="w-16 h-16 rounded-lg overflow-hidden bg-white border">

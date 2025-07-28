@@ -64,4 +64,10 @@ class Transaksi extends Model
     {
         return $this->hasOne(Penilaian::class, 'produk_id', 'produk_id')->where('user_id', $this->user_id);
     }
+
+     // Accessor untuk kode transaksi
+    public function getKodeTransaksiAttribute()
+    {
+        return 'TRX-' . str_pad($this->id, 3, '0', STR_PAD_LEFT);
+    }
 }

@@ -276,26 +276,6 @@
                     }
                 });
             @endif
-
-            @if (session('catatan_penolakan'))
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pengajuan Ditolak',
-                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
-                    iconColor: '#f59e0b', // amber-500
-                    background: '#ffffff',
-                    confirmButtonText: 'Mengerti',
-                    confirmButtonColor: '#f59e0b',
-                    width: '360px',
-                    padding: '1.75rem',
-                    showCloseButton: true,
-                    customClass: {
-                        popup: 'swal-attractive-popup',
-                        title: 'swal-attractive-title',
-                        confirmButton: 'swal-attractive-button'
-                    }
-                });
-            @endif
         });
     </script>
 

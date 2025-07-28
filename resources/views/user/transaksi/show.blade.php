@@ -8,7 +8,7 @@
 
         {{-- Header --}}
         <div class="border-b pb-4">
-            <h2 class="text-2xl font-bold text-gray-900">Detail Transaksi #{{ $transaksi->id }}</h2>
+            <h2>Detail Transaksi {{ $transaksi->kode_transaksi }}</h2>
             <p class="text-sm text-gray-500">Lihat status dan rincian transaksi Anda.</p>
         </div>
 
@@ -40,7 +40,6 @@
                     </button>
                 </form>
             @endif
-
         </div>
 
         {{-- Rincian Produk --}}
@@ -71,20 +70,35 @@
                             <span>Rp{{ number_format($item->harga_satuan, 0, ',', '.') }}</span>
                         </div>
 
-                        @if ($transaksi->status === 'selesai')
+                       @if ($transaksi->status === 'selesai')
                             @php
                                 $sudahNilai = \App\Models\Penilaian::where('produk_id', $item->produk_id)
                                     ->where('user_id', auth()->id())
                                     ->exists();
+
+                                $sudahNilaiToko = \App\Models\PenilaianToko::where('toko_id', $item->produk->toko->id)
+                                    ->where('user_id', auth()->id())
+                                    ->exists();
                             @endphp
 
+                            {{-- Penilaian Produk --}}
                             @if (!$sudahNilai)
                                 <a href="{{ route('user.penilaian.create', ['produk' => $item->produk->id]) }}"
                                     class="inline-flex items-center mt-2 px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-semibold">
-                                    Beri Penilaian
+                                    Beri Penilaian Produk
                                 </a>
                             @else
-                                <p class="text-sm text-green-600 mt-2">✔ Anda sudah memberi penilaian.</p>
+                                <p class="text-sm text-green-600 mt-2">✔ Anda sudah memberi penilaian produk.</p>
+                            @endif
+
+                            {{-- Penilaian Toko --}}
+                            @if (!$sudahNilaiToko)
+                                <a href="{{ route('user.penilaian-toko.create', ['toko' => $item->produk->toko->id]) }}"
+                                    class="inline-flex items-center mt-2 px-4 py-2 rounded-xl bg-purple-600 text-white hover:bg-purple-700 text-sm font-semibold">
+                                    Beri Penilaian Toko
+                                </a>
+                            @else
+                                <p class="text-sm text-green-600 mt-2">✔ Anda sudah memberi penilaian toko.</p>
                             @endif
                         @endif
                     </div>

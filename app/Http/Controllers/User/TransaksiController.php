@@ -110,7 +110,7 @@ class TransaksiController extends Controller
             'checkout_id'   => $checkout->id,
             'pengiriman_id' => $checkout->pengiriman->id,
             'pembayaran_id' => $checkout->pembayaran->id,
-            'produk_id' => $checkout->item->first()->produk_id,
+            'produk_id'     => $checkout->item->first()->produk_id,
             'status'        => 'diproses',
         ]);
 
@@ -124,8 +124,7 @@ class TransaksiController extends Controller
             );
         }
 
-        return redirect()->route('user.transaksi.index')
-            ->with('success', 'Transaksi berhasil dibuat.');
+        return redirect()->route('user.transaksi.index')->with('success', "Transaksi {$transaksi->kode_transaksi} berhasil dibuat.");
     }
 
     public function inputResi(Request $request, $id)
@@ -147,7 +146,7 @@ class TransaksiController extends Controller
         $transaksi->status = 'dikirim';
         $transaksi->save();
 
-        return back()->with('success', 'Resi berhasil diinput dan status diubah menjadi dikirim.');
+        return back()->with('success', "Resi berhasil diinput. Status {$transaksi->kode_transaksi} diubah menjadi dikirim.");
     }
 
     public function selesai($id)
@@ -157,37 +156,31 @@ class TransaksiController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        // Cek apakah transaksi memang sudah dikirim
         if ($transaksi->status !== 'dikirim') {
             return back()->with('error', 'Transaksi belum bisa diselesaikan.');
         }
 
-        // Ambil total pembayaran
         $total = optional($transaksi->pembayaran)->total_bayar;
-
-        // Ambil data toko dari produk
         $toko = optional($transaksi->produk)->toko;
 
-        // Tambahkan saldo ke toko jika total ada
         if ($toko && $total) {
+            // Tambah saldo sekali saja
             $toko->saldo = $toko->saldo + $total;
             $toko->save();
+
+            // Kirim WA jika ada nomor
+            if ($toko->nomer_wa) {
+                app(\App\Services\FonnteService::class)->kirim(
+                    $toko->nomer_wa,
+                    "✅ Transaksi {$transaksi->kode_transaksi} telah selesai.\nSaldo sebesar *Rp " 
+                    . number_format($total, 0, ',', '.') 
+                    . "* telah ditambahkan ke akun toko *{$toko->nama_toko}*."
+                );
+            }
         }
 
-        // Ubah status transaksi jadi selesai
         $transaksi->status = 'selesai';
         $transaksi->save();
-
-            if ($toko && $toko->nomer_wa && $total) {
-            $toko->saldo += $total;
-            $toko->save();
-
-            // Kirim notifikasi WA ke toko
-            app(\App\Services\FonnteService::class)->kirim(
-                $toko->nomer_wa,
-                "✅ Transaksi #{$transaksi->id} telah selesai.\nSaldo sebesar *Rp " . number_format($total, 0, ',', '.') . "* telah ditambahkan ke akun toko *{$toko->nama_toko}*."
-            );
-        }
 
         return redirect()->route('user.transaksi.show', $transaksi->id)
             ->with('success', 'Transaksi berhasil diselesaikan dan saldo telah ditransfer ke toko.');

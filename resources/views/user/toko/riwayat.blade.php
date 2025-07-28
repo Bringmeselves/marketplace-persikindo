@@ -60,7 +60,7 @@
                     <tbody class="bg-white divide-y divide-gray-100">
                         @foreach ($transaksiList as $transaksi)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 font-medium text-gray-900">#{{ $transaksi->id }}</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">#{{ $transaksi->kode_transaksi }}</td>
                                 <td class="px-6 py-4 text-gray-800">{{ $transaksi->checkout->user->name ?? '-' }}</td>
                                 <td class="px-6 py-4 text-gray-700">
                                     @foreach($transaksi->checkout->item as $item)

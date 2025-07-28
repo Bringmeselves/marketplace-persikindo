@@ -18,7 +18,7 @@
             $statusList = [
                 'diproses' => ['label' => 'Diproses', 'icon' => 'Clock'],
                 'dikirim' => ['label' => 'Dikirim', 'icon' => 'Truck'],
-                'selesai' => ['label' => 'Selesai', 'icon' => 'CheckCircle'],
+                'selesai' => ['label' => 'Selesai', 'icon' => 'Check-Circle'],
             ];
         @endphp
 
@@ -64,7 +64,7 @@
                         {{-- Informasi Transaksi --}}
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->id }}</h3>
+                                <h2>Transaksi {{ $transaksi->kode_transaksi }}</h2>
                                 <p class="text-sm text-gray-500">Tanggal: {{ $transaksi->created_at->format('d M Y H:i') }}</p>
                             </div>
                             <span class="inline-block bg-blue-100 text-blue-700 text-sm font-medium px-3 py-1 rounded-full capitalize">
@@ -159,7 +159,7 @@
 </script>
 
 {{-- SweetAlert Notification --}}
-@if (session('success') || session('error') || session('welcome') || session('catatan_penolakan'))
+@if (session('success') || session('error') || session('welcome'))
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
@@ -213,26 +213,6 @@
                     background: '#ffffff',
                     confirmButtonText: 'Terima Kasih',
                     confirmButtonColor: '#3b82f6',
-                    width: '360px',
-                    padding: '1.75rem',
-                    showCloseButton: true,
-                    customClass: {
-                        popup: 'swal-attractive-popup',
-                        title: 'swal-attractive-title',
-                        confirmButton: 'swal-attractive-button'
-                    }
-                });
-            @endif
-
-            @if (session('catatan_penolakan'))
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pengajuan Ditolak',
-                    html: `{!! nl2br(e(session('catatan_penolakan'))) !!}`,
-                    iconColor: '#f59e0b', // amber-500
-                    background: '#ffffff',
-                    confirmButtonText: 'Mengerti',
-                    confirmButtonColor: '#f59e0b',
                     width: '360px',
                     padding: '1.75rem',
                     showCloseButton: true,

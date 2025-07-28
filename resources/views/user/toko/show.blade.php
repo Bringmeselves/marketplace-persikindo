@@ -30,6 +30,39 @@
 
             {{-- Detail Toko --}}
             <div class="flex-1 space-y-3">
+                 {{-- === PENILAIAN TOKO === --}}
+                <div class="border-t pt-6">
+                    @php
+                        $avgRating = optional($toko->penilaian)->avg('rating') ?? 0;
+                    @endphp
+
+                    <div class="flex items-center gap-2 mt-2">
+                        {{-- Bintang --}}
+                        @for ($i = 1; $i <= 5; $i++)
+                            <i data-lucide="star" 
+                            class="w-5 h-5 {{ $i <= round($avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300' }}"></i>
+                        @endfor
+
+                        <span class="text-gray-800 font-medium ml-2">
+                            {{ number_format($avgRating, 1) }} / 5
+                        </span>
+                        <span class="text-gray-500 text-sm">
+                            ({{ $totalReview }} ulasan)
+                        </span>
+                    </div>
+
+                    @if($totalReview > 0)
+                        <div class="mt-3">
+                            <a href="{{ route('user.toko.reviews', $toko->id) }}" 
+                            class="text-sm text-blue-600 hover:underline">
+                                Lihat semua ulasan →
+                            </a>
+                        </div>
+                    @else
+                        <p class="mt-2 text-sm text-gray-500">Belum ada penilaian untuk toko ini.</p>
+                    @endif
+                </div>
+
                 {{-- Keterangan --}}
                 @if ($toko->keterangan)
                     <div x-data="{ expanded: false }" class="text-sm text-gray-600">
@@ -81,45 +114,6 @@
                         Chat Penjual
                     </button>
                 </form>
-
-                {{-- Form Penilaian Toko --}}
-                <div class="mt-8 bg-white rounded-xl p-6 border border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Penilaian Toko</h2>
-
-                    @auth
-                        @if (!$sudahNilaiToko)
-                            <form action="{{ route('user.penilaian-toko.store') }}" method="POST" class="space-y-4">
-                                @csrf
-                                <input type="hidden" name="toko_id" value="{{ $toko->id }}">
-
-                                {{-- Rating --}}
-                                <div>
-                                    <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
-                                    <select name="rating" id="rating" required class="mt-1 w-full border-gray-300 rounded-lg shadow-sm">
-                                        <option value="">Pilih rating</option>
-                                        @for ($i = 5; $i >= 1; $i--)
-                                            <option value="{{ $i }}">{{ $i }} bintang</option>
-                                        @endfor
-                                    </select>
-                                </div>
-
-                                {{-- Ulasan --}}
-                                <div>
-                                    <label for="ulasan" class="block text-sm font-medium text-gray-700">Ulasan (opsional)</label>
-                                    <textarea name="ulasan" id="ulasan" rows="3" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm"></textarea>
-                                </div>
-
-                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                                    Kirim Penilaian
-                                </button>
-                            </form>
-                        @else
-                            <div class="text-sm text-gray-600">Anda sudah memberikan penilaian untuk toko ini.</div>
-                        @endif
-                    @else
-                        <div class="text-sm text-gray-600">Silakan login untuk memberi penilaian.</div>
-                    @endauth
-                </div>
             </div>
         </div>
     </div>
@@ -359,5 +353,40 @@
             filter: brightness(0.95);
         }
     </style>
+{{-- Script: Interaksi Bintang --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('ratingInput');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', () => {
+                highlightStars(star.dataset.value);
+            });
+
+            star.addEventListener('click', () => {
+                ratingInput.value = star.dataset.value;
+                highlightStars(star.dataset.value);
+                document.getElementById('ratingWarning').classList.add('hidden');
+            });
+        });
+
+        function highlightStars(rating) {
+            stars.forEach(star => {
+                star.classList.toggle('text-yellow-400', star.dataset.value <= rating);
+                star.classList.toggle('text-gray-300', star.dataset.value > rating);
+            });
+        }
+    });
+
+    function validateRating() {
+        const rating = document.getElementById('ratingInput').value;
+        if (rating === '0') {
+            document.getElementById('ratingWarning').classList.remove('hidden');
+            return false;
+        }
+        return true;
+    }
+</script>
 @endif
 @endsection

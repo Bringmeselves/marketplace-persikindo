@@ -212,14 +212,20 @@ class TokoController extends Controller
         $daftarChat = Chat::with(['user', 'pesan'])->where('toko_id', $toko->id)->latest()->get();
 
         // Transaksi yang belum diisi resi
-        $transaksiMasuk = Transaksi::with(['checkout.item.produk', 'checkout.item.varian', 'pengiriman', 'pembayaran', 'user'])
-            ->where('status', 'diproses')
-            ->whereNull('resi')
-            ->whereHas('produk', function ($q) use ($toko) {
-                $q->where('toko_id', $toko->id);
-            })
-            ->latest()
-            ->paginate(3);
+        $transaksiMasuk = Transaksi::with([
+        'checkout.item.produk',
+        'checkout.item.varian',
+        'pengiriman',
+        'pembayaran',
+        'user'
+        ])
+        ->where('status', 'diproses')
+        ->whereNull('resi')
+        ->whereHas('checkout.item.produk', function ($q) use ($toko) {
+            $q->where('toko_id', $toko->id);
+        })
+        ->latest()
+        ->paginate(3);
 
         // menampilkan riwayat transaksi (yang sudah dikirim/selesai/dibatalkan)
         $riwayatTransaksi = Transaksi::with(['checkout.item.produk', 'pengiriman', 'pembayaran', 'user'])
@@ -274,7 +280,10 @@ class TokoController extends Controller
     // Halaman publik toko
     public function show($id)
     {
-        $toko = Toko::with('produk')->findOrFail($id);
+        $toko = Toko::with([
+            'produk',
+            'penilaian.user' // ambil juga penilaian + user yang memberi nilai
+        ])->findOrFail($id);
 
         $produk = $toko->produk()
             ->withCount(['transaksi as jumlah_terjual' => function ($q) {
@@ -288,11 +297,26 @@ class TokoController extends Controller
         // Tambahkan nama kota
         $toko->city_name = $this->getCityNameById($toko->origin);
 
+        // Cek apakah user sudah memberi penilaian toko
         $sudahNilaiToko = PenilaianToko::where('toko_id', $toko->id)
-        ->where('user_id', auth()->id())
-        ->exists();
+            ->where('user_id', auth()->id())
+            ->exists();
 
-        return view('user.toko.show', compact('toko', 'produk', 'kategori'));
+        // Hitung rata-rata rating toko
+        $totalReview = $toko->penilaian->count();
+        $avgRating = $toko->penilaian->avg('rating') ?? 0;
+
+        return view('user.toko.show', compact('toko', 'produk', 'kategori', 'sudahNilaiToko', 'totalReview', 'avgRating'));
+    }
+
+    public function reviews($id)
+    {
+        $toko = Toko::with(['penilaian.user'])->findOrFail($id);
+
+        $reviews = $toko->penilaian()->latest()->paginate(10);
+        $totalReview = $toko->penilaian()->count();
+
+        return view('user.penilaian-toko.reviews', compact('toko', 'reviews', 'totalReview'));
     }
 
     /**

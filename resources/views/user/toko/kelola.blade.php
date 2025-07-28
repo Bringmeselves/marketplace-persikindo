@@ -228,7 +228,7 @@
                             {{-- Informasi Transaksi --}}
                             <div class="flex justify-between items-start border-b pb-4">
                                 <div>
-                                    <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->id }}</h3>
+                                    <h3 class="text-xl font-semibold text-gray-900">Transaksi #{{ $transaksi->kode_transaksi }}</h3>
                                     <p class="text-sm text-gray-500">Tanggal: {{ $transaksi->created_at->format('d M Y H:i') }}</p>
                                 </div>
                                 <span class="inline-block text-sm font-medium px-3 py-1 rounded-full capitalize
@@ -243,24 +243,57 @@
                             </div>
 
                             {{-- Produk --}}
-                            <div class="flex flex-col md:flex-row gap-6">
-                                <div class="w-full md:w-32 h-32 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
-                                    <img src="{{ asset('storage/' . ($varian->gambar ?? $produk->gambar ?? 'img/default.png')) }}"
-                                        alt="{{ $produk->nama ?? 'Produk' }}"
-                                        class="object-cover w-full h-full">
+                            @php
+                                $totalProduk = 0; 
+                            @endphp
+
+                            @foreach ($transaksi->checkout->item as $item)
+                                @php
+                                    $produk = $item->produk ?? null;
+                                    $varian = $item->varian ?? null;
+                                    $jumlah = $item->jumlah ?? 0;
+                                    $harga = $varian->harga ?? $produk->harga ?? 0;
+                                    $subtotal = $jumlah * $harga;
+                                    $totalProduk += $subtotal;
+                                @endphp
+
+                                <div class="flex flex-col md:flex-row gap-6 border-b pb-4 last:border-0">
+                                    <div class="w-full md:w-32 h-32 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                                        <img src="{{ asset('storage/' . ($varian->gambar ?? $produk->gambar ?? 'img/default.png')) }}"
+                                            alt="{{ $produk->nama ?? 'Produk' }}"
+                                            class="object-cover w-full h-full">
+                                    </div>
+                                    <div class="flex-grow space-y-2 text-sm text-gray-700">
+                                        <h4 class="text-base font-semibold text-gray-800">Detail Produk</h4>
+                                        <div class="flex justify-between"><span>Nama Produk</span><span class="font-medium">{{ $produk->nama ?? '-' }}</span></div>
+                                        @if ($varian)
+                                            <div class="flex justify-between"><span>Varian</span><span>{{ $varian->nama }}</span></div>
+                                        @endif
+                                        <div class="flex justify-between"><span>Jumlah</span><span>{{ $jumlah }}</span></div>
+                                        <div class="flex justify-between"><span>Harga</span><span>Rp{{ number_format($harga, 0, ',', '.') }}</span></div>
+                                        <div class="flex justify-between"><span>Subtotal</span><span>Rp{{ number_format($subtotal, 0, ',', '.') }}</span></div>
+                                    </div>
                                 </div>
-                                <div class="flex-grow space-y-2 text-sm text-gray-700">
-                                    <h4 class="text-base font-semibold text-gray-800">Detail Produk</h4>
-                                    <div class="flex justify-between"><span>Nama Produk</span><span class="font-medium">{{ $produk->nama ?? '-' }}</span></div>
-                                    @if ($varian)
-                                        <div class="flex justify-between"><span>Varian</span><span>{{ $varian->nama }}</span></div>
-                                    @endif
-                                    <div class="flex justify-between"><span>Jumlah</span><span>{{ $jumlah }}</span></div>
-                                    <div class="flex justify-between"><span>Harga</span><span>Rp{{ number_format($harga, 0, ',', '.') }}</span></div>
-                                    <div class="flex justify-between"><span>Subtotal</span><span>Rp{{ number_format($subtotal, 0, ',', '.') }}</span></div>
-                                    <div class="flex justify-between"><span>Ongkir</span><span>Rp{{ number_format($ongkir, 0, ',', '.') }}</span></div>
-                                    <div class="flex justify-between font-semibold text-gray-900"><span>Total</span><span>Rp{{ number_format($total, 0, ',', '.') }}</span></div>
-                                    <div class="flex justify-between"><span>Pembeli</span><span>{{ $transaksi->user->name }}</span></div>
+                            @endforeach
+
+                            {{-- Total Pembayaran --}}
+                            @php
+                                $ongkir = $transaksi->pengiriman->ongkir ?? 0;
+                                $totalAkhir = $totalProduk + $ongkir;
+                            @endphp
+
+                            <div class="text-sm text-gray-700 border-t pt-4 space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-800">Total Harga Produk</span>
+                                    <span class="font-medium">Rp{{ number_format($totalProduk, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-800">Ongkos Kirim</span>
+                                    <span class="font-medium">Rp{{ number_format($ongkir, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex justify-between text-lg font-bold text-gray-900 border-t pt-3">
+                                    <span>Total Pembayaran</span>
+                                    <span>Rp{{ number_format($totalAkhir, 0, ',', '.') }}</span>
                                 </div>
                             </div>
 

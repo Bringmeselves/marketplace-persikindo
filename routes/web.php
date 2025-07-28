@@ -21,6 +21,7 @@ use App\Http\Controllers\User\PengirimanController as UserPengirimanController;
 use App\Http\Controllers\User\PembayaranController as UserPembayaranController;
 use App\Http\Controllers\User\TransaksiController as UserTransaksiController;
 use App\Http\Controllers\User\PenilaianController as UserPenilaianController;
+use App\Http\Controllers\User\PenilaianTokoController as UserPenilaianTokoController;
 use App\Http\Controllers\User\ChatController as UserChatController;
 use App\Http\Controllers\User\PenarikanController as UserPenarikanController;
 /*
@@ -69,6 +70,7 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::get('toko/{id}/kelola', [UserTokoController::class, 'kelola'])->name('toko.kelola'); // Kelola toko
     Route::get('toko/{id}/edit', [UserTokoController::class, 'edit'])->name('toko.edit'); // Form edit toko
     Route::get('toko/{id}', [UserTokoController::class, 'show'])->name('toko.show'); // Show toko
+    Route::get('toko/{id}/reviews', [UserTokoController::class, 'reviews'])->name('toko.reviews');
     Route::put('toko/{id}', [UserTokoController::class, 'update'])->name('toko.update'); // Update toko
     Route::delete('toko/{id}', [UserTokoController::class, 'destroy'])->name('toko.destroy'); // Hapus toko
     
@@ -131,6 +133,10 @@ Route::prefix('user')->middleware('auth')->name('user.')->group(function () {
     Route::post('/penilaian', [UserPenilaianController::class, 'store'])->name('penilaian.store');
     Route::delete('/penilaian/{id}', [UserPenilaianController::class, 'destroy'])->name('penilaian.destroy');
     Route::get('/penilaian/produk/{produk}', [UserPenilaianController::class, 'showByProduk'])->name('penilaian.show');
+
+    // Penilaian Toko
+    Route::get('/toko/{toko}/penilaian', [UserPenilaianTokoController::class, 'create'])->name('penilaian-toko.create');
+    Route::post('/toko/penilaian', [UserPenilaianTokoController::class, 'store'])->name('penilaian-toko.store');
 
     // Chat
     Route::get('/chat', [UserChatController::class, 'index'])->name('chat.index');

@@ -168,7 +168,7 @@ class ChatController extends Controller
         ]);
 
         // Buat auto-isi pesan (tanpa dikirim)
-        $defaultText = "Halo *{$toko->nama_toko}*, saya ingin mengajukan keluhan terkait pesanan saya dengan nomor transaksi *#{$transaksi->id}*. Mohon bantuannya. 🙏";
+        $defaultText = "Halo *{$toko->nama_toko}*, saya ingin mengajukan keluhan terkait pesanan saya dengan nomor transaksi *#{$transaksi->id} ({$transaksi->kode_transaksi})*. Mohon bantuannya. 🙏";
 
         return redirect()->route('user.chat.tampil', $chat->id)
             ->with('default_message', $defaultText);
