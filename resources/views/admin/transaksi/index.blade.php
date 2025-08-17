@@ -75,10 +75,16 @@
                             <td class="px-6 py-4 text-gray-600">
                                 {{ $transaksi->created_at->format('d M Y H:i') }}
                             </td>
+                            <td class="px-6 py-4">
+                                <a href="{{ route('admin.transaksi.download', $transaksi->id) }}?mode=download"
+                                class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs">
+                                    <i data-lucide="download" class="w-4 h-4 mr-1"></i> Download
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-6 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-6 text-center text-gray-500">
                                 <i data-lucide="package-search" class="w-6 h-6 mx-auto mb-2"></i>
                                 Transaksi tidak ditemukan.
                             </td>

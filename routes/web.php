@@ -192,7 +192,8 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
 
     // Transaksi
     Route::get('/transaksi', [AdminTransaksiController::class, 'index'])->name('transaksi.index');
-
+    Route::get('/transaksi/{id}', [AdminTransaksiController::class, 'show'])->name('transaksi.show');
+    Route::get('/transaksi/{id}/download', [AdminTransaksiController::class, 'download'])->name('transaksi.download');
 });
 
 // 🔐 Route otentikasi Laravel Breeze / Fortify

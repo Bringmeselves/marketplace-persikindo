@@ -171,7 +171,7 @@
     </main>
 
     {{-- Footer --}}
-    <footer x-data="{ open: true }" class="bg-white border-t text-gray-700 text-sm relative">
+    <footer x-data="{ open: false }" class="bg-white border-t text-gray-700 text-sm relative">
 
         {{-- Tombol Segitiga Toggle di Kanan Atas --}}
         <div class="absolute right-4 top-2">
