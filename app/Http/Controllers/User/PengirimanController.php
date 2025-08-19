@@ -144,7 +144,7 @@ class PengirimanController extends Controller
 
         $pengiriman->update([
             'kurir'   => $request->kurir,
-            'layanan' => $request->layanan,
+            'layanan' => $request->layanan . ' (Estimasi ' . ($request->etd ?? '-') . ' hari)',
             'ongkir'  => (int) $request->ongkir,
         ]);
 

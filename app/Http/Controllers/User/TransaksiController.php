@@ -10,6 +10,7 @@ use App\Services\ZenzivaService;
 use App\Services\WahaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class TransaksiController extends Controller
 {
@@ -38,6 +39,28 @@ class TransaksiController extends Controller
             ->latest()
             ->paginate(3);
 
+        // 🔹 Inject ETD runtime ke setiap transaksi
+        foreach ($transaksiList as $trx) {
+            if ($trx->pengiriman && $trx->checkout) {
+                try {
+                    $res = \Http::withHeaders([
+                        'Authorization' => 'Bearer ' . config('services.komerce.key'),
+                    ])->post('https://collaborator.komerce.id/api/check-shipping', [
+                        'origin'      => $trx->checkout->origin,
+                        'destination' => $trx->checkout->destination,
+                        'weight'      => $trx->checkout->berat,
+                        'courier'     => $trx->pengiriman->kurir,
+                    ]);
+
+                    $data = $res->json('data') ?? [];
+                    $match = collect($data)->firstWhere('service_name', $trx->pengiriman->layanan);
+                    $trx->pengiriman->etd_runtime = $match['etd'] ?? null;
+                } catch (\Throwable $e) {
+                    $trx->pengiriman->etd_runtime = null;
+                }
+            }
+        }
+
         return view('user.transaksi.index', compact('transaksiList'));
     }
 
@@ -63,6 +86,26 @@ class TransaksiController extends Controller
         if (!$transaksi) {
             return redirect()->route('user.transaksi.index')
                 ->with('error', 'Transaksi tidak ditemukan.');
+        }
+
+        // 🔹 Inject ETD runtime
+        if ($transaksi->pengiriman && $transaksi->checkout) {
+            try {
+                $res = \Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.komerce.key'),
+                ])->post('https://collaborator.komerce.id/api/check-shipping', [
+                    'origin'      => $transaksi->checkout->origin,
+                    'destination' => $transaksi->checkout->destination,
+                    'weight'      => $transaksi->checkout->berat,
+                    'courier'     => $transaksi->pengiriman->kurir,
+                ]);
+
+                $data = $res->json('data') ?? [];
+                $match = collect($data)->firstWhere('service_name', $transaksi->pengiriman->layanan);
+                $transaksi->pengiriman->etd_runtime = $match['etd'] ?? null;
+            } catch (\Throwable $e) {
+                $transaksi->pengiriman->etd_runtime = null;
+            }
         }
 
         return view('user.transaksi.show', compact('transaksi'));

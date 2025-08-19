@@ -120,6 +120,14 @@
                 <div class="flex justify-between"><span>Layanan</span><span>{{ $pengiriman->layanan }}</span></div>
                 <div class="flex justify-between"><span>Ongkir</span><span>Rp{{ number_format($pengiriman->ongkir, 0, ',', '.') }}</span></div>
 
+                {{-- Tambahkan Estimasi --}}
+                @if ($pengiriman->etd_runtime)
+                    <div class="flex justify-between">
+                        <span>Estimasi</span>
+                        <span>{{ $pengiriman->etd_runtime }} hari</span>
+                    </div>
+                @endif
+                
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-700 font-medium">Nomor Resi</span>
                     <span class="{{ $transaksi->resi ? 'text-green-700 font-mono' : 'text-gray-400 italic' }}">

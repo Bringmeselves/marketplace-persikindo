@@ -124,6 +124,12 @@
                                 <span class="text-gray-600">Ongkir</span>
                                 <span class="font-semibold text-gray-800">Rp{{ number_format($transaksi->pengiriman->ongkir ?? 0, 0, ',', '.') }}</span>
                             </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Estimasi</span>
+                               <p class="text-sm text-gray-600">
+                                    {{ $transaksi->pengiriman->layanan }}
+                                </p>
+                            </div>
                             <div class="border-t pt-3 flex justify-between font-bold text-base text-blue-700">
                                 <span>Total Bayar</span>
                                 <span>

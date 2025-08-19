@@ -20,6 +20,7 @@
             <input type="hidden" name="kurir" id="inputKurir">
             <input type="hidden" name="layanan" id="inputLayanan">
             <input type="hidden" name="ongkir" id="ongkir">
+            <input type="hidden" name="etd" id="etd" value="2-3">
 
             {{-- Pilih Kurir --}}
             <div>
@@ -129,7 +130,7 @@
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.className = 'w-full border border-gray-200 bg-white hover:bg-gray-50 rounded-xl px-5 py-4 flex justify-between items-center shadow-sm transition';
-                        btn.onclick = () => pilihLayanan(option.service_name, cost);
+                        btn.onclick = () => pilihLayanan(option.service_name, cost, option.etd);
                         btn.innerHTML = `
                             <div class="flex items-center gap-4">
                                 <i data-lucide="package" class="w-6 h-6 text-indigo-500"></i>
@@ -152,8 +153,9 @@
             }
         };
 
-        window.pilihLayanan = function (layanan, ongkir) {
+        window.pilihLayanan = function (layanan, ongkir, etd) {
             inputLayanan.value = layanan;
+            document.getElementById('etd').value = etd;
             ongkirInput.value = ongkir;
             ongkirText.textContent = `Rp${parseInt(ongkir).toLocaleString()}`;
             ongkirDisplay.classList.remove('hidden');

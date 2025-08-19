@@ -23,9 +23,9 @@
         </div>
     </div>
 
-   {{-- Search Bar --}}
+    {{-- Search Bar --}}
     <div class="bg-white rounded-xl shadow p-4 sm:p-6 mb-10">
-        <form action="{{ route('user.marketplace.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <form action="{{ route('user.marketplace.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
             
             {{-- Input Search --}}
             <div class="col-span-1 sm:col-span-2">
@@ -62,6 +62,29 @@
                 </select>
             </div>
 
+            {{-- Dropdown Penilaian --}}
+            <div>
+                <select name="penilaian" onchange="this.form.submit()" 
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Semua Penilaian</option>
+                    <option value="5" {{ request('penilaian') == 5 ? 'selected' : '' }}>
+                        ⭐⭐⭐⭐⭐ (5)
+                    </option>
+                    <option value="4" {{ request('penilaian') == 4 ? 'selected' : '' }}>
+                        ⭐⭐⭐⭐ & Up
+                    </option>
+                    <option value="3" {{ request('penilaian') == 3 ? 'selected' : '' }}>
+                        ⭐⭐⭐ & Up
+                    </option>
+                    <option value="2" {{ request('penilaian') == 2 ? 'selected' : '' }}>
+                        ⭐⭐ & Up
+                    </option>
+                    <option value="1" {{ request('penilaian') == 1 ? 'selected' : '' }}>
+                        ⭐ & Up
+                    </option>
+                </select>
+            </div>
+
             {{-- Dropdown Sort --}}
             <div>
                 <select name="sort" class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -73,7 +96,7 @@
             </div>
 
             {{-- Tombol Cari --}}
-            <div class="sm:col-span-2 lg:col-span-5 text-right">
+            <div class="sm:col-span-2 lg:col-span-6 text-right">
                 <button type="submit" class="mt-2 sm:mt-0 inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-lg transition">
                     Cari
                 </button>

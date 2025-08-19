@@ -121,6 +121,15 @@ class MarketplaceController extends Controller
                 break;
         }
 
+        // Tambahkan eager loading rata-rata rating
+        $query->withAvg('penilaian', 'rating');
+
+        // Filter berdasarkan penilaian (rating minimal)
+        if ($request->penilaian) {
+            $penilaian = (int) $request->penilaian;
+            $query->having('penilaian_avg_rating', '>=', $penilaian);
+        }
+
         // Ambil data produk
         $produk = $query->paginate(20)->withQueryString();
 
